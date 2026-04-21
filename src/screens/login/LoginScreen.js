@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
-  Image,
-  ImageBackground,
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  StatusBar,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  StatusBar,
-  Alert,
   ActivityIndicator,
-  useWindowDimensions,
+  Alert,
+  Image,
 } from 'react-native';
-import { useAuth } from '../../context/AuthContext';
 import LinearGradient from 'react-native-linear-gradient';
+import {User, KeyRound} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL, COLORS } from '../../utils/constants';
+import {useAuth} from '../../context/AuthContext';
+import {BASE_URL} from '../../utils/constants';
 
 const API_CONFIG = {
   BASE_URL,
@@ -27,242 +26,304 @@ const API_CONFIG = {
 };
 
 export default function LoginScreen() {
-  const { login } = useAuth();
-  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-  const [empCode, setEmpCode] = useState('');
-  const [dob, setDob] = useState('');
+  const {login} = useAuth();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const saveTeacherData = async (teacherData) => {
-    await AsyncStorage.multiSet([
-      ['teacherData', JSON.stringify(teacherData)],
-      ['empcode', `${teacherData.EmpCode || ''}`],
-      ['empId', `${teacherData.EmpID || ''}`],
-      ['teacherName', teacherData.name || ''],
-      ['empTypeId', `${teacherData.EmpTypeID || ''}`],
-      ['jobType', teacherData.JobType || ''],
-      ['sessionName', teacherData.SessionName || ''],
-      ['departmentName', teacherData.DepartmentName || ''],
-      ['loginTypeName', teacherData.LoginTypeName || ''],
-      ['designationName', teacherData.DesignationName || ''],
-      ['dob', teacherData.DOB || ''],
-      ['doj', teacherData.DOJ || ''],
-      ['residentialAddress', teacherData.ResidentialAddress || ''],
-      ['mobileNo', teacherData.MobileNo || ''],
-      ['empCategory', teacherData.EmpCategory || ''],
-      ['gender', teacherData.Gender || ''],
-      ['session', `${teacherData.Session || ''}`],
-      ['branchId', `${teacherData.BranchId || ''}`],
-      ['branchName', teacherData.branchName || ''],
-      ['sectionName', teacherData.SectionName || ''],
-      ['sectionId', `${teacherData.SectionId || ''}`],
-      ['classId', `${teacherData.Classid || ''}`],
-      ['className', teacherData.ClassName || ''],
-    ]);
+  const setSafeItem = async (key, value) => {
+    const finalValue =
+      value === null || value === undefined ? '' : String(value);
+    await AsyncStorage.setItem(key, finalValue);
+    console.log(`${key} => SAVED =>`, finalValue);
+  };
+
+  const saveTeacherData = async teacherData => {
+    try {
+      console.log('==============================');
+      console.log('FULL LOGIN RESPONSE =>');
+      console.log(teacherData);
+
+      await AsyncStorage.setItem('teacherData', JSON.stringify(teacherData));
+      console.log('teacherData => SAVED');
+
+      await setSafeItem('EmpCode', teacherData?.EmpCode);
+      await setSafeItem('EmpID', teacherData?.EmpID);
+      await setSafeItem('name', teacherData?.name);
+      await setSafeItem('EmpTypeID', teacherData?.EmpTypeID);
+      await setSafeItem('JobType', teacherData?.JobType);
+      await setSafeItem('SessionName', teacherData?.SessionName);
+      await setSafeItem('DepartmentName', teacherData?.DepartmentName);
+      await setSafeItem('LoginTypeName', teacherData?.LoginTypeName);
+      await setSafeItem('DesignationName', teacherData?.DesignationName);
+      await setSafeItem('DOB', teacherData?.DOB);
+      await setSafeItem('DOJ', teacherData?.DOJ);
+      await setSafeItem('ResidentialAddress', teacherData?.ResidentialAddress);
+      await setSafeItem('MobileNo', teacherData?.MobileNo);
+      await setSafeItem('EmpCategory', teacherData?.EmpCategory);
+      await setSafeItem('Gender', teacherData?.Gender);
+      await setSafeItem('response', teacherData?.response);
+      await setSafeItem('Session', teacherData?.Session);
+      await setSafeItem('image', teacherData?.image || 'No');
+      await setSafeItem('profil_pic', teacherData?.profil_pic);
+      await setSafeItem('BranchId', teacherData?.BranchId);
+      await setSafeItem('branchName', teacherData?.branchName);
+      await setSafeItem('SectionName', teacherData?.SectionName);
+      await setSafeItem('SectionId', teacherData?.SectionId);
+      await setSafeItem('Classid', teacherData?.Classid);
+      await setSafeItem('ClassName', teacherData?.ClassName);
+
+      console.log('==============================');
+      console.log('ASYNC STORAGE SAVE COMPLETE ✅');
+
+      const savedTeacherData = await AsyncStorage.getItem('teacherData');
+      const savedName = await AsyncStorage.getItem('name');
+      const savedDesignation = await AsyncStorage.getItem('DesignationName');
+      const savedBranch = await AsyncStorage.getItem('branchName');
+      const savedEmpCode = await AsyncStorage.getItem('EmpCode');
+      const savedImage = await AsyncStorage.getItem('image');
+      const savedProfilePic = await AsyncStorage.getItem('profil_pic');
+
+      console.log('teacherData =>', savedTeacherData);
+      console.log('name =>', savedName);
+      console.log('DesignationName =>', savedDesignation);
+      console.log('branchName =>', savedBranch);
+      console.log('EmpCode =>', savedEmpCode);
+      console.log('image =>', savedImage);
+      console.log('profil_pic =>', savedProfilePic);
+      console.log('==============================');
+
+      return true;
+    } catch (error) {
+      console.log('SAVE STORAGE ERROR =>', error);
+      return false;
+    }
   };
 
   const handleLogin = async () => {
-    if (!empCode.trim()) {
-      Alert.alert('Error', 'Please enter Employee Code');
+    if (!email.trim()) {
+      Alert.alert('Error', 'Please enter username');
       return;
     }
 
-    if (!dob.trim()) {
-      Alert.alert('Error', 'Please enter Date of Birth (dd-mm-yyyy)');
-      return;
-    }
-
-    const dateRegex = /^(\d{2})-(\d{2})-(\d{4})$/;
-    if (!dateRegex.test(dob)) {
-      Alert.alert('Error', 'Please enter DOB in dd-mm-yyyy format (e.g., 14-04-1984)');
+    if (!password.trim()) {
+      Alert.alert('Error', 'Please enter password');
       return;
     }
 
     setLoading(true);
+
     try {
       const formData = new FormData();
-      formData.append('empcode', empCode);
-      formData.append('dob', dob);
+      formData.append('email', email.trim());
+      formData.append('password', password);
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      const response = await fetch(
+        `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
-      const responseText = await response.text();
-      let data;
+      const text = await response.text();
 
-      try {
-        data = JSON.parse(responseText);
-      } catch (error) {
-        throw new Error('Invalid response from server');
-      }
+      console.log('==============================');
+      console.log('RAW API RESPONSE =>');
+      console.log(text);
+
+      const data = JSON.parse(text);
+
+      console.log('==============================');
+      console.log('PARSED LOGIN DATA =>');
+      console.log(data);
 
       if (data?.response === 'Logged') {
-        await saveTeacherData(data);
+        console.log('==============================');
+        console.log('LOGIN SUCCESS');
+
+        const isSaved = await saveTeacherData(data);
+
+        if (!isSaved) {
+          Alert.alert('Error', 'Data save nahi hua');
+          return;
+        }
+
+        const teacherData = await AsyncStorage.getItem('teacherData');
+
+        if (teacherData) {
+          console.log('teacherData SAVE HO GYA ✅');
+          console.log('teacherData =>', teacherData);
+        } else {
+          console.log('teacherData SAVE NAHI HUA ❌');
+          Alert.alert('Error', 'AsyncStorage save failed');
+          return;
+        }
+
         await login(data);
-        Alert.alert('Success', 'Login successful!');
       } else {
-        Alert.alert('Login Failed', data?.message || data?.response || 'Invalid credentials');
+        console.log('LOGIN FAILED');
+        Alert.alert('Login Failed', data?.message || 'Invalid credentials');
       }
     } catch (error) {
-      console.error('[LOGIN] error', error);
-      Alert.alert('Network Error', 'Unable to connect to server. Please try again.');
+      console.log('LOGIN ERROR =>', error);
+      Alert.alert('Error', 'Something went wrong');
     } finally {
       setLoading(false);
     }
   };
 
-  const logoWidth = Math.min(220, Math.max(160, windowWidth * 0.52));
-  const logoHeight = logoWidth * (57 / 200);
-  const topSectionHeight = Math.max(230, Math.min(360, windowHeight * 0.36));
-  const logoTopSpacing = Math.max(56, Math.min(110, windowHeight * 0.12));
-  const bottomGradientHeight = Math.max(150, Math.min(227, windowHeight * 0.28));
-
   return (
-    <View style={styles.screen}>
-      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
-      <View style={[styles.topSection, { height: topSectionHeight }]}> 
-        <ImageBackground
-          source={require('../../assets/images/abstract-blue-and-orange-wave.png')}
-          style={styles.fullBackground}
-          resizeMode="contain">
-          <View style={[styles.logoContainer, { marginTop: logoTopSpacing }]}> 
-            <Image
-              source={require('../../assets/images/logoAndroid.png')}
-              style={[styles.logo, { width: logoWidth, height: logoHeight }]}
-              resizeMode="contain"
-            />
-          </View>
-        </ImageBackground>
-      </View>
+      <LinearGradient
+        colors={['#0A10A5', '#F2F2FA']}
+        start={{x: 0.5, y: 0}}
+        end={{x: 0.5, y: 1}}
+        style={styles.topBg}
+      />
 
-      <View style={styles.formSection}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.formArea}>
+      <LinearGradient
+        colors={['#F2F2FA', '#B8F0B3', '#16DA05']}
+        start={{x: 0.5, y: 0}}
+        end={{x: 0.5, y: 1}}
+        style={styles.bottomBg}
+      />
+
+      <KeyboardAvoidingView
+        style={styles.content}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <View style={styles.formBox}>
+          <Image
+            source={require('../../assets/images/logoAndroid.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+
           <View style={styles.inputWrapper}>
+            <User size={26} color="#222" strokeWidth={2.2} />
             <TextInput
-              placeholder="Employee Code"
-              placeholderTextColor={COLORS.text}
+              placeholder="User Name"
+              placeholderTextColor="#333"
               style={styles.input}
-              value={empCode}
-              onChangeText={setEmpCode}
-              keyboardType="numeric"
+              value={email}
+              onChangeText={setEmail}
               autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
 
           <View style={styles.inputWrapper}>
+            <KeyRound size={24} color="#222" strokeWidth={2.2} />
             <TextInput
-              placeholder="DD-MM-YYYY"
-              placeholderTextColor={COLORS.text}
+              placeholder="Password"
+              placeholderTextColor="#333"
               style={styles.input}
-              value={dob}
-              onChangeText={setDob}
-              keyboardType="numeric"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
 
           <Pressable
-            style={({ pressed }) => [styles.loginButton, pressed && styles.buttonPressed]}
             onPress={handleLogin}
-            disabled={loading}>
+            style={({pressed}) => [
+              styles.loginBtn,
+              pressed && {opacity: 0.9},
+            ]}>
             {loading ? (
-              <ActivityIndicator color={COLORS.white} />
+              <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.loginButtonText}>Log In</Text>
+              <Text style={styles.loginText}>Log In</Text>
             )}
           </Pressable>
-        </KeyboardAvoidingView>
-      </View>
-
-      <LinearGradient
-        colors={['#fff', '#3FA3FF']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={[styles.bottomGradient, { height: bottomGradientHeight }]}
-      />
+        </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  container: {
     flex: 1,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#F2F2FA',
   },
-  topSection: {
-    width: '100%',
-    backgroundColor: COLORS.white,
+
+  topBg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '78%',
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
   },
-  fullBackground: {
-    width: '100%',
-    height: '100%',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 200,
-    height: 57,
-  },
-  formSection: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    marginTop: -20,
-    paddingTop: 30,
-  },
-  formArea: {
-    width: '100%',
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    gap: 20,
-  },
-  inputWrapper: {
-    backgroundColor: COLORS.background,
-    height: 54,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  input: {
-    fontSize: 16,
-    color: COLORS.darkText,
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'System',
-    padding: 0,
-  },
-  loginButton: {
-    marginTop: 16,
-    height: 54,
-    borderRadius: 30,
-    backgroundColor: COLORS.danger,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonPressed: {
-    opacity: 0.9,
-  },
-  loginButtonText: {
-    color: COLORS.white,
-    fontSize: 18,
-    fontWeight: '600',
-    fontFamily: Platform.OS === 'ios' ? 'SF Pro Text' : 'System',
-  },
-  bottomGradient: {
+
+  bottomBg: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: 227,
+    height: 205,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+  },
+
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+
+  formBox: {
+    marginTop: 10,
+    alignItems: 'center',
+  },
+
+  logo: {
+    width: 160,
+    height: 160,
+    marginBottom: 50,
+  },
+
+  inputWrapper: {
+    width: '100%',
+    height: 56,
+    borderRadius: 32,
+    backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    gap: 14,
+    marginBottom: 24,
+  },
+
+  input: {
+    flex: 1,
+    fontSize: 18,
+    color: '#111',
+  },
+
+  loginBtn: {
+    width: '100%',
+    height: 56,
+    borderRadius: 32,
+    backgroundColor: '#F44343',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  loginText: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: '700',
   },
 });
