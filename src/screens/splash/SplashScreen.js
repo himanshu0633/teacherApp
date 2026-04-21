@@ -16,13 +16,13 @@ export default function SplashScreen({onFinish}) {
 
   return (
     <ImageBackground
-      source={require('../assets/images/SplashBackground.jpg')}
+      source={require('../../assets/images/SplashBackground.jpg')}
       resizeMode="cover"
       style={styles.background}
       imageStyle={styles.backgroundImage}>
       <View style={styles.overlay}>
         <Image
-          source={require('../assets/images/SplashLogo.png')}
+          source={require('../../assets/images/SplashLogo.png')}
           style={[styles.logo, {width: logoSize, height: logoSize}]}
           resizeMode="contain"
         />
