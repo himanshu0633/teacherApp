@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import SplashScreen from '../screens/SplashScreen.js';
+import SplashScreen from '../screens/splash/SplashScreen.js';
 import LoginScreen from '../screens/LoginScreen.js';
 import DashboardScreen from '../screens/DashboardScreen';
 
