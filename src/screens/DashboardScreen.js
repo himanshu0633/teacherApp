@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   StatusBar,
   Alert,
   Platform,
+  Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
@@ -24,32 +25,18 @@ import {
   NotebookPen,
 } from 'lucide-react-native';
 import {BASE_URL} from '../utils/constants';
+import SidebarMenu from '../components/SidebarMenu';
 
 const GRID_ITEMS = [
-  {
-    id: 1,
-    title: 'Profile',
-    icon: UserCircle2,
-    screen: 'ProfileScreen',
-  },
+  {id: 1, title: 'Profile', icon: UserCircle2, screen: 'ProfileScreen'},
   {
     id: 2,
     title: 'Student\nAttendance',
     icon: ClipboardCheck,
     screen: 'StudentAttendanceScreen',
   },
-  {
-    id: 3,
-    title: 'HomeWork',
-    icon: BookOpen,
-    screen: 'HomeWorkScreen',
-  },
-  {
-    id: 4,
-    title: 'Mark\nEntry',
-    icon: PenSquare,
-    screen: 'MarkEntryScreen',
-  },
+  {id: 3, title: 'HomeWork', icon: BookOpen, screen: 'HomeWorkScreen'},
+  {id: 4, title: 'Mark\nEntry', icon: PenSquare, screen: 'MarkEntryScreen'},
   {
     id: 5,
     title: 'Student Portfolio',
@@ -65,6 +52,7 @@ const GRID_ITEMS = [
 ];
 
 export default function DashboardScreen({navigation}) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const [teacherData, setTeacherData] = useState({
     name: 'NA',
     designation: 'NA',
@@ -72,11 +60,34 @@ export default function DashboardScreen({navigation}) {
     empCode: '',
     profilePic: '',
     image: 'No',
+    sessionName: '2023-24',
   });
+
+  const menuWidth = 300;
+  const slideAnim = useRef(new Animated.Value(-menuWidth)).current;
 
   useEffect(() => {
     loadDashboardData();
   }, []);
+
+  const openMenu = () => {
+    setMenuOpen(true);
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 260,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: -menuWidth,
+      duration: 240,
+      useNativeDriver: true,
+    }).start(() => {
+      setMenuOpen(false);
+    });
+  };
 
   const safeValue = value => {
     if (
@@ -95,21 +106,11 @@ export default function DashboardScreen({navigation}) {
     const finalValue =
       value === null || value === undefined ? '' : String(value);
     await AsyncStorage.setItem(key, finalValue);
-    console.log(`${key} => SAVED =>`, finalValue);
   };
 
   const saveTeacherData = async teacherResponse => {
     try {
-      console.log('==============================');
-      console.log('NEW API RESPONSE SAVE START =>');
-      console.log(teacherResponse);
-
-      await AsyncStorage.setItem(
-        'teacherData',
-        JSON.stringify(teacherResponse),
-      );
-      console.log('teacherData => SAVED');
-
+      await AsyncStorage.setItem('teacherData', JSON.stringify(teacherResponse));
       await setSafeItem('EmpCode', teacherResponse?.EmpCode);
       await setSafeItem('EmpID', teacherResponse?.EmpID);
       await setSafeItem('name', teacherResponse?.name);
@@ -138,27 +139,6 @@ export default function DashboardScreen({navigation}) {
       await setSafeItem('SectionId', teacherResponse?.SectionId);
       await setSafeItem('Classid', teacherResponse?.Classid);
       await setSafeItem('ClassName', teacherResponse?.ClassName);
-
-      console.log('==============================');
-      console.log('VERIFY NEW STORAGE AFTER API =>');
-
-      const verifyTeacherData = await AsyncStorage.getItem('teacherData');
-      const verifyName = await AsyncStorage.getItem('name');
-      const verifyDesignation = await AsyncStorage.getItem('DesignationName');
-      const verifyBranch = await AsyncStorage.getItem('branchName');
-      const verifyEmpCode = await AsyncStorage.getItem('EmpCode');
-      const verifyImage = await AsyncStorage.getItem('image');
-      const verifyProfilePic = await AsyncStorage.getItem('profil_pic');
-
-      console.log('teacherData =>', verifyTeacherData);
-      console.log('name =>', verifyName);
-      console.log('DesignationName =>', verifyDesignation);
-      console.log('branchName =>', verifyBranch);
-      console.log('EmpCode =>', verifyEmpCode);
-      console.log('image =>', verifyImage);
-      console.log('profil_pic =>', verifyProfilePic);
-      console.log('==============================');
-
       return true;
     } catch (error) {
       console.log('SAVE UPDATED STORAGE ERROR =>', error);
@@ -168,10 +148,6 @@ export default function DashboardScreen({navigation}) {
 
   const callUpdateLogin = async empCode => {
     try {
-      console.log('==============================');
-      console.log('updatelogin.php API CALL START');
-      console.log('BODY EmpCode =>', empCode);
-
       const formData = new FormData();
       formData.append('empcode', empCode);
 
@@ -184,10 +160,6 @@ export default function DashboardScreen({navigation}) {
       });
 
       const text = await response.text();
-
-      console.log('updatelogin.php RAW RESPONSE =>');
-      console.log(text);
-
       let data = null;
 
       try {
@@ -197,15 +169,10 @@ export default function DashboardScreen({navigation}) {
         return;
       }
 
-      console.log('updatelogin.php PARSED RESPONSE =>');
-      console.log(data);
-
       if (data?.EmpCode) {
         const saved = await saveTeacherData(data);
 
         if (saved) {
-          console.log('NEW RESPONSE ASYNC STORAGE ME SAVE HO GYA ✅');
-
           setTeacherData({
             name: safeValue(data?.name),
             designation: safeValue(data?.DesignationName),
@@ -213,15 +180,10 @@ export default function DashboardScreen({navigation}) {
             empCode: data?.EmpCode || '',
             profilePic: data?.profil_pic || '',
             image: data?.image || 'No',
+            sessionName: data?.SessionName || '2023-24',
           });
-        } else {
-          console.log('NEW RESPONSE SAVE NAHI HUA ❌');
         }
-      } else {
-        console.log('updatelogin.php se valid response nahi aaya');
       }
-
-      console.log('==============================');
     } catch (error) {
       console.log('updatelogin.php CALL ERROR =>', error);
     }
@@ -229,9 +191,6 @@ export default function DashboardScreen({navigation}) {
 
   const loadDashboardData = async () => {
     try {
-      console.log('==============================');
-      console.log('STEP 1: OLD DATA ASYNC STORAGE SE GET START');
-
       const teacherDataRaw = await AsyncStorage.getItem('teacherData');
       const name = await AsyncStorage.getItem('name');
       const designation = await AsyncStorage.getItem('DesignationName');
@@ -239,22 +198,14 @@ export default function DashboardScreen({navigation}) {
       const empCode = await AsyncStorage.getItem('EmpCode');
       const profilePic = await AsyncStorage.getItem('profil_pic');
       const image = await AsyncStorage.getItem('image');
-
-      console.log('OLD teacherDataRaw =>', teacherDataRaw);
-      console.log('OLD name =>', name);
-      console.log('OLD DesignationName =>', designation);
-      console.log('OLD branchName =>', branchName);
-      console.log('OLD EmpCode =>', empCode);
-      console.log('OLD profil_pic =>', profilePic);
-      console.log('OLD image =>', image);
+      const sessionName = await AsyncStorage.getItem('SessionName');
 
       let parsed = {};
       if (teacherDataRaw) {
         try {
           parsed = JSON.parse(teacherDataRaw);
-          console.log('OLD parsed teacherData =>', parsed);
         } catch (error) {
-          console.log('OLD teacherData parse error =>', error);
+          console.log('teacherData parse error =>', error);
         }
       }
 
@@ -265,25 +216,43 @@ export default function DashboardScreen({navigation}) {
         empCode: parsed?.EmpCode || empCode || '',
         profilePic: parsed?.profil_pic || profilePic || '',
         image: parsed?.image || image || 'No',
+        sessionName: parsed?.SessionName || sessionName || '2023-24',
       };
-
-      console.log('STEP 2: OLD FINAL DASHBOARD DATA =>');
-      console.log(finalData);
 
       setTeacherData(finalData);
 
       if (finalData.empCode) {
-        console.log('STEP 3: EmpCode mila, API call hogi ✅');
         await callUpdateLogin(finalData.empCode);
-      } else {
-        console.log('STEP 3: EmpCode nahi mila, API call nahi hogi ❌');
       }
-
-      console.log('==============================');
     } catch (error) {
       console.log('LOAD DASHBOARD ERROR =>', error);
       Alert.alert('Error', 'Dashboard data load failed');
     }
+  };
+
+  const handleLogout = () => {
+    closeMenu();
+
+    setTimeout(() => {
+      Alert.alert('Logout', 'Are you sure you want to logout?', [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await AsyncStorage.clear();
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'LoginScreen'}],
+              });
+            } catch (error) {
+              Alert.alert('Error', 'Logout failed');
+            }
+          },
+        },
+      ]);
+    }, 250);
   };
 
   const onPressGrid = item => {
@@ -309,7 +278,7 @@ export default function DashboardScreen({navigation}) {
 
   const showNetworkImage =
     String(teacherData.image).toLowerCase() === 'yes' &&
-    teacherData.profilePic;
+    !!teacherData.profilePic;
 
   return (
     <View style={styles.container}>
@@ -328,7 +297,7 @@ export default function DashboardScreen({navigation}) {
 
         <View style={styles.topBar}>
           <View style={styles.leftSection}>
-            <TouchableOpacity activeOpacity={0.7}>
+            <TouchableOpacity activeOpacity={0.7} onPress={openMenu}>
               <Menu size={30} color="#fff" strokeWidth={2.4} />
             </TouchableOpacity>
 
@@ -347,36 +316,35 @@ export default function DashboardScreen({navigation}) {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity activeOpacity={0.7}>
+            <TouchableOpacity activeOpacity={0.7} onPress={handleLogout}>
               <LogOut size={24} color="#fff" strokeWidth={2.4} />
             </TouchableOpacity>
           </View>
         </View>
       </LinearGradient>
-<View style={styles.avatarWrapper}>
-            {showNetworkImage ? (
-              <Image
-                source={{uri: teacherData.profilePic}}
-                style={styles.avatar}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.fallbackAvatarWrap}>
-                <Image
-                  source={require('../assets/images/avatar-boy.png')}
-                  style={styles.fallbackAvatar}
-                  resizeMode="contain"
-                />
-              </View>
-            )}
+
+      <View style={styles.avatarWrapper}>
+        {showNetworkImage ? (
+          <Image
+            source={{uri: teacherData.profilePic}}
+            style={styles.avatar}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={styles.fallbackAvatarWrap}>
+            <Image
+              source={require('../assets/images/avatar-boy.png')}
+              style={styles.fallbackAvatar}
+              resizeMode="contain"
+            />
           </View>
+        )}
+      </View>
+
       <View style={styles.contentCard}>
-        
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}>
-          
-
           <Text style={styles.nameText}>{teacherData.name}</Text>
           <Text style={styles.designationText}>{teacherData.designation}</Text>
 
@@ -415,6 +383,16 @@ export default function DashboardScreen({navigation}) {
           <View style={styles.gridWrap}>{GRID_ITEMS.map(renderGridCard)}</View>
         </ScrollView>
       </View>
+
+      <SidebarMenu
+        visible={menuOpen}
+        onClose={closeMenu}
+        slideAnim={slideAnim}
+        teacherData={teacherData}
+        navigation={navigation}
+        onLogout={handleLogout}
+        menuWidth={menuWidth}
+      />
     </View>
   );
 }
@@ -424,16 +402,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#EFEFEF',
   },
-
   headerGradient: {
     width: '100%',
     height: 210,
   },
-
   topSafeSpace: {
     height: Platform.OS === 'ios' ? 52 : StatusBar.currentHeight || 24,
   },
-
   topBar: {
     paddingHorizontal: 20,
     paddingTop: 10,
@@ -441,19 +416,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     marginRight: 10,
   },
-
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-
   branchText: {
     color: '#fff',
     fontSize: 18,
@@ -461,12 +433,10 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     flex: 1,
   },
-
   bellWrapper: {
     marginRight: 18,
     position: 'relative',
   },
-
   badge: {
     position: 'absolute',
     top: -8,
@@ -479,13 +449,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 4,
   },
-
   badgeText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '700',
   },
-
   contentCard: {
     flex: 1,
     backgroundColor: '#EEEEEE',
@@ -494,14 +462,10 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 38,
     paddingTop: 68,
   },
-
   scrollContent: {
-
-
     paddingHorizontal: 20,
     paddingBottom: 24,
   },
-
   avatarWrapper: {
     position: 'absolute',
     top: 120,
@@ -510,14 +474,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 20,
   },
-
   avatar: {
     width: 96,
     height: 96,
     borderRadius: 48,
     backgroundColor: '#DDE7EE',
   },
-
   fallbackAvatarWrap: {
     width: 96,
     height: 96,
@@ -527,12 +489,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
   },
-
   fallbackAvatar: {
     width: 88,
     height: 88,
   },
-
   nameText: {
     textAlign: 'center',
     fontSize: 17,
@@ -540,14 +500,12 @@ const styles = StyleSheet.create({
     color: '#222',
     marginBottom: 4,
   },
-
   designationText: {
     textAlign: 'center',
     fontSize: 13,
     color: '#6D6D6D',
     marginBottom: 22,
   },
-
   attendanceCard: {
     borderWidth: 1.3,
     borderColor: '#1598F2',
@@ -556,7 +514,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 24,
   },
-
   attendanceHeader: {
     backgroundColor: '#1797E8',
     paddingHorizontal: 12,
@@ -564,19 +521,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
   attendanceHeaderText: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '600',
   },
-
   attendanceBody: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 12,
   },
-
   attendanceBox: {
     width: '31%',
     backgroundColor: '#E9EEF2',
@@ -586,7 +540,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 16,
   },
-
   labelBox: {
     width: 30,
     height: 30,
@@ -595,24 +548,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-
   labelText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
   },
-
   countText: {
     fontSize: 17,
     color: '#333',
   },
-
   gridWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-
   gridCard: {
     width: '30.5%',
     minHeight: 100,
@@ -626,7 +575,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     marginBottom: 14,
   },
-
   gridText: {
     textAlign: 'center',
     fontSize: 11.5,
