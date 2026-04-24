@@ -13,7 +13,7 @@ import MyLeaveRecordScreen from '../screens/MyProfile/MyLeaveRecordScreen';
 import ChangePasswordScreen from '../screens/MyProfile/ChangePasswordScreen';
 import MySalaryScreen from '../screens/MyProfile/MySalaryScreen';
 import SalaryReceiptScreen from '../screens/MyProfile/SalaryReceiptScreen';
-
+import NotificationsScreen from '../screens/notifications/NotificationsScreen';
 import AttendanceScreen from '../screens/studentAttendence/StudentAttendanceScreen';
 import ViewAttendanceScreen from '../screens/studentAttendence/ViewAttendanceScreen';
 // import MarkAttendanceScreen from '../screens/studentAttendence/MarkAttendanceScreen';
@@ -21,7 +21,20 @@ import MainClassAttendanceScreen from '../screens/studentAttendence/MainClassAtt
 import CoachingClassAttendanceScreen from '../screens/studentAttendence/CoachingClassAttendanceScreen';
 import HomeWorkScreen from '../screens/homework/HomeWorkScreen';
 import AssignmentHistoryScreen from '../screens/homework/AssignmentHistoryScreen';
-
+import MarkEntryScreen from '../screens/MarkEntry/MarkEntryScreen';
+import StudentPortfolioScreen from '../screens/portfolio/StudentPortfolioScreen';
+import SportsEntryScreen from '../screens/portfolio/SportsEntryScreen';
+import ActivityEntryScreen from '../screens/portfolio/ActivityEntryScreen';
+import SportsEntryListScreen from '../screens/portfolio/SportsEntryListScreen';
+import ActivityEntryListScreen from '../screens/portfolio/ActivityEntryListScreen';
+import ClassGalleryScreen from '../screens/gallery/ClassGalleryScreen';
+import CreateClassGalleryCategoryScreen from '../screens/gallery/CreateClassGalleryCategoryScreen';
+import ViewClassGalleryCategoryScreen from '../screens/gallery/ViewClassGalleryCategoryScreen';
+import ClassGalleryImagesScreen from '../screens/gallery/ClassGalleryImagesScreen';
+import ViewClassGalleryImagesScreen from '../screens/gallery/ViewClassGalleryImagesScreen';
+import GalleryImageGridScreen from '../screens/gallery/GalleryImageGridScreen';
+import CreateLinkScreen from "../screens/CreateLink/CreateLinkScreen";
+import SchoolDiaryScreen from '../screens/SchoolDiary/SchoolDiaryScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -88,6 +101,29 @@ export default function AppNavigator() {
   component={AssignmentHistoryScreen}
   options={{headerShown: false}}
 />
+<Stack.Screen
+  name="MarkEntryScreen"
+  component={MarkEntryScreen}
+  options={{headerShown: false}}
+/>
+<Stack.Screen
+  name="NotificationsScreen"
+  component={NotificationsScreen}
+  options={{headerShown: false}}
+/>
+<Stack.Screen name="StudentPortfolioScreen" component={StudentPortfolioScreen} />
+<Stack.Screen name="SportsEntryScreen" component={SportsEntryScreen} />
+<Stack.Screen name="ActivityEntryScreen" component={ActivityEntryScreen} />
+<Stack.Screen name="SportsEntryListScreen" component={SportsEntryListScreen} />
+<Stack.Screen name="ActivityEntryListScreen" component={ActivityEntryListScreen} />
+<Stack.Screen name="GalleryScreen" component={ClassGalleryScreen} />
+<Stack.Screen name="CreateClassGalleryCategoryScreen" component={CreateClassGalleryCategoryScreen} />
+<Stack.Screen name="ViewClassGalleryCategoryScreen" component={ViewClassGalleryCategoryScreen} />
+<Stack.Screen name="ClassGalleryImagesScreen" component={ClassGalleryImagesScreen} />
+<Stack.Screen name="ViewClassGalleryImagesScreen" component={ViewClassGalleryImagesScreen} />
+<Stack.Screen name="GalleryImageGridScreen" component={GalleryImageGridScreen} />
+<Stack.Screen name="CreateLinkScreen" component={CreateLinkScreen} />
+<Stack.Screen name="SchoolDiaryScreen" component={SchoolDiaryScreen} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />

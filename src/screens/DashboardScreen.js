@@ -145,7 +145,7 @@ export default function DashboardScreen({navigation}) {
       return false;
     }
   };
-
+const [notificationCount, setNotificationCount] = useState(0);
   const callUpdateLogin = async empCode => {
     try {
       const formData = new FormData();
@@ -309,12 +309,18 @@ export default function DashboardScreen({navigation}) {
           </View>
 
           <View style={styles.rightSection}>
-            <TouchableOpacity activeOpacity={0.7} style={styles.bellWrapper}>
-              <Bell size={24} color="#fff" strokeWidth={2.4} />
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>0</Text>
-              </View>
-            </TouchableOpacity>
+            <TouchableOpacity 
+  activeOpacity={0.7} 
+  style={styles.bellWrapper}
+  onPress={() => navigation.navigate('NotificationsScreen')}
+>
+  <Bell size={24} color="#fff" strokeWidth={2.4} />
+  {notificationCount > 0 && (   // optional: show only if count > 0
+    <View style={styles.badge}>
+      <Text style={styles.badgeText}>{notificationCount}</Text>
+    </View>
+  )}
+</TouchableOpacity>
 
             <TouchableOpacity activeOpacity={0.7} onPress={handleLogout}>
               <LogOut size={24} color="#fff" strokeWidth={2.4} />

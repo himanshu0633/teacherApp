@@ -73,11 +73,7 @@ const MENU_ITEMS = [
     icon: MessageSquareMore,
     screen: 'MyFeedbackListScreen',
   },
-  {
-    label: 'Logout',
-    icon: LogOut,
-    screen: 'Logout',
-  },
+
 ];
 
 export default function SidebarMenu({
