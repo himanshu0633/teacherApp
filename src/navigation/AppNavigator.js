@@ -14,6 +14,13 @@ import ChangePasswordScreen from '../screens/MyProfile/ChangePasswordScreen';
 import MySalaryScreen from '../screens/MyProfile/MySalaryScreen';
 import SalaryReceiptScreen from '../screens/MyProfile/SalaryReceiptScreen';
 
+import AttendanceScreen from '../screens/studentAttendence/StudentAttendanceScreen';
+import ViewAttendanceScreen from '../screens/studentAttendence/ViewAttendanceScreen';
+// import MarkAttendanceScreen from '../screens/studentAttendence/MarkAttendanceScreen';
+import MainClassAttendanceScreen from '../screens/studentAttendence/MainClassAttendanceScreen';
+import CoachingClassAttendanceScreen from '../screens/studentAttendence/CoachingClassAttendanceScreen';
+import HomeWorkScreen from '../screens/homework/HomeWorkScreen';
+import AssignmentHistoryScreen from '../screens/homework/AssignmentHistoryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +52,42 @@ export default function AppNavigator() {
           <Stack.Screen name="ApplyLeaveScreen" component={ApplyLeaveScreen} />
           <Stack.Screen name="MyLeaveRecordScreen" component={MyLeaveRecordScreen} />
           <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
+          <Stack.Screen
+  name="StudentAttendanceScreen"
+  component={AttendanceScreen}
+  options={{headerShown: false}}
+/>
+
+    <Stack.Screen
+      name="ViewAttendanceScreen"
+      component={ViewAttendanceScreen}
+      options={{headerShown: false}}
+    />
+    {/* <Stack.Screen
+      name="MarkAttendanceScreen"
+      component={MarkAttendanceScreen}
+      options={{headerShown: false}}
+    /> */}
+
+<Stack.Screen
+  name="MainClassAttendanceScreen"
+  component={MainClassAttendanceScreen}
+  options={{headerShown: false}}
+/>
+
+<Stack.Screen
+  name="CoachingClassAttendanceScreen"
+  component={CoachingClassAttendanceScreen}
+  options={{headerShown: false}}
+/>
+          <Stack.Screen name="HomeWorkScreen" component={HomeWorkScreen} />
+          
+
+          <Stack.Screen
+  name="AssignmentHistoryScreen"
+  component={AssignmentHistoryScreen}
+  options={{headerShown: false}}
+/>
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />
