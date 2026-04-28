@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,9 @@ import {
   PenSquare,
   Briefcase,
   NotebookPen,
+  Images,
+  Megaphone,
+  ShieldAlert,
 } from 'lucide-react-native';
 import {BASE_URL} from '../utils/constants';
 import SidebarMenu from '../components/SidebarMenu';
@@ -49,6 +52,24 @@ const GRID_ITEMS = [
     icon: NotebookPen,
     screen: 'SchoolDiaryScreen',
   },
+  {
+    id: 7,
+    title: 'Class Gallery',
+    icon: Images,
+    screen: 'ClassGalleryImagesScreen',
+  },
+  {
+    id: 8,
+    title: 'Employee Circular',
+    icon: Megaphone,
+    screen: 'EmployeeCircularScreen',
+  },
+  {
+    id: 9,
+    title: 'Discipline',
+    icon: ShieldAlert,
+    screen: 'DisciplineScreen',
+  },
 ];
 
 export default function DashboardScreen({navigation}) {
@@ -65,10 +86,6 @@ export default function DashboardScreen({navigation}) {
 
   const menuWidth = 300;
   const slideAnim = useRef(new Animated.Value(-menuWidth)).current;
-
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
 
   const openMenu = () => {
     setMenuOpen(true);
@@ -89,7 +106,7 @@ export default function DashboardScreen({navigation}) {
     });
   };
 
-  const safeValue = value => {
+  const safeValue = useCallback(value => {
     if (
       value === null ||
       value === undefined ||
@@ -100,15 +117,15 @@ export default function DashboardScreen({navigation}) {
       return 'NA';
     }
     return String(value);
-  };
+  }, []);
 
-  const setSafeItem = async (key, value) => {
+  const setSafeItem = useCallback(async (key, value) => {
     const finalValue =
       value === null || value === undefined ? '' : String(value);
     await AsyncStorage.setItem(key, finalValue);
-  };
+  }, []);
 
-  const saveTeacherData = async teacherResponse => {
+  const saveTeacherData = useCallback(async teacherResponse => {
     try {
       await AsyncStorage.setItem('teacherData', JSON.stringify(teacherResponse));
       await setSafeItem('EmpCode', teacherResponse?.EmpCode);
@@ -144,9 +161,11 @@ export default function DashboardScreen({navigation}) {
       console.log('SAVE UPDATED STORAGE ERROR =>', error);
       return false;
     }
-  };
-const [notificationCount, setNotificationCount] = useState(0);
-  const callUpdateLogin = async empCode => {
+  }, [setSafeItem]);
+
+  const [notificationCount] = useState(0);
+
+  const callUpdateLogin = useCallback(async empCode => {
     try {
       const formData = new FormData();
       formData.append('empcode', empCode);
@@ -187,9 +206,9 @@ const [notificationCount, setNotificationCount] = useState(0);
     } catch (error) {
       console.log('updatelogin.php CALL ERROR =>', error);
     }
-  };
+  }, [safeValue, saveTeacherData]);
 
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     try {
       const teacherDataRaw = await AsyncStorage.getItem('teacherData');
       const name = await AsyncStorage.getItem('name');
@@ -228,7 +247,11 @@ const [notificationCount, setNotificationCount] = useState(0);
       console.log('LOAD DASHBOARD ERROR =>', error);
       Alert.alert('Error', 'Dashboard data load failed');
     }
-  };
+  }, [callUpdateLogin, safeValue]);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
 
   const handleLogout = () => {
     closeMenu();
