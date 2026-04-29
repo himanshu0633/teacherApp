@@ -39,6 +39,8 @@ import EmployeeCircularScreen from '../screens/circular/EmployeeCircularScreen';
 import MyCircularListScreen from '../screens/circular/MyCircularListScreen';
 import ViewCircularScreen from '../screens/circular/ViewCircularScreen';
 import CircularReadStatusScreen from '../screens/circular/CircularReadStatusScreen';
+import DisciplineScreen from '../screens/discipline/DisciplineScreen';
+import DisciplineFeedbackScreen from '../screens/discipline/DisciplineFeedbackScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -132,6 +134,8 @@ export default function AppNavigator() {
 <Stack.Screen name="MyCircularListScreen" component={MyCircularListScreen} />
 <Stack.Screen name="ViewCircularScreen" component={ViewCircularScreen} />
 <Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
+<Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
+<Stack.Screen name="DisciplineFeedbackScreen" component={DisciplineFeedbackScreen} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />
