@@ -220,8 +220,9 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: 162,
-    paddingHorizontal: 16,
+    width: '100%',
+    minHeight: 138,
+    // paddingHorizontal: 16,
   },
 
   headerTopSpace: {
@@ -230,8 +231,8 @@ const styles = StyleSheet.create({
 
   profileWrap: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
+    marginTop: 2,
+    paddingBottom: 18,
   },
 
   avatar: {
@@ -260,9 +261,10 @@ const styles = StyleSheet.create({
 
   nameText: {
     color: '#fff',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '700',
     textAlign: 'center',
+    width: '100%',
   },
 
   sessionText: {
