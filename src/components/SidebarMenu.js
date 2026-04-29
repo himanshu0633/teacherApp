@@ -19,7 +19,6 @@ import {
   Briefcase,
   NotebookPen,
   Megaphone,
-  GraduationCap,
   ShieldAlert,
   MessageSquareMore,
   LogOut,
@@ -57,11 +56,6 @@ const MENU_ITEMS = [
     label: 'Employee Circular',
     icon: Megaphone,
     screen: 'EmployeeCircularScreen',
-  },
-  {
-    label: 'Student Circular',
-    icon: GraduationCap,
-    screen: 'StudentCircularScreen',
   },
   {
     label: 'Discipline',

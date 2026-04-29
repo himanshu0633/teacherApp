@@ -35,6 +35,10 @@ import ViewClassGalleryImagesScreen from '../screens/gallery/ViewClassGalleryIma
 import GalleryImageGridScreen from '../screens/gallery/GalleryImageGridScreen';
 import CreateLinkScreen from "../screens/CreateLink/CreateLinkScreen";
 import SchoolDiaryScreen from '../screens/SchoolDiary/SchoolDiaryScreen';
+import EmployeeCircularScreen from '../screens/circular/EmployeeCircularScreen';
+import MyCircularListScreen from '../screens/circular/MyCircularListScreen';
+import ViewCircularScreen from '../screens/circular/ViewCircularScreen';
+import CircularReadStatusScreen from '../screens/circular/CircularReadStatusScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -124,6 +128,10 @@ export default function AppNavigator() {
 <Stack.Screen name="GalleryImageGridScreen" component={GalleryImageGridScreen} />
 <Stack.Screen name="CreateLinkScreen" component={CreateLinkScreen} />
 <Stack.Screen name="SchoolDiaryScreen" component={SchoolDiaryScreen} />
+<Stack.Screen name="EmployeeCircularScreen" component={EmployeeCircularScreen} />
+<Stack.Screen name="MyCircularListScreen" component={MyCircularListScreen} />
+<Stack.Screen name="ViewCircularScreen" component={ViewCircularScreen} />
+<Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />
