@@ -41,6 +41,7 @@ import ViewCircularScreen from '../screens/circular/ViewCircularScreen';
 import CircularReadStatusScreen from '../screens/circular/CircularReadStatusScreen';
 import DisciplineScreen from '../screens/discipline/DisciplineScreen';
 import DisciplineFeedbackScreen from '../screens/discipline/DisciplineFeedbackScreen';
+import MyFeedbackListScreen from '../screens/discipline/MyFeedbackListScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -136,6 +137,7 @@ export default function AppNavigator() {
 <Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
 <Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
 <Stack.Screen name="DisciplineFeedbackScreen" component={DisciplineFeedbackScreen} />
+<Stack.Screen name="MyFeedbackListScreen" component={MyFeedbackListScreen} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />
