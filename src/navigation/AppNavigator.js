@@ -36,17 +36,27 @@ import GalleryImageGridScreen from '../screens/gallery/GalleryImageGridScreen';
 import CreateLinkScreen from "../screens/CreateLink/CreateLinkScreen";
 import SchoolDiaryScreen from '../screens/SchoolDiary/SchoolDiaryScreen';
 import EmployeeCircularScreen from '../screens/circular/EmployeeCircularScreen';
+import StudentCircularScreen from '../screens/circular/StudentCircularScreen';
 import MyCircularListScreen from '../screens/circular/MyCircularListScreen';
 import ViewCircularScreen from '../screens/circular/ViewCircularScreen';
 import CircularReadStatusScreen from '../screens/circular/CircularReadStatusScreen';
 import DisciplineScreen from '../screens/discipline/DisciplineScreen';
 import DisciplineFeedbackScreen from '../screens/discipline/DisciplineFeedbackScreen';
 import MyFeedbackListScreen from '../screens/discipline/MyFeedbackListScreen';
+import EmployeeDalRecordScreen from '../screens/employeeDal/EmployeeDalRecordScreen';
+import EPtmRecordScreen from '../screens/ePtm/EPtmRecordScreen';
+import EPTMSRPScreen from '../screens/ePtm/EPTMSRPScreen';
+import EmployeeLeaveRequestScreen from '../screens/employeeLeave/EmployeeLeaveRequestScreen';
+import EmployeeRequestsScreen from '../screens/employeeRequests/EmployeeRequestsScreen';
+import ExtraDayRequestScreen from '../screens/employeeRequests/ExtraDayRequestScreen';
+import EComplaintRecordScreen from '../screens/eComplaint/EComplaintRecordScreen';
+import PendingComplaintListScreen from '../screens/eComplaint/PendingComplaintListScreen';
+import ResolvedComplaintListScreen from '../screens/eComplaint/ResolvedComplaintListScreen';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const [showSplash, setShowSplash] = useState(true);
-  const {isLoggedIn} = useAuth();
+  const {isLoggedIn, loading} = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,7 +66,7 @@ export default function AppNavigator() {
     return () => clearTimeout(timer);
   }, []);
 
-  if (showSplash) {
+  if (showSplash || loading) {
     return <SplashScreen />;
   }
 
@@ -132,12 +142,22 @@ export default function AppNavigator() {
 <Stack.Screen name="CreateLinkScreen" component={CreateLinkScreen} />
 <Stack.Screen name="SchoolDiaryScreen" component={SchoolDiaryScreen} />
 <Stack.Screen name="EmployeeCircularScreen" component={EmployeeCircularScreen} />
+<Stack.Screen name="StudentCircularScreen" component={StudentCircularScreen} />
 <Stack.Screen name="MyCircularListScreen" component={MyCircularListScreen} />
 <Stack.Screen name="ViewCircularScreen" component={ViewCircularScreen} />
 <Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
 <Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
 <Stack.Screen name="DisciplineFeedbackScreen" component={DisciplineFeedbackScreen} />
 <Stack.Screen name="MyFeedbackListScreen" component={MyFeedbackListScreen} />
+<Stack.Screen name="EmployeeDalRecordScreen" component={EmployeeDalRecordScreen} />
+<Stack.Screen name="EPtmRecordScreen" component={EPtmRecordScreen} />
+<Stack.Screen name="EPTMSRPScreen" component={EPTMSRPScreen} />
+<Stack.Screen name="EmployeeLeaveRequestScreen" component={EmployeeLeaveRequestScreen} />
+<Stack.Screen name="EmployeeRequestsScreen" component={EmployeeRequestsScreen} />
+<Stack.Screen name="ExtraDayRequestScreen" component={ExtraDayRequestScreen} />
+<Stack.Screen name="EComplaintRecordScreen" component={EComplaintRecordScreen} />
+<Stack.Screen name="PendingComplaintListScreen" component={PendingComplaintListScreen} />
+<Stack.Screen name="ResolvedComplaintListScreen" component={ResolvedComplaintListScreen} />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />

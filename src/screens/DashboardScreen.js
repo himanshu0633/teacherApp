@@ -26,53 +26,134 @@ import {
   Images,
   Megaphone,
   ShieldAlert,
+  FileText,
+  ClipboardList,
+  CalendarDays,
+  UserCheck,
+  MessageCircleWarning,
+  MessageSquareText,
 } from 'lucide-react-native';
 import {BASE_URL} from '../utils/constants';
 import SidebarMenu from '../components/SidebarMenu';
+import {useAuth} from '../context/AuthContext';
 
 const GRID_ITEMS = [
-  {id: 1, title: 'Profile', icon: UserCircle2, screen: 'ProfileScreen'},
+  {
+    id: 1,
+    title: 'Profile',
+    icon: UserCircle2,
+    screen: 'ProfileScreen',
+    visibility: 'common',
+  },
   {
     id: 2,
     title: 'Student\nAttendance',
     icon: ClipboardCheck,
     screen: 'StudentAttendanceScreen',
+    visibility: 'common',
   },
-  {id: 3, title: 'HomeWork', icon: BookOpen, screen: 'HomeWorkScreen'},
-  {id: 4, title: 'Mark\nEntry', icon: PenSquare, screen: 'MarkEntryScreen'},
+  {
+    id: 3,
+    title: 'HomeWork',
+    icon: BookOpen,
+    screen: 'HomeWorkScreen',
+    visibility: 'common',
+  },
+  {
+    id: 4,
+    title: 'Mark\nEntry',
+    icon: PenSquare,
+    screen: 'MarkEntryScreen',
+    visibility: 'common',
+  },
   {
     id: 5,
     title: 'Student Portfolio',
     icon: Briefcase,
     screen: 'StudentPortfolioScreen',
+    visibility: 'common',
   },
   {
     id: 6,
     title: 'School Diary',
     icon: NotebookPen,
     screen: 'SchoolDiaryScreen',
+    visibility: 'common',
   },
   {
     id: 7,
     title: 'Class Gallery',
     icon: Images,
     screen: 'ClassGalleryImagesScreen',
+    visibility: 'staff',
   },
   {
     id: 8,
     title: 'Employee Circular',
     icon: Megaphone,
     screen: 'EmployeeCircularScreen',
+    visibility: 'staff',
   },
   {
     id: 9,
     title: 'Discipline',
     icon: ShieldAlert,
     screen: 'DisciplineScreen',
+    visibility: 'staff',
   },
+  {
+    id: 10,
+    title: 'Employee DAL Record',
+    icon: FileText,
+    screen: 'EmployeeDalRecordScreen',
+    visibility: 'principal',
+  },
+  {
+    id: 11,
+    title: 'E-PTM Record',
+    icon: ClipboardList,
+    screen: 'EPtmRecordScreen',
+    visibility: 'principal',
+  },
+  {
+    id: 12,
+    title: 'Employee Leave Request',
+    icon: CalendarDays,
+    screen: 'EmployeeLeaveRequestScreen',
+    visibility: 'principal',
+  },
+  {
+    id: 13,
+    title: 'Employee Requests',
+    icon: UserCheck,
+    screen: 'EmployeeRequestsScreen',
+    visibility: 'principal',
+  },
+  {
+    id: 14,
+    title: 'E-Complaint Record',
+    icon: MessageCircleWarning,
+    screen: 'EComplaintRecordScreen',
+    visibility: 'principal',
+  },
+  {
+    id: 15,
+    title: 'Suggestion by Parents / Students',
+    icon: MessageSquareText,
+    alertTitle: 'Suggestion by Parents / Students',
+    alertMessage: 'This feature is coming soon.',
+    visibility: 'principal',
+  },
+
 ];
 
+const isPrincipalDesignation = designation =>
+  String(designation || '')
+    .trim()
+    .toLowerCase() === 'principal';
+
 export default function DashboardScreen({navigation}) {
+  const {logout} = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [teacherData, setTeacherData] = useState({
     name: 'NA',
@@ -219,13 +300,18 @@ export default function DashboardScreen({navigation}) {
       const image = await AsyncStorage.getItem('image');
       const sessionName = await AsyncStorage.getItem('SessionName');
 
+      if (!teacherDataRaw) {
+        await logout();
+        return;
+      }
+
       let parsed = {};
-      if (teacherDataRaw) {
-        try {
-          parsed = JSON.parse(teacherDataRaw);
-        } catch (error) {
-          console.log('teacherData parse error =>', error);
-        }
+      try {
+        parsed = JSON.parse(teacherDataRaw);
+      } catch (error) {
+        console.log('teacherData parse error =>', error);
+        await logout();
+        return;
       }
 
       const finalData = {
@@ -247,7 +333,7 @@ export default function DashboardScreen({navigation}) {
       console.log('LOAD DASHBOARD ERROR =>', error);
       Alert.alert('Error', 'Dashboard data load failed');
     }
-  }, [callUpdateLogin, safeValue]);
+  }, [callUpdateLogin, logout, safeValue]);
 
   useEffect(() => {
     loadDashboardData();
@@ -265,10 +351,7 @@ export default function DashboardScreen({navigation}) {
           onPress: async () => {
             try {
               await AsyncStorage.clear();
-              navigation.reset({
-                index: 0,
-                routes: [{name: 'LoginScreen'}],
-              });
+              await logout();
             } catch (error) {
               Alert.alert('Error', 'Logout failed');
             }
@@ -281,6 +364,14 @@ export default function DashboardScreen({navigation}) {
   const onPressGrid = item => {
     if (item.screen) {
       navigation.navigate(item.screen);
+      return;
+    }
+
+    if (item.alertTitle || item.alertMessage) {
+      Alert.alert(
+        item.alertTitle || item.title,
+        item.alertMessage || 'This feature is coming soon.',
+      );
     }
   };
 
@@ -302,6 +393,16 @@ export default function DashboardScreen({navigation}) {
   const showNetworkImage =
     String(teacherData.image).toLowerCase() === 'yes' &&
     !!teacherData.profilePic;
+  const isPrincipal = isPrincipalDesignation(teacherData.designation);
+  const visibleGridItems = GRID_ITEMS.filter(item => {
+    if (item.visibility === 'common') {
+      return true;
+    }
+
+    return isPrincipal
+      ? item.visibility === 'principal'
+      : item.visibility === 'staff';
+  });
 
   return (
     <View style={styles.container}>
@@ -409,7 +510,9 @@ export default function DashboardScreen({navigation}) {
             </View>
           </View>
 
-          <View style={styles.gridWrap}>{GRID_ITEMS.map(renderGridCard)}</View>
+          <View style={styles.gridWrap}>
+            {visibleGridItems.map(renderGridCard)}
+          </View>
         </ScrollView>
       </View>
 

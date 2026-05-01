@@ -5,8 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Platform,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function CommonHeader({
   title,
@@ -16,8 +16,17 @@ export default function CommonHeader({
   backgroundColor = '#5A33C5',
   showBack = true,
 }) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={[styles.header, {backgroundColor}]}>
+    <View
+      style={[
+        styles.header,
+        {
+          backgroundColor,
+          paddingTop: insets.top,
+        },
+      ]}>
       <StatusBar
         backgroundColor={backgroundColor}
         barStyle="light-content"
@@ -45,13 +54,14 @@ export default function CommonHeader({
 
 const styles = StyleSheet.create({
   header: {
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
+    minHeight: 56,
   },
   sideBtn: {
     width: 36,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
   },

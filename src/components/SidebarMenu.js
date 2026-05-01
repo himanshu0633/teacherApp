@@ -31,44 +31,70 @@ const MENU_ITEMS = [
     label: 'My Profile',
     icon: User,
     screen: 'ProfileScreen',
+    visibility: 'common',
   },
   {
     label: 'Create Link',
     icon: Link2,
     screen: 'CreateLinkScreen',
+    visibility: 'common',
   },
   {
     label: 'Gallery',
     icon: Images,
     screen: 'GalleryScreen',
+    visibility: 'common',
+  },
+
+    {  
+    label: 'E-PTM SRP',
+    icon: Images,
+    screen: 'EPTMSRPScreen',
+    visibility: 'common',
   },
   {
     label: 'Student Portfolio',
     icon: Briefcase,
     screen: 'StudentPortfolioScreen',
+    visibility: 'common',
   },
   {
     label: 'School Diary',
     icon: NotebookPen,
     screen: 'SchoolDiaryScreen',
+    visibility: 'common',
   },
   {
     label: 'Employee Circular',
     icon: Megaphone,
     screen: 'EmployeeCircularScreen',
+    visibility: 'common',
+  },
+    {
+    label: 'Student Circular',
+    icon: Megaphone,
+    screen: 'StudentCircularScreen',
+    visibility: 'principal',
   },
   {
     label: 'Discipline',
     icon: ShieldAlert,
     screen: 'DisciplineScreen',
+    visibility: 'common',
   },
   {
     label: 'My Feedback List',
     icon: MessageSquareMore,
     screen: 'MyFeedbackListScreen',
+    visibility: 'common',
   },
 
 ];
+
+const isPrincipalDesignation = designation =>
+  String(designation || '')
+    .trim()
+    .toLowerCase() === 'principal';
 
 export default function SidebarMenu({
   visible,
@@ -91,6 +117,16 @@ export default function SidebarMenu({
   const showNetworkImage =
     String(teacherData?.image).toLowerCase() === 'yes' &&
     teacherData?.profilePic;
+  const isPrincipal = isPrincipalDesignation(teacherData?.designation);
+  const visibleMenuItems = MENU_ITEMS.filter(item => {
+    if (item.visibility === 'common') {
+      return true;
+    }
+
+    return isPrincipal
+      ? item.visibility === 'principal'
+      : item.visibility === 'staff';
+  });
 
   return (
     <Modal visible={visible} transparent animationType="none">
@@ -146,7 +182,7 @@ export default function SidebarMenu({
             bounces={false}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.menuList}>
-            {MENU_ITEMS.map((item, index) => {
+            {visibleMenuItems.map((item, index) => {
               const Icon = item.icon;
               const isBlue = item.label === 'Marks Entry';
 
