@@ -1,0 +1,5616 @@
+{
+  "info": {
+    "_postman_id": "a79104ce-bebc-4d66-95af-0bc0ab228e40",
+    "name": "Him Academy Teacher",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48105786",
+    "_collection_link": "https://go.postman.co/collection/48105786-a79104ce-bebc-4d66-95af-0bc0ab228e40?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "My profile",
+      "item": [
+        {
+          "name": "get profile data",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1087",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/get-profile.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "get-profile.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1087",
+                  "type": "text"
+                },
+                {
+                  "key": "mobileno",
+                  "value": "9879879447",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "BLOCK NO.9 FLAT NO.108",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/update-profile.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "update-profile.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Salary",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl2}}/SalaryList.php",
+              "host": [
+                "{{baseUrl2}}"
+              ],
+              "path": [
+                "SalaryList.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "salary detail",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SalaryID",
+                  "value": "25560",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl2}}/GenerateSalary.php",
+              "host": [
+                "{{baseUrl2}}"
+              ],
+              "path": [
+                "GenerateSalary.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Leave type",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpType",
+                  "value": "111",
+                  "type": "text"
+                },
+                {
+                  "key": "DateFrom",
+                  "value": "21-06-2023",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leavetype.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leavetype.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Apply leave",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1087",
+                  "type": "text"
+                },
+                {
+                  "key": "LeaveType",
+                  "value": "Fullday",
+                  "type": "text"
+                },
+                {
+                  "key": "DateFrom",
+                  "value": "23-06-2026",
+                  "type": "text"
+                },
+                {
+                  "key": "DateTo",
+                  "value": "25-06-2026",
+                  "type": "text"
+                },
+                {
+                  "key": "reason",
+                  "value": "test",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/applyleave.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "applyleave.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My leave record",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1087",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leavelist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leavelist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "reset password",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "empcode",
+                  "value": "1087",
+                  "type": "text"
+                },
+                {
+                  "key": "oldpassword",
+                  "value": "1234",
+                  "type": "text"
+                },
+                {
+                  "key": "newpassword",
+                  "value": "Chirag@123",
+                  "type": "text"
+                },
+                {
+                  "key": "confirmpassword",
+                  "value": "Chirag@123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/changepass.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "changepass.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Mark attendance",
+      "item": [
+        {
+          "name": "view main class attendance/Class list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1003",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fillclass.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fillclass.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "view main class attendance/section list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/show_section.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "show_section.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "view main class attendance/view attendance list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Date",
+                  "value": "2025-06-24",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "17",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ViewAttendence.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ViewAttendence.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "view coaching class attendance list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ClassId",
+                  "value": "4",
+                  "type": "text",
+                  "uuid": "e0d221e7-8eba-4af7-b223-84e10cbcc4af"
+                },
+                {
+                  "key": "Date",
+                  "value": "2025-06-24",
+                  "type": "text",
+                  "uuid": "cb60c9d3-bf25-422f-b12f-7d1fabc1945a"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "17",
+                  "type": "text",
+                  "uuid": "c014c8b7-2ee6-4003-b319-6241af206051"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text",
+                  "uuid": "f1afdd8c-c25b-49f3-8868-c7c82a91c725"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "6326c951-d0c8-41c7-9fe1-5cada7798000"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ViewAttendence.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ViewAttendence.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Homework/assignment",
+      "item": [
+        {
+          "name": "Subject list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subject.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subject.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "send homework",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "SubjectId",
+                  "value": "15",
+                  "type": "text"
+                },
+                {
+                  "key": "Description",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "DueDate",
+                  "value": "2026/07/05",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/AssignHomework.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "AssignHomework.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "home work history list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "empcode",
+                  "value": "1492",
+                  "type": "text",
+                  "uuid": "81d06703-55b2-43f5-af59-26be95b439b3"
+                },
+                {
+                  "key": "branchid",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "cd46fa6f-5711-443c-aea0-117bcf032b13"
+                },
+                {
+                  "key": "sessionid",
+                  "value": "28",
+                  "type": "text",
+                  "uuid": "f04e120f-c934-4022-b1a3-ad703262439e"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/homeworklist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "homeworklist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "SEND assignment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "459",
+                  "type": "text"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "1134",
+                  "type": "text"
+                },
+                {
+                  "key": "SubjectId",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "Description",
+                  "value": "testt",
+                  "type": "text"
+                },
+                {
+                  "key": "DueDate",
+                  "value": "2026-05-07",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/win/Desktop/pssc/5601440 1.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assignment.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assignment.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "assignment list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "empcode",
+                  "value": "307",
+                  "type": "text",
+                  "uuid": "82506b8b-3ac1-4049-80e6-65ef39892fab"
+                },
+                {
+                  "key": "branchid",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "2f598b88-e319-487a-8e55-210b318e70c6"
+                },
+                {
+                  "key": "sessionid",
+                  "value": "28",
+                  "type": "text",
+                  "uuid": "06027c6c-5482-43f9-80e2-3b291abf9fe3"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/assignmentlist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "assignmentlist.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Marks Entry",
+      "item": [
+        {
+          "name": "Class spinner api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/marksclasssec.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "marksclasssec.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "exam head",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/examhead.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "examhead.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "exam type",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "61",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/examtype.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "examtype.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "exam test",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "typeid",
+                  "value": "173",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getexamtest.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getexamtest.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Type list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "typeid",
+                  "value": "173",
+                  "type": "text"
+                },
+                {
+                  "key": "test",
+                  "value": "Form 1 to 3",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/papertype.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "papertype.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subject list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "examtypeid",
+                  "value": "173",
+                  "type": "text"
+                },
+                {
+                  "key": "test",
+                  "value": "Form 4",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Th",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "SectionId",
+                  "value": "19",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getsubjects.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getsubjects.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Total marks and exam date api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "examtypeid",
+                  "value": "173",
+                  "type": "text"
+                },
+                {
+                  "key": "test",
+                  "value": "Form 4",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Th",
+                  "type": "text"
+                },
+                {
+                  "key": "subid",
+                  "value": "15",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gettotalmarks.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "gettotalmarks.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "student detail list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "examtypeid",
+                  "value": "173",
+                  "type": "text"
+                },
+                {
+                  "key": "test",
+                  "value": "Form 4",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Th",
+                  "type": "text"
+                },
+                {
+                  "key": "subid",
+                  "value": "15",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "Max",
+                  "value": "30",
+                  "type": "text"
+                },
+                {
+                  "key": "examid",
+                  "value": "123047",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/addmarks1.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "addmarks1.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "save/locked marks api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "234",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "subid",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "headid",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "examtypeid",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "test",
+                  "value": "32",
+                  "type": "text"
+                },
+                {
+                  "key": "LoginId",
+                  "value": "34",
+                  "type": "text"
+                },
+                {
+                  "key": "Max",
+                  "value": "40",
+                  "type": "text"
+                },
+                {
+                  "key": "marks",
+                  "value": "14,0,0,0,0,40,",
+                  "type": "text"
+                },
+                {
+                  "key": "studentid",
+                  "value": "22,23,24,25,26,",
+                  "type": "text"
+                },
+                {
+                  "key": "studentdetailid",
+                  "value": "1233,3211,4321,2314,1234,",
+                  "type": "text"
+                },
+                {
+                  "key": "Attendence",
+                  "value": "P,M,E,A,P,",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "1123",
+                  "type": "text"
+                },
+                {
+                  "key": "locked",
+                  "value": "No",
+                  "type": "text"
+                },
+                {
+                  "key": "examid",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "sno",
+                  "value": "111",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savemarks1.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savemarks1.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Holistic Entry",
+      "item": [
+        {
+          "name": "class spinner list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fillclass.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fillclass.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Section spinner list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "19",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/show_section.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "show_section.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Term Name Spinner List Api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticterm.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticterm.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Holistic Head Name Spinner API",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "termid",
+                  "value": "18",
+                  "type": "text"
+                },
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticheader.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticheader.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Holistic Sub Master Name Spinner API",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headerid",
+                  "value": "220",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticsubheader.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticsubheader.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "API for student detail",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "headerid",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "subheaderid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "termid",
+                  "value": "2",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticstudentdetail.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticstudentdetail.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "grade marks list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "classid",
+                  "value": "458",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticgm.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticgm.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remarks Spinner Api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "headerid",
+                  "value": "220",
+                  "type": "text"
+                },
+                {
+                  "key": "subheaderid",
+                  "value": "851",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticremarks.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticremarks.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save or locked button api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "459",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "1134",
+                  "type": "text"
+                },
+                {
+                  "key": "headerid",
+                  "value": "34",
+                  "type": "text"
+                },
+                {
+                  "key": "subheaderid",
+                  "value": "333",
+                  "type": "text"
+                },
+                {
+                  "key": "termid",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "locked",
+                  "value": "No",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "marks",
+                  "value": "45,56,33",
+                  "type": "text"
+                },
+                {
+                  "key": "studentid",
+                  "value": "1123,1124,1125",
+                  "type": "text"
+                },
+                {
+                  "key": "studentdetailid",
+                  "value": "2341,2342,2343",
+                  "type": "text"
+                },
+                {
+                  "key": "remarks",
+                  "value": "hye,hye,gye",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/saveholisticmarks.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "saveholisticmarks.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "CBO Entry",
+      "item": [
+        {
+          "name": "class list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/fillclass.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "fillclass.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "section list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "4",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/show_section.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "show_section.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "cbo term name list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getcboterm.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getcboterm.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CBO unit list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "termid",
+                  "value": "35",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getcbounit.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getcbounit.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CBO Subject list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "classid",
+                  "value": "7",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getcbosubjects.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getcbosubjects.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CBO Student detail api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "cbounitid",
+                  "value": "2",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "termid",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "cbosubjectid",
+                  "value": "5",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/getholisticstudentdetail.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "getholisticstudentdetail.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save/Lock marks",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "classid",
+                  "value": "4",
+                  "type": "text"
+                },
+                {
+                  "key": "sectionid",
+                  "value": "19",
+                  "type": "text"
+                },
+                {
+                  "key": "cbounitid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "cbosubjectid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "termid",
+                  "value": "46",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "locked",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "marks",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "studentid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "studentdetailid",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Attendence",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/savecbomarks.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "savecbomarks.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "E-PTM Entry",
+      "item": [
+        {
+          "name": "Searched student detail",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "40",
+                  "type": "text"
+                },
+                {
+                  "key": "EnrollNo",
+                  "value": "091602",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/studentlist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "studentlist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "save ptm entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "date",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "Branch_id",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "EnrollNo",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "Mobile",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "TalkWith",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "mode",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "psat",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "area",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "others",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/insertptm1.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "insertptm1.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "E-PTM list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/showptm.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "showptm.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hostel Parenting",
+      "item": [
+        {
+          "name": "save hostel parenting",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "EnrollNo",
+                  "value": "091602",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "test pupose",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hostelparentingremarks.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hostelparentingremarks.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "hostel parenting list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/showhostelparenting.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "showhostelparenting.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Academic calendar",
+      "item": [
+        {
+          "name": "Academic calendar list api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text",
+                  "uuid": "c79c256e-ba92-468f-8389-90053138cb3d"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "6903d2c6-c27e-45ef-b569-1ec5e8ed8bd2"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/calendar.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "calendar.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "School Matter Calendar",
+      "item": [
+        {
+          "name": "school matter calander list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text",
+                  "uuid": "1f3c8b31-a954-4bbf-b198-4cd77c8d2178"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text",
+                  "uuid": "83d2bba7-7d9d-40a8-ac2e-dc6ac00c620e"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/calendarmonth.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "calendarmonth.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Medical entry",
+      "item": [
+        {
+          "name": "student search by name or enroll no",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "adminno",
+                  "value": "160909",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/studentsearch.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "studentsearch.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit medical entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "adminno",
+                  "value": "091602",
+                  "type": "text"
+                },
+                {
+                  "key": "allergies",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "medicalHistory",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "hospitaldatefrom",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "hospitaldateto",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "temperature",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "bp",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnosis",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "admittedinhospital",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "adate",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "medicine",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "days",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "dose",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "rate",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "doseqty",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionID",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "date",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medicalentries.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medicalentries.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "medical entry list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "26",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/medicalleaves.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "medicalleaves.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hostel Room Allocation",
+      "item": [
+        {
+          "name": "select hostel",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/hostellist.php?BranchId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "hostellist.php"
+              ],
+              "query": [
+                {
+                  "key": "BranchId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Select floor list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/floorlist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "floorlist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Select Room list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/roomlist.php?HostelId=6&FloorId=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "roomlist.php"
+              ],
+              "query": [
+                {
+                  "key": "HostelId",
+                  "value": "6",
+                  "type": "text"
+                },
+                {
+                  "key": "FloorId",
+                  "value": "5",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Student Portfolio",
+      "item": [
+        {
+          "name": "sports name list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/student/getsportslist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "getsportslist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Level list",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/getlevellist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "getlevellist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "save sports entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Enrollno",
+                  "value": "091602",
+                  "type": "text"
+                },
+                {
+                  "key": "stname",
+                  "value": "Rana Bhai Ahir",
+                  "type": "text"
+                },
+                {
+                  "key": "classname",
+                  "value": "8th",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "SportsId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Year",
+                  "value": "2022",
+                  "type": "text"
+                },
+                {
+                  "key": "Level",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PrizeWon",
+                  "value": "Runner's up",
+                  "type": "text"
+                },
+                {
+                  "key": "des",
+                  "value": "test description",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "1181",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/aman.kumar/Downloads/dummy-pdf_2.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/savesportsentry.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "savesportsentry.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Sports entry list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/SportsEntryList.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "SportsEntryList.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete sports entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "37",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/SportsEntryDelete.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "SportsEntryDelete.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activity name list",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/student/Activitylist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "Activitylist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "save activity entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Enollno",
+                  "value": "091602",
+                  "type": "text"
+                },
+                {
+                  "key": "stname",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "classname",
+                  "value": "9",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "Activity",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "Year",
+                  "value": "2019",
+                  "type": "text"
+                },
+                {
+                  "key": "Level",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PrizeWon",
+                  "value": "1st",
+                  "type": "text"
+                },
+                {
+                  "key": "des",
+                  "value": "Tested Activity Entry",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Achievement",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/aman.kumar/Downloads/user.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/saveactivityentry.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "saveactivityentry.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "activity entry list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "empcode",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ActivityEntryList.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ActivityEntryList.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete activity entry",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "31434",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student/ActivityEntryDelete.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student",
+                "ActivityEntryDelete.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "sports entry and activity entry"
+    },
+    {
+      "name": "Daily activity log",
+      "item": [
+        {
+          "name": "submit dal",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "description",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/aman.kumar/Downloads/user (1).png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/DailyActivity.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "DailyActivity.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Daily Activity Log list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "26",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/DailyActivityLog.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "DailyActivityLog.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employee Circular",
+      "item": [
+        {
+          "name": "filter staff list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCategory",
+                  "value": "Teaching",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teacherlist-filter.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teacherlist-filter.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit employee circular",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "test employee circular1231",
+                  "type": "text"
+                },
+                {
+                  "key": "staff",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "test description ",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/C:/Users/aman.kumar/Downloads/user.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/staff_circular.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "staff_circular.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "send by me circular list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/send-by-me-circularlist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "send-by-me-circularlist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View circular",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "9224",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "28",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ViewCircularStaff.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ViewCircularStaff.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "read status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "unique_id",
+                  "value": "17",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/info-read-status.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "info-read-status.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Student Circular",
+      "item": [
+        {
+          "name": "Student Type",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student-type.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student-type.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "class list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "StudentTypeID",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "branch_id",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/studentcircularclasses.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "studentcircularclasses.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "student list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "branch_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "session_id",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "student_type_id",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "class_id",
+                  "value": "9",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/StudentListForCircular.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "StudentListForCircular.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit student circular",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "branch_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "session_id",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "enroll_no",
+                  "value": "091602",
+                  "type": "text"
+                },
+                {
+                  "key": "class_id",
+                  "value": "9",
+                  "type": "text"
+                },
+                {
+                  "key": "section_id",
+                  "value": "209",
+                  "type": "text"
+                },
+                {
+                  "key": "circular_date",
+                  "value": "12-05-2026",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "test  circular title",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "this is the test description ",
+                  "type": "text"
+                },
+                {
+                  "key": "student_type_id",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "group_type",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student_circular.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student_circular.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "student circular list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "branch_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "session_id",
+                  "value": "28",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/student-circular-send-by-me.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "student-circular-send-by-me.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Discipline",
+      "item": [
+        {
+          "name": "search students list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "ClassId",
+                  "value": "209",
+                  "type": "text"
+                },
+                {
+                  "key": "EnrollNo",
+                  "value": "091602",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/studentlist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "studentlist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "show parameters list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "1492",
+                  "type": "text"
+                },
+                {
+                  "key": "Type",
+                  "value": "Smiley",
+                  "type": "text"
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sendparameter.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "sendparameter.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit feedback",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "Parameter",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "Level",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "Type",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "EnrollNo",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "Session",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "remarks",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/updatediscipline.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "updatediscipline.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "E-Complaint",
+      "item": [
+        {
+          "name": "staff list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "empcode",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/teacherslist.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "teacherslist.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit e complaint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "LocationName",
+                  "value": "computer ",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "test",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "staff",
+                  "value": "110,407,",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/submit_eComplaint.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "submit_eComplaint.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "my ecomplaints list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "status",
+                  "value": "Pending",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/pending-resolved-list.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "pending-resolved-list.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "e complaints for me",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "status",
+                  "value": "Resolve",
+                  "type": "text"
+                },
+                {
+                  "key": "staff",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/show-Ecomplaint.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "show-Ecomplaint.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resolved e complaint api",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "ResolveDate",
+                  "value": "10-08-2023",
+                  "type": "text"
+                },
+                {
+                  "key": "ResolveReason",
+                  "value": "fan has been changes ",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "complete",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/resolved-ecomplaint.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "resolved-ecomplaint.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Request for",
+      "item": [
+        {
+          "name": "submit extra day request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "date",
+                  "value": "10-08-2023",
+                  "type": "text"
+                },
+                {
+                  "key": "reason",
+                  "value": "testing app for ios ",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/extra-day.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "extra-day.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "extra day list api is",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "feedback list",
+      "item": [
+        {
+          "name": "feedback list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "Type",
+                  "value": "Frowny",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "24",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/showparameter.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "showparameter.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Document Upload",
+      "item": [
+        {
+          "name": "submit document upload",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "EmpCode",
+                  "value": "307",
+                  "type": "text"
+                },
+                {
+                  "key": "date",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "SessionId",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "stafflist",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload-document.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "upload-document.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "documents uploaded list",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "SessionId",
+                  "value": "26",
+                  "type": "text"
+                },
+                {
+                  "key": "BranchId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "login_user",
+                  "value": "307",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload-by-me.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "upload-by-me.php"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "Vipansharma.307",
+              "type": "text"
+            },
+            {
+              "key": "password",
+              "value": "sunrise@123",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/tlogin.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "tlogin.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "dashboard/ fcm token",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "token",
+              "value": "rgtrgsrdgsr",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/token_teacher.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "token_teacher.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "dash/update login",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/updatelogin.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "updatelogin.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "app update check",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "{{baseUrl}}/versioncheck.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "versioncheck.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get attandance",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/countattendance.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "countattendance.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Sliders",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/slider.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "slider.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "assign task teachers list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/teacherslist.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "teacherslist.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "submit assign task",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "taskname",
+              "value": "test ",
+              "type": "text"
+            },
+            {
+              "key": "description",
+              "value": "test by developer",
+              "type": "text"
+            },
+            {
+              "key": "fromdate",
+              "value": "06/07/2023",
+              "type": "text"
+            },
+            {
+              "key": "deadline",
+              "value": "06/09/2023",
+              "type": "text"
+            },
+            {
+              "key": "priority",
+              "value": "Low",
+              "type": "text"
+            },
+            {
+              "key": "assignto",
+              "value": "391,108",
+              "type": "text"
+            },
+            {
+              "key": "intimation",
+              "value": "108",
+              "type": "text"
+            },
+            {
+              "key": "assignedby",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/C:/Users/win/Desktop/pssc/colored-bg.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/assigntask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "assigntask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task management/ assign to me /all",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/viewtask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "viewtask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task managment/assign to me / pending",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/pendingtasks.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "pendingtasks.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task Managment/assign to me/progress",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/inprogress.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "inprogress.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task Managment/assign to me / complete",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/completetask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "completetask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task managment / comment list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "task_id",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/showtaskcomments.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "showtaskcomments.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task managment/submit comment",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "task_id",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "msg",
+              "value": "test",
+              "type": "text"
+            },
+            {
+              "key": "type",
+              "value": "Query",
+              "type": "text"
+            },
+            {
+              "key": "status",
+              "value": "Inprogrss",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "src": "/C:/Users/win/Desktop/pssc/Group 33605.png"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/savetaskcommunications.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "savetaskcommunications.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task managment/forward task",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "assignedby",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "taskid",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "assignto",
+              "value": "108",
+              "type": "text"
+            },
+            {
+              "key": "intimation",
+              "value": "105",
+              "type": "text"
+            },
+            {
+              "key": "Photo",
+              "value": "",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/forwordtask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "forwordtask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task assigned by me/ all",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/taskassignedbyalltasks.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "taskassignedbyalltasks.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task assigned by me/pending",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bymependingtask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bymependingtask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "assigned by me/progress",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bymeinprogress.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bymeinprogress.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "assigned by me/complete",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/bymecompletetask.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "bymecompletetask.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task assigned by me / show comments list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "task_id",
+              "value": "4",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/showtaskcomments.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "showtaskcomments.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "task assigned by me/save comment api",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "task_id",
+              "value": "4",
+              "type": "text"
+            },
+            {
+              "key": "msg",
+              "value": "hy",
+              "type": "text"
+            },
+            {
+              "key": "type",
+              "value": "Query",
+              "type": "text"
+            },
+            {
+              "key": "status",
+              "value": "Completed",
+              "type": "text"
+            },
+            {
+              "key": "file",
+              "type": "file",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/savetaskcommunications.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "savetaskcommunications.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Teachers leave report",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/today_leave_report_admin.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "today_leave_report_admin.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Teachers leave report/onLeaveondutyonhalfday leave list",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/OnLeaveEmployeeReport.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "OnLeaveEmployeeReport.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Teachers (Employee) circular list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "25",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/CircularList.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "CircularList.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "View circular/ detail view circular",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "id",
+              "value": "9194",
+              "type": "text"
+            },
+            {
+              "key": "SessionId",
+              "value": "25",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ViewCircularStaff.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ViewCircularStaff.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "read circular msg",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "status",
+              "value": "Read",
+              "type": "text"
+            },
+            {
+              "key": "EmpCode",
+              "value": "307",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/update-read-status.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "update-read-status.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "documents for me/teacher",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "SessionId",
+              "value": "26",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "login_user",
+              "value": "711",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/upload-for-me.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "upload-for-me.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "daily task agenda teacher",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/dailyagenda.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "dailyagenda.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "No dues list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpID",
+              "value": "49",
+              "type": "text"
+            },
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/NoDueStudentList.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "NoDueStudentList.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "No dues reason submit api",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "BranchId",
+              "value": "1",
+              "type": "text"
+            },
+            {
+              "key": "WithDrawalHeadingId",
+              "value": "w",
+              "type": "text"
+            },
+            {
+              "key": "Response",
+              "value": "Approve",
+              "type": "text"
+            },
+            {
+              "key": "Remarks",
+              "value": "ress",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/ApproveNoDue.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "ApproveNoDue.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "in app notificaton",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "empcode",
+              "value": "307",
+              "type": "text"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/notifications.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "notifications.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create link",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "class",
+              "value": "",
+              "type": "text",
+              "uuid": "e26fd0f2-787a-4597-9b14-0201598c9bda"
+            },
+            {
+              "key": "onlinelink",
+              "value": "",
+              "type": "text",
+              "uuid": "461aaf7c-da76-4a3c-9bb4-e3d5563bb0f3"
+            },
+            {
+              "key": "subject",
+              "value": "",
+              "type": "text",
+              "uuid": "2f55e231-76c6-4073-a78e-a422cf97dd73"
+            },
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "5ea2eb90-0fa3-41bc-a8fe-39e930603db2"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "18aba825-134e-4263-8d50-5ca83768a26e"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "8bed31e9-77cc-455e-8cf9-1071a884e399"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/create-online-link-for-class.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "create-online-link-for-class.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "created link list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "7e2b01d8-fb20-4861-bf8f-dbe77498220e"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "f5e141eb-e85d-4c45-80ef-c3d79daae704"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "f729faad-ab98-44c7-a52f-7bf56f644f82"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/list-online-link-for-class.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "list-online-link-for-class.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "gallery category",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "classId",
+              "value": "",
+              "type": "text",
+              "uuid": "7ae5600d-5733-4d58-83e3-52a2317f1d7a"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "cacd5687-c247-4ed5-9092-3712c574407e"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "cc47fab2-539f-49f8-8716-ffb497fa721c"
+            },
+            {
+              "key": "name",
+              "value": "",
+              "type": "text",
+              "uuid": "a02012b5-df69-4b1c-a5c8-0117426940f0"
+            },
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "a8043a2e-b1c4-44a6-b63d-767f81081059"
+            },
+            {
+              "key": "pic",
+              "type": "file",
+              "uuid": "692d5abc-c567-4a47-aa9c-413fa3f32d6f",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/insert_galclasscat_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "insert_galclasscat_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "view gallery category list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "0fe1a061-7536-4c4f-bec2-35aa88ee4166"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "b60c6187-b9c2-4ca4-980d-da7b2abef51b"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "a6bf3c75-3773-4d3d-ac55-a5d9b8fa7e21"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/view_cateogry_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "view_cateogry_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "fetch category list",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "ed9bc405-a46e-485b-ae64-3e169ad53735"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "d381c7af-c9e0-43da-8aac-fa2cec528a35"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "61c11bdc-07a5-4289-8047-ec966c0ed83e"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/fetch_category_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "fetch_category_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "upload Gallery Images",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "1d736411-412e-4c42-aa9f-61f201744cdb"
+            },
+            {
+              "key": "name",
+              "value": "",
+              "type": "text",
+              "uuid": "8a2ff5f9-1f99-4585-b665-9a6d4d270eca"
+            },
+            {
+              "key": "classId",
+              "value": "",
+              "type": "text",
+              "uuid": "71b736b8-42e0-4256-8e77-da34427331a1"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "0c10b024-3f32-4369-9335-d5861bc1f69d"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "4d847e6f-9670-4914-8670-6b31a2caf761"
+            },
+            {
+              "key": "galcat",
+              "value": "",
+              "type": "text",
+              "uuid": "6dead561-00b6-4bdd-927e-fc4222a3f457"
+            },
+            {
+              "key": "pics",
+              "type": "file",
+              "uuid": "293694b1-be1f-4c57-b9e4-777a822270f3",
+              "value": null
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/insert_galclasscat_image_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "insert_galclasscat_image_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "view Category Images",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "7f6ba4ec-deb8-4a75-8fb7-255670ef54e1"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "a45c2223-e0f1-46e7-b179-e5c0db8ce3ff"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "3dc28dc2-85c1-430a-bf53-36c193cc6d85"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/view_category_image_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "view_category_image_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "view Images",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "EmpCode",
+              "value": "",
+              "type": "text",
+              "uuid": "15a4a42f-9a17-49d3-a9cd-a6fe502cf358"
+            },
+            {
+              "key": "SessionId",
+              "value": "",
+              "type": "text",
+              "uuid": "cad6e7e7-981d-4588-9408-954b56c680a2"
+            },
+            {
+              "key": "BranchId",
+              "value": "",
+              "type": "text",
+              "uuid": "e29adcec-1241-46fc-bdad-a8503defc67d"
+            },
+            {
+              "key": "id",
+              "value": "",
+              "type": "text",
+              "uuid": "b730bc78-40b2-412a-9059-b444d2762528"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/view_category_images_api.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "view_category_images_api.php"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "in Active List Item",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "id",
+              "value": "",
+              "type": "text",
+              "uuid": "525aa4ca-8fdb-42a8-a821-8ce035ccbb02"
+            },
+            {
+              "key": "status",
+              "value": "",
+              "type": "text",
+              "uuid": "aa29941e-a1c2-4b4a-84bc-dbf2b8a10339"
+            },
+            {
+              "key": "type",
+              "value": "",
+              "type": "text",
+              "uuid": "c30ba6b8-519b-4c5e-85b0-a335aaab7e7d"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/changeStatus.php",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "changeStatus.php"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl2",
+      "value": "https://himacademy.in/teacher/api"
+    },
+    {
+      "key": "employeeid",
+      "value": ""
+    },
+    {
+      "key": "branchid",
+      "value": ""
+    },
+    {
+      "key": "sessionid",
+      "value": ""
+    },
+    {
+      "key": "classid",
+      "value": ""
+    },
+    {
+      "key": "sectionid",
+      "value": ""
+    },
+    {
+      "key": "date",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "email2",
+      "value": ""
+    },
+    {
+      "key": "password2",
+      "value": ""
+    },
+    {
+      "key": "baseUrl",
+      "value": ""
+    }
+  ]
+}

@@ -106,7 +106,11 @@ function ExtraDayCard({request}) {
 export default function ExtraDayRequestScreen({navigation}) {
   return (
     <View style={styles.wrapper}>
-      <CommonHeader title="Extra Day Request" onBack={() => navigation.goBack()} />
+      <CommonHeader
+        title="Extra Day Request"
+        onBack={() => navigation.goBack()}
+        safeAreaTop
+      />
 
       <SafeAreaView style={styles.page}>
         <ScrollView

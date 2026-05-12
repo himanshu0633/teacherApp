@@ -1,11 +1,18 @@
 import React from 'react';
-import {SafeAreaView, StatusBar, Text, TouchableOpacity, View} from 'react-native';
+import {Platform, StatusBar, Text, TouchableOpacity, View} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ArrowLeft} from 'lucide-react-native';
 import {PURPLE, disciplineStyles as styles} from './DisciplineStyles';
 
 export default function DisciplineHeader({title, onBack}) {
+  const insets = useSafeAreaInsets();
+  const topInset =
+    Platform.OS === 'android'
+      ? insets.top || StatusBar.currentHeight || 0
+      : insets.top;
+
   return (
-    <SafeAreaView style={styles.headerSafe}>
+    <View style={[styles.headerSafe, {paddingTop: topInset}]}>
       <StatusBar backgroundColor={PURPLE} barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity
@@ -20,6 +27,6 @@ export default function DisciplineHeader({title, onBack}) {
         </Text>
         <View style={styles.headerButton} />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   StatusBar,
+  Platform,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
@@ -15,8 +16,16 @@ export default function CommonHeader({
   rightAction,
   backgroundColor = '#5A33C5',
   showBack = true,
+  safeAreaTop = false,
 }) {
   const insets = useSafeAreaInsets();
+  const androidTopInset = insets.top || StatusBar.currentHeight || 0;
+  const topInset =
+    safeAreaTop || Platform.OS === 'android'
+      ? Platform.OS === 'android'
+        ? androidTopInset
+        : insets.top
+      : 0;
 
   return (
     <View
@@ -24,7 +33,7 @@ export default function CommonHeader({
         styles.header,
         {
           backgroundColor,
-          paddingTop: insets.top,
+          paddingTop: topInset,
         },
       ]}>
       <StatusBar

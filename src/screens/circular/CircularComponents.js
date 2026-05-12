@@ -1,11 +1,12 @@
 import React from 'react';
 import {
-  SafeAreaView,
+  Platform,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   CheckCheck,
@@ -18,8 +19,14 @@ import {
 import {PURPLE, TEXT, circularStyles as styles} from './circularStyles';
 
 export function CircularHeader({title, onBack, rightAction}) {
+  const insets = useSafeAreaInsets();
+  const topInset =
+    Platform.OS === 'android'
+      ? insets.top || StatusBar.currentHeight || 0
+      : insets.top;
+
   return (
-    <SafeAreaView style={styles.headerSafe}>
+    <View style={[styles.headerSafe, {paddingTop: topInset}]}>
       <StatusBar backgroundColor={PURPLE} barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity
@@ -44,7 +51,7 @@ export function CircularHeader({title, onBack, rightAction}) {
           ) : null}
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

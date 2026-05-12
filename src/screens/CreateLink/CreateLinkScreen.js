@@ -11,7 +11,9 @@ import {
   Alert,
   Modal,
   Pressable,
+  Platform,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const CommonHeader = ({ title, onBack, backgroundColor, rightIcon }) => (
   <View style={[styles.headerContainer, { backgroundColor }]}>
@@ -28,6 +30,8 @@ const CommonHeader = ({ title, onBack, backgroundColor, rightIcon }) => (
 );
 
 export default function CreateLinkScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+  const androidTopInset = insets.top || StatusBar.currentHeight || 0;
   const [screen, setScreen] = useState('create');
   const [selectedClass, setSelectedClass] = useState('');
   const [link, setLink] = useState('');
@@ -112,7 +116,11 @@ export default function CreateLinkScreen({ navigation }) {
   return (
     <View style={styles.wrapper}>
       <StatusBar backgroundColor="#4B46FF" barStyle="light-content" />
-      <SafeAreaView style={styles.topSafe}>
+      <SafeAreaView
+        style={[
+          styles.topSafe,
+          Platform.OS === 'android' && {paddingTop: androidTopInset},
+        ]}>
         <CommonHeader
           title={screen === 'create' ? 'Create Online Class Link' : 'Class Links List'}
           onBack={() => navigation.goBack()}

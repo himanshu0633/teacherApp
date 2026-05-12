@@ -10,6 +10,7 @@ export default function ResolvedComplaintListScreen({navigation}) {
       <CommonHeader
         title="Resolved Complaint List"
         onBack={() => navigation.goBack()}
+        safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>

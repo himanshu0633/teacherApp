@@ -94,6 +94,7 @@ export default function EmployeeDalRecordScreen({navigation}) {
       <CommonHeader
         title="Employee DAL Record"
         onBack={() => navigation.goBack()}
+        safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>

@@ -10,6 +10,7 @@ export default function PendingComplaintListScreen({navigation}) {
       <CommonHeader
         title="Pending Complaint List"
         onBack={() => navigation.goBack()}
+        safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>

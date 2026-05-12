@@ -13,8 +13,11 @@ import {
   Modal,
   Platform,
 } from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function PostSchoolDiaryScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+  const androidTopInset = insets.top || StatusBar.currentHeight || 0;
   const [date, setDate] = useState('');
   const [description, setDescription] = useState('');
   const [imageUri, setImageUri] = useState(null);
@@ -64,7 +67,11 @@ export default function PostSchoolDiaryScreen({ navigation }) {
     <View style={styles.wrapper}>
       <StatusBar backgroundColor="#292246" barStyle="light-content" />
 
-      <SafeAreaView style={styles.topSafe}>
+      <SafeAreaView
+        style={[
+          styles.topSafe,
+          Platform.OS === 'android' && {paddingTop: androidTopInset},
+        ]}>
         <View style={styles.header}>
           <TouchableOpacity
             activeOpacity={0.7}

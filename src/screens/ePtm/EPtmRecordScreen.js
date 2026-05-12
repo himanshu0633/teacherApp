@@ -86,7 +86,11 @@ export default function EPtmRecordScreen({navigation}) {
 
   return (
     <View style={styles.wrapper}>
-      <CommonHeader title="E-PTM Record" onBack={() => navigation.goBack()} />
+      <CommonHeader
+        title="E-PTM Record"
+        onBack={() => navigation.goBack()}
+        safeAreaTop
+      />
 
       <SafeAreaView style={styles.page}>
         <ScrollView

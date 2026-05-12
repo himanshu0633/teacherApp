@@ -32,7 +32,11 @@ function TypeCard({type, Icon, iconColor, onPress}) {
 export default function EComplaintRecordScreen({navigation}) {
   return (
     <View style={styles.wrapper}>
-      <CommonHeader title="E-Complaint Record" onBack={() => navigation.goBack()} />
+      <CommonHeader
+        title="E-Complaint Record"
+        onBack={() => navigation.goBack()}
+        safeAreaTop
+      />
 
       <SafeAreaView style={styles.page}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

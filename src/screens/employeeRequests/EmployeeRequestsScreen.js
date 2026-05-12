@@ -70,6 +70,7 @@ export default function EmployeeRequestsScreen({navigation}) {
       <CommonHeader
         title="Employee’s Requests"
         onBack={() => navigation.goBack()}
+        safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>

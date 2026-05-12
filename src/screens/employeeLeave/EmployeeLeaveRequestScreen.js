@@ -127,6 +127,7 @@ export default function EmployeeLeaveRequestScreen({navigation}) {
       <CommonHeader
         title="Employee Leave Request"
         onBack={() => navigation.goBack()}
+        safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>
