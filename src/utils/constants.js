@@ -1,5 +1,5 @@
-export const BASE_URL = 'https://www.sunrisebhambla.com/teacher/api/';
-
+// export const BASE_URL = 'https://www.sunrisebhambla.com/teacher/api/';
+export const BASE_URL = 'https://dukeinfosys.org/rkcdemo/teacher/api/';
 /* =========================
    APP COLORS
 ========================= */
