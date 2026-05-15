@@ -1,76 +1,105 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {BASE_URL} from '../../utils/constants';
 
-export default function SalaryReceiptScreen({navigation}) {
-  const downloadIcon = <Text style={{fontSize: 20, color: '#5A33C5'}}>⤓</Text>;
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return response.json();
+};
+
+export default function SalaryReceiptScreen({navigation, route}) {
+  const salaryId = route?.params?.item?.SalaryID;
+  const [receipt, setReceipt] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadReceipt = async () => {
+      try {
+        const data = await postForm('GenerateSalary.php', {
+          SalaryID: salaryId,
+        });
+
+        setReceipt(data);
+      } catch (error) {
+        console.log('SALARY RECEIPT ERROR =>', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReceipt();
+  }, [salaryId]);
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
-        <CommonHeader
-          title="Salary Receipt"
-          onBack={() => navigation.goBack()}
-          rightIcon={<View style={styles.downloadCircle}>{downloadIcon}</View>}
-        />
+        <CommonHeader title="Salary Receipt" onBack={() => navigation.goBack()} />
 
-        <ScrollView contentContainerStyle={styles.content}>
-          <Image
-            source={require('../../assets/images/logoAndroid.png')}
-            style={styles.logo}
-          />
+        {loading ? (
+          <ActivityIndicator style={styles.loader} color="#5A33C5" />
+        ) : (
+          <ScrollView contentContainerStyle={styles.content}>
+            <Text style={styles.schoolName}>Salary Receipt</Text>
+            <Text style={styles.monthText}>
+              Pay Slip for the Month of {receipt?.month || '-'}{' '}
+              {receipt?.year || ''}
+            </Text>
 
-          <Text style={styles.schoolName}>
-            Him Academy Public School, Hiranagar
-          </Text>
-          <Text style={styles.monthText}>Pay Slip for the Month of June 2023</Text>
+            <SectionCard title="Employee Detail" titleColor="#1693E7">
+              <Row label="Employee Code" value={receipt?.EmpCode} />
+              <Row label="Job Type" value={receipt?.EmployeeTypeName} />
+              <Row label="Name" value={receipt?.EmpName} />
+              <Row label="No. of Days" value={receipt?.TotalWorkingDays} />
+              <Row label="Designation" value={receipt?.DesignationName} />
+              <Row label="No. of Presents" value={receipt?.TotalPresentDays} />
+              <Row label="Account No." value={receipt?.ACCNO} />
+              <Row label="Extra Days" value={receipt?.ExtraDays} />
+              <Row label="UAN No." value={receipt?.UANNo} />
+            </SectionCard>
 
-          <SectionCard title="Employee Detail" titleColor="#1693E7">
-            <Row label="Employee Code" value="307" />
-            <Row label="Job Type" value="Regular" />
-            <Row label="Name" value="Vipan Sharma" />
-            <Row label="No. of Days" value="30" />
-            <Row label="Designation" value="IT - Teacher" />
-            <Row label="No. of Presents" value="30.00" />
-            <Row label="Account No." value="502839402735" />
-            <Row label="Extra Days" value="8.00" />
-            <Row label="UAN No." value="10046372894" />
-          </SectionCard>
+            <SectionCard title="Earning Detail" redTitle>
+              <Row label="Basic Pay" value={receipt?.ActualBasicSalary} />
+              <Row label="Grade Pay" value={receipt?.GradePay} />
+              <Row label="Extra Days Pay" value={receipt?.ExtraDaysPay} />
+              {(receipt?.earnings || []).map(item => (
+                <Row key={item.name} label={item.name} value={item.value} />
+              ))}
+              <TotalRow value={receipt?.GrossPay} />
+            </SectionCard>
 
-          <SectionCard title="Earning Detail" redTitle>
-            <Row label="Basic Pay" value="13840.00" />
-            <Row label="Grade Pay" value="3800.00" />
-            <Row label="Holidays Pay" value="9408.00" />
-            <Row label="DA" value="17640.00" />
-            <Row label="Practice Allowance" value="0.00" />
-            <Row label="Allowance" value="0.00" />
-            <Row label="Coaching Allowance" value="2200.00" />
-            <Row label="Study Hours" value="0.00" />
-            <Row label="Responsibility Allowance" value="0.00" />
-            <TotalRow value="46888.00" />
-          </SectionCard>
+            <SectionCard title="Deductions" redTitle>
+              <Row label="EPF" value={receipt?.EPF} />
+              <Row label="Advance Salary" value={receipt?.['Adv Salary']} />
+              <Row label="TDS" value={receipt?.TDS} />
+              <Row label="ESI" value={receipt?.ESI} />
+              <TotalRow value={receipt?.TotalDeductions} />
+            </SectionCard>
 
-          <SectionCard title="Deductions" redTitle>
-            <Row label="EPF" value="1800.00" />
-            <Row label="Advance Salary" value="0.00" />
-            <Row label="TDS" value="0.00" />
-            <TotalRow value="1800.00" />
-          </SectionCard>
-
-          <SectionCard title="Net Salary" redTitle>
-            <Row label="Earnings" value="46888.00" />
-            <Row label="Deductions" value="1800.00" />
-            <TotalRow value="45088.00" />
-          </SectionCard>
-        </ScrollView>
+            <SectionCard title="Net Salary" redTitle>
+              <Row label="Earnings" value={receipt?.GrossPay} />
+              <Row label="Deductions" value={receipt?.TotalDeductions} />
+              <TotalRow value={receipt?.NetSalary} />
+            </SectionCard>
+          </ScrollView>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -98,7 +127,7 @@ function Row({label, value}) {
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
-      <Text style={styles.rowValue}>{value}</Text>
+      <Text style={styles.rowValue}>{value || '-'}</Text>
     </View>
   );
 }
@@ -107,7 +136,7 @@ function TotalRow({value}) {
   return (
     <View style={[styles.row, styles.totalRow]}>
       <Text style={styles.totalLabel}>Total</Text>
-      <Text style={styles.totalValue}>{value}</Text>
+      <Text style={styles.totalValue}>{value || '-'}</Text>
     </View>
   );
 }
@@ -119,19 +148,8 @@ const styles = StyleSheet.create({
     padding: 18,
     paddingBottom: 30,
   },
-  downloadCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logo: {
-    width: 85,
-    height: 85,
-    alignSelf: 'center',
-    resizeMode: 'contain',
+  loader: {
+    marginTop: 40,
   },
   schoolName: {
     textAlign: 'center',

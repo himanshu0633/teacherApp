@@ -13,6 +13,26 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
 import {COLORS, BASE_URL} from '../../utils/constants';
 
+const getStoredTeacher = async () => {
+  const raw = await AsyncStorage.getItem('teacherData');
+  return raw ? JSON.parse(raw) : {};
+};
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return response.json();
+};
+
 const menuItems = [
   {title: 'My Salary', screen: 'MySalaryScreen'},
   {title: 'Apply Leaves', screen: 'ApplyLeaveScreen'},
@@ -44,31 +64,35 @@ export default function MyProfileScreen({navigation}) {
     try {
       setLoading(true);
 
-      const userData = await AsyncStorage.getItem('userData');
-      const parsed = userData ? JSON.parse(userData) : {};
+      const parsed = await getStoredTeacher();
+      const storedProfilePic =
+        (await AsyncStorage.getItem('profile_pic')) ||
+        (await AsyncStorage.getItem('profil_pic'));
 
-      const formData = new FormData();
-      formData.append('EmpCode', parsed?.EmpCode || '');
-      formData.append('SessionId', parsed?.Session || '');
-      formData.append('BranchId', parsed?.BranchId || '');
-
-      const response = await fetch(`${BASE_URL}get-profile.php`, {
-        method: 'POST',
-        body: formData,
+      const data = await postForm('get-profile.php', {
+        EmpCode: parsed?.EmpCode,
+        SessionId: parsed?.SessionId || parsed?.Session,
+        BranchId: parsed?.BranchId,
       });
 
-      const data = await response.json();
+      const profilePic =
+        data?.profil_pic ||
+        data?.profile_pic ||
+        data?.EmpImage ||
+        storedProfilePic ||
+        parsed?.profil_pic ||
+        parsed?.profile_pic;
 
       setProfileData({
         name: parsed?.name || '',
         empCode: parsed?.EmpCode || '',
         designation: parsed?.DesignationName || '',
-        department: parsed?.DepartmentName || '',
         dob: parsed?.DOB || '',
         doj: parsed?.DOJ || '',
-        mobile: data?.mobileno || '',
-        address: data?.address || '',
-        empImage: data?.EmpImage || '',
+        department: data?.Department || parsed?.DepartmentName || '',
+        mobile: data?.mobileno || parsed?.MobileNo || '',
+        address: data?.address || parsed?.ResidentialAddress || '',
+        empImage: profilePic || '',
       });
     } catch (error) {
       console.log('PROFILE ERROR:', error);

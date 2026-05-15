@@ -7,6 +7,7 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Platform,
+  PermissionsAndroid,
   Pressable,
   ActivityIndicator,
   Alert,
@@ -15,14 +16,73 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {User, KeyRound} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
 import {useAuth} from '../../context/AuthContext';
-import {BASE_URL} from '../../utils/constants';
+import {API_ENDPOINTS, BASE_URL} from '../../utils/constants';
 
 const API_CONFIG = {
   BASE_URL,
   ENDPOINTS: {
-    LOGIN: 'tlogin.php',
+    LOGIN: API_ENDPOINTS.LOGIN,
   },
+};
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  });
+
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.log(`${endpoint} JSON PARSE ERROR =>`, error);
+    console.log(`${endpoint} RAW RESPONSE =>`, text);
+    return null;
+  }
+};
+
+const getFirebaseDeviceToken = async () => {
+  if (Platform.OS === 'ios') {
+    await messaging().requestPermission();
+    await messaging().registerDeviceForRemoteMessages();
+  }
+
+  if (Platform.OS === 'android' && Platform.Version >= 33) {
+    await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+  }
+
+  return messaging().getToken();
+};
+
+const sendTeacherFirebaseToken = async empCode => {
+  if (!empCode) {
+    return null;
+  }
+
+  const token = await getFirebaseDeviceToken();
+
+  if (!token) {
+    return null;
+  }
+
+  return postForm(API_ENDPOINTS.TEACHER_TOKEN, {
+    empcode: empCode,
+    token,
+  });
 };
 
 export default function LoginScreen() {
@@ -162,6 +222,12 @@ export default function LoginScreen() {
           console.log('teacherData SAVE NAHI HUA ❌');
           Alert.alert('Error', 'AsyncStorage save failed');
           return;
+        }
+
+        try {
+          await sendTeacherFirebaseToken(data?.EmpCode);
+        } catch (error) {
+          console.log('TEACHER TOKEN ERROR =>', error);
         }
 
         await login(data);

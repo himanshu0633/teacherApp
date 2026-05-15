@@ -1,26 +1,78 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  ActivityIndicator,
+  ScrollView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import {BASE_URL} from '../../utils/constants';
 
-const salaryData = [
-  {month: 'June', year: '2023', salary: '45088.00'},
-  {month: 'May', year: '2023', salary: '35087.00'},
-  {month: 'April', year: '2023', salary: '38230.00'},
-];
+const MONTHS = {
+  1: 'January',
+  2: 'February',
+  3: 'March',
+  4: 'April',
+  5: 'May',
+  6: 'June',
+  7: 'July',
+  8: 'August',
+  9: 'September',
+  10: 'October',
+  11: 'November',
+  12: 'December',
+};
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return response.json();
+};
 
 export default function MySalaryScreen({navigation}) {
+  const [salaryData, setSalaryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadSalary = async () => {
+      try {
+        const raw = await AsyncStorage.getItem('teacherData');
+        const teacher = raw ? JSON.parse(raw) : {};
+        const data = await postForm('SalaryList.php', {
+          EmpCode: teacher?.EmpCode,
+          BranchId: teacher?.BranchId,
+        });
+
+        setSalaryData(data?.response?.rest || []);
+      } catch (error) {
+        console.log('SALARY LIST ERROR =>', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSalary();
+  }, []);
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         <CommonHeader title="My Salary" onBack={() => navigation.goBack()} />
 
-        <View style={styles.tableWrap}>
+        <ScrollView style={styles.tableWrap}>
           <View style={styles.headerRow}>
             <Text style={[styles.headerCell, {flex: 1.1}]}>Month</Text>
             <Text style={[styles.headerCell, {flex: 1}]}>Year</Text>
@@ -28,23 +80,33 @@ export default function MySalaryScreen({navigation}) {
             <Text style={[styles.headerCell, {flex: 1}]}>Action</Text>
           </View>
 
-          {salaryData.map((item, index) => (
-            <View key={index} style={styles.row}>
-              <Text style={[styles.cell, {flex: 1.1}]}>{item.month}</Text>
-              <Text style={[styles.cell, {flex: 1}]}>{item.year}</Text>
-              <Text style={[styles.cell, {flex: 1.2}]}>{item.salary}</Text>
-              <View style={[styles.cell, {flex: 1}]}>
-                <TouchableOpacity
-                  style={styles.viewBtn}
-                  onPress={() =>
-                    navigation.navigate('SalaryReceiptScreen', {item})
-                  }>
-                  <Text style={styles.viewText}>View</Text>
-                </TouchableOpacity>
+          {loading ? (
+            <ActivityIndicator style={styles.loader} color="#5A33C5" />
+          ) : salaryData.length === 0 ? (
+            <Text style={styles.emptyText}>No salary record found</Text>
+          ) : (
+            salaryData.map((item, index) => (
+              <View key={`${item.SalaryID}-${index}`} style={styles.row}>
+                <Text style={[styles.cell, {flex: 1.1}]}>
+                  {MONTHS[Number(item.Month)] || item.Month}
+                </Text>
+                <Text style={[styles.cell, {flex: 1}]}>{item.Year}</Text>
+                <Text style={[styles.cell, {flex: 1.2}]}>
+                  {item.NetSalary}
+                </Text>
+                <View style={[styles.cell, {flex: 1}]}>
+                  <TouchableOpacity
+                    style={styles.viewBtn}
+                    onPress={() =>
+                      navigation.navigate('SalaryReceiptScreen', {item})
+                    }>
+                    <Text style={styles.viewText}>View</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))
+          )}
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
@@ -94,5 +156,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  loader: {
+    marginVertical: 24,
+  },
+  emptyText: {
+    padding: 20,
+    textAlign: 'center',
+    color: '#666',
   },
 });

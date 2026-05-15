@@ -33,9 +33,9 @@ import {
   MessageCircleWarning,
   MessageSquareText,
 } from 'lucide-react-native';
-import {BASE_URL} from '../utils/constants';
 import SidebarMenu from '../components/SidebarMenu';
 import {useAuth} from '../context/AuthContext';
+import {API_ENDPOINTS, BASE_URL} from '../utils/constants';
 
 const GRID_ITEMS = [
   {
@@ -152,6 +152,98 @@ const isPrincipalDesignation = designation =>
     .trim()
     .toLowerCase() === 'principal';
 
+const firstPresentValue = (source, keys, fallback = '0') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return String(value);
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeAttendanceCount = response => {
+  const data = Array.isArray(response) ? response[0] : response;
+
+  return {
+    absent: firstPresentValue(data, [
+      'absents',
+      'A',
+      'a',
+      'Absent',
+      'absent',
+      'absentCount',
+    ]),
+    leave: firstPresentValue(data, [
+      'leaves',
+      'L',
+      'l',
+      'Leave',
+      'leave',
+      'leaveCount',
+    ]),
+    present: firstPresentValue(data, [
+      'Presents',
+      'P',
+      'p',
+      'Present',
+      'present',
+      'presentCount',
+    ]),
+    day: firstPresentValue(
+      data,
+      ['days', 'Day', 'day', 'dayName', 'DayName'],
+      'NA',
+    ),
+  };
+};
+
+const normalizeApiObject = response => {
+  return Array.isArray(response) ? response[0] : response;
+};
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  });
+
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.log(`${endpoint} JSON PARSE ERROR =>`, error);
+    console.log(`${endpoint} RAW RESPONSE =>`, text);
+    return null;
+  }
+};
+
+const updateTeacherLogin = empCode => {
+  return postForm(API_ENDPOINTS.UPDATE_LOGIN, {
+    empcode: empCode,
+  });
+};
+
+const getAttendanceCount = ({empCode, sessionId, branchId}) => {
+  return postForm(API_ENDPOINTS.COUNT_ATTENDANCE, {
+    empcode: empCode,
+    SessionId: sessionId,
+    BranchId: branchId,
+  });
+};
+
 export default function DashboardScreen({navigation}) {
   const {logout} = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -163,6 +255,12 @@ export default function DashboardScreen({navigation}) {
     profilePic: '',
     image: 'No',
     sessionName: '2023-24',
+  });
+  const [attendanceCount, setAttendanceCount] = useState({
+    absent: '0',
+    leave: '0',
+    present: '0',
+    day: 'NA',
   });
 
   const menuWidth = 300;
@@ -177,7 +275,7 @@ export default function DashboardScreen({navigation}) {
     }).start();
   };
 
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     Animated.timing(slideAnim, {
       toValue: -menuWidth,
       duration: 240,
@@ -185,7 +283,7 @@ export default function DashboardScreen({navigation}) {
     }).start(() => {
       setMenuOpen(false);
     });
-  };
+  }, [menuWidth, slideAnim]);
 
   const safeValue = useCallback(value => {
     if (
@@ -208,79 +306,85 @@ export default function DashboardScreen({navigation}) {
 
   const saveTeacherData = useCallback(async teacherResponse => {
     try {
-      await AsyncStorage.setItem('teacherData', JSON.stringify(teacherResponse));
-      await setSafeItem('EmpCode', teacherResponse?.EmpCode);
-      await setSafeItem('EmpID', teacherResponse?.EmpID);
-      await setSafeItem('name', teacherResponse?.name);
-      await setSafeItem('EmpTypeID', teacherResponse?.EmpTypeID);
-      await setSafeItem('JobType', teacherResponse?.JobType);
-      await setSafeItem('SessionName', teacherResponse?.SessionName);
-      await setSafeItem('DepartmentName', teacherResponse?.DepartmentName);
-      await setSafeItem('LoginTypeName', teacherResponse?.LoginTypeName);
-      await setSafeItem('DesignationName', teacherResponse?.DesignationName);
-      await setSafeItem('DOB', teacherResponse?.DOB);
-      await setSafeItem('DOJ', teacherResponse?.DOJ);
+      const currentRaw = await AsyncStorage.getItem('teacherData');
+      let currentData = {};
+
+      try {
+        currentData = currentRaw ? JSON.parse(currentRaw) : {};
+      } catch (error) {
+        currentData = {};
+      }
+
+      const updatedTeacherData = {
+        ...currentData,
+        ...teacherResponse,
+      };
+
+      await AsyncStorage.setItem(
+        'teacherData',
+        JSON.stringify(updatedTeacherData),
+      );
+      await setSafeItem('EmpCode', updatedTeacherData?.EmpCode);
+      await setSafeItem('EmpID', updatedTeacherData?.EmpID);
+      await setSafeItem('name', updatedTeacherData?.name);
+      await setSafeItem('EmpTypeID', updatedTeacherData?.EmpTypeID);
+      await setSafeItem('JobType', updatedTeacherData?.JobType);
+      await setSafeItem('SessionName', updatedTeacherData?.SessionName);
+      await setSafeItem('DepartmentName', updatedTeacherData?.DepartmentName);
+      await setSafeItem('LoginTypeName', updatedTeacherData?.LoginTypeName);
+      await setSafeItem('DesignationName', updatedTeacherData?.DesignationName);
+      await setSafeItem('DOB', updatedTeacherData?.DOB);
+      await setSafeItem('DOJ', updatedTeacherData?.DOJ);
       await setSafeItem(
         'ResidentialAddress',
-        teacherResponse?.ResidentialAddress,
+        updatedTeacherData?.ResidentialAddress,
       );
-      await setSafeItem('MobileNo', teacherResponse?.MobileNo);
-      await setSafeItem('EmpCategory', teacherResponse?.EmpCategory);
-      await setSafeItem('Gender', teacherResponse?.Gender);
-      await setSafeItem('response', teacherResponse?.response);
-      await setSafeItem('Session', teacherResponse?.Session);
-      await setSafeItem('image', teacherResponse?.image || 'No');
-      await setSafeItem('profil_pic', teacherResponse?.profil_pic);
-      await setSafeItem('BranchId', teacherResponse?.BranchId);
-      await setSafeItem('branchName', teacherResponse?.branchName);
-      await setSafeItem('SectionName', teacherResponse?.SectionName);
-      await setSafeItem('SectionId', teacherResponse?.SectionId);
-      await setSafeItem('Classid', teacherResponse?.Classid);
-      await setSafeItem('ClassName', teacherResponse?.ClassName);
-      return true;
+      await setSafeItem('MobileNo', updatedTeacherData?.MobileNo);
+      await setSafeItem('EmpCategory', updatedTeacherData?.EmpCategory);
+      await setSafeItem('Gender', updatedTeacherData?.Gender);
+      await setSafeItem('response', updatedTeacherData?.response);
+      await setSafeItem('Session', updatedTeacherData?.Session);
+      await setSafeItem('SessionId', updatedTeacherData?.SessionId);
+      await setSafeItem('image', updatedTeacherData?.image || 'No');
+      await setSafeItem(
+        'profil_pic',
+        updatedTeacherData?.profil_pic || updatedTeacherData?.profile_pic,
+      );
+      await setSafeItem(
+        'profile_pic',
+        updatedTeacherData?.profile_pic || updatedTeacherData?.profil_pic,
+      );
+      await setSafeItem('BranchId', updatedTeacherData?.BranchId);
+      await setSafeItem('branchName', updatedTeacherData?.branchName);
+      await setSafeItem('SectionName', updatedTeacherData?.SectionName);
+      await setSafeItem('SectionId', updatedTeacherData?.SectionId);
+      await setSafeItem('Classid', updatedTeacherData?.Classid);
+      await setSafeItem('ClassName', updatedTeacherData?.ClassName);
+      return updatedTeacherData;
     } catch (error) {
       console.log('SAVE UPDATED STORAGE ERROR =>', error);
       return false;
     }
   }, [setSafeItem]);
 
-  const [notificationCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const callUpdateLogin = useCallback(async empCode => {
     try {
-      const formData = new FormData();
-      formData.append('empcode', empCode);
+      const data = normalizeApiObject(await updateTeacherLogin(empCode));
 
-      const response = await fetch(`${BASE_URL}updatelogin.php`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
+      if (data && typeof data === 'object') {
+        const savedData = await saveTeacherData(data);
 
-      const text = await response.text();
-      let data = null;
-
-      try {
-        data = JSON.parse(text);
-      } catch (error) {
-        console.log('updatelogin.php JSON PARSE ERROR =>', error);
-        return;
-      }
-
-      if (data?.EmpCode) {
-        const saved = await saveTeacherData(data);
-
-        if (saved) {
+        if (savedData) {
           setTeacherData({
-            name: safeValue(data?.name),
-            designation: safeValue(data?.DesignationName),
-            branchName: safeValue(data?.branchName),
-            empCode: data?.EmpCode || '',
-            profilePic: data?.profil_pic || '',
-            image: data?.image || 'No',
-            sessionName: data?.SessionName || '2023-24',
+            name: safeValue(savedData?.name),
+            designation: safeValue(savedData?.DesignationName),
+            branchName: safeValue(savedData?.branchName),
+            empCode: savedData?.EmpCode || empCode || '',
+            profilePic: savedData?.profile_pic || savedData?.profil_pic || '',
+            image: savedData?.image || 'No',
+            sessionName: savedData?.SessionName || '2023-24',
           });
         }
       }
@@ -288,6 +392,40 @@ export default function DashboardScreen({navigation}) {
       console.log('updatelogin.php CALL ERROR =>', error);
     }
   }, [safeValue, saveTeacherData]);
+
+  const callAttendanceCount = useCallback(
+    async ({empCode, sessionId, branchId}) => {
+      try {
+        const data = normalizeApiObject(
+          await getAttendanceCount({empCode, sessionId, branchId}),
+        );
+
+        if (data) {
+          setAttendanceCount(normalizeAttendanceCount(data));
+          setNotificationCount(Number(data?.notification_count || 0));
+
+          const profilePic = data?.profile_pic || data?.profil_pic || '';
+
+          if (profilePic || data?.image) {
+            setTeacherData(current => ({
+              ...current,
+              profilePic: profilePic || current.profilePic,
+              image: data?.image || current.image,
+            }));
+
+            await AsyncStorage.multiSet([
+              ['profile_pic', String(profilePic)],
+              ['profil_pic', String(profilePic)],
+              ['image', String(data?.image || '')],
+            ]);
+          }
+        }
+      } catch (error) {
+        console.log('countattendance.php CALL ERROR =>', error);
+      }
+    },
+    [],
+  );
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -297,8 +435,12 @@ export default function DashboardScreen({navigation}) {
       const branchName = await AsyncStorage.getItem('branchName');
       const empCode = await AsyncStorage.getItem('EmpCode');
       const profilePic = await AsyncStorage.getItem('profil_pic');
+      const profilePicAlt = await AsyncStorage.getItem('profile_pic');
       const image = await AsyncStorage.getItem('image');
       const sessionName = await AsyncStorage.getItem('SessionName');
+      const sessionId = await AsyncStorage.getItem('SessionId');
+      const session = await AsyncStorage.getItem('Session');
+      const branchId = await AsyncStorage.getItem('BranchId');
 
       if (!teacherDataRaw) {
         await logout();
@@ -319,27 +461,44 @@ export default function DashboardScreen({navigation}) {
         designation: safeValue(parsed?.DesignationName || designation),
         branchName: safeValue(parsed?.branchName || branchName),
         empCode: parsed?.EmpCode || empCode || '',
-        profilePic: parsed?.profil_pic || profilePic || '',
+        profilePic:
+          parsed?.profile_pic ||
+          parsed?.profil_pic ||
+          profilePicAlt ||
+          profilePic ||
+          '',
         image: parsed?.image || image || 'No',
         sessionName: parsed?.SessionName || sessionName || '2023-24',
+        sessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+        branchId: parsed?.BranchId || branchId || '',
       };
 
       setTeacherData(finalData);
 
       if (finalData.empCode) {
         await callUpdateLogin(finalData.empCode);
+        await callAttendanceCount({
+          empCode: finalData.empCode,
+          sessionId: finalData.sessionId,
+          branchId: finalData.branchId,
+        });
       }
     } catch (error) {
       console.log('LOAD DASHBOARD ERROR =>', error);
       Alert.alert('Error', 'Dashboard data load failed');
     }
-  }, [callUpdateLogin, logout, safeValue]);
+  }, [callAttendanceCount, callUpdateLogin, logout, safeValue]);
 
   useEffect(() => {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  const handleLogout = () => {
+  const clearAppSession = useCallback(async () => {
+    await AsyncStorage.clear();
+    await logout();
+  }, [logout]);
+
+  const handleLogout = useCallback(() => {
     closeMenu();
 
     setTimeout(() => {
@@ -350,16 +509,16 @@ export default function DashboardScreen({navigation}) {
           style: 'destructive',
           onPress: async () => {
             try {
-              await AsyncStorage.clear();
-              await logout();
+              await clearAppSession();
             } catch (error) {
+              console.log('LOGOUT ERROR =>', error);
               Alert.alert('Error', 'Logout failed');
             }
           },
         },
       ]);
     }, 250);
-  };
+  }, [clearAppSession, closeMenu]);
 
   const onPressGrid = item => {
     if (item.screen) {
@@ -390,9 +549,7 @@ export default function DashboardScreen({navigation}) {
     );
   };
 
-  const showNetworkImage =
-    String(teacherData.image).toLowerCase() === 'yes' &&
-    !!teacherData.profilePic;
+  const showNetworkImage = !!teacherData.profilePic;
   const isPrincipal = isPrincipalDesignation(teacherData.designation);
   const visibleGridItems = GRID_ITEMS.filter(item => {
     if (item.visibility === 'common') {
@@ -482,7 +639,7 @@ export default function DashboardScreen({navigation}) {
             <View style={styles.attendanceHeader}>
               <Text style={styles.attendanceHeaderText}>Attendance Summary</Text>
               <Text style={styles.attendanceHeaderText}>
-                Day: Summer Vacation
+                 {attendanceCount.day}
               </Text>
             </View>
 
@@ -491,21 +648,21 @@ export default function DashboardScreen({navigation}) {
                 <View style={[styles.labelBox, {backgroundColor: '#FF0D0D'}]}>
                   <Text style={styles.labelText}>A</Text>
                 </View>
-                <Text style={styles.countText}>0</Text>
+                <Text style={styles.countText}>{attendanceCount.absent}</Text>
               </View>
 
               <View style={styles.attendanceBox}>
                 <View style={[styles.labelBox, {backgroundColor: '#F4BE1F'}]}>
                   <Text style={styles.labelText}>L</Text>
                 </View>
-                <Text style={styles.countText}>0</Text>
+                <Text style={styles.countText}>{attendanceCount.leave}</Text>
               </View>
 
               <View style={styles.attendanceBox}>
                 <View style={[styles.labelBox, {backgroundColor: '#34B82F'}]}>
                   <Text style={styles.labelText}>P</Text>
                 </View>
-                <Text style={styles.countText}>205</Text>
+                <Text style={styles.countText}>{attendanceCount.present}</Text>
               </View>
             </View>
           </View>

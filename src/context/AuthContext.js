@@ -77,7 +77,7 @@ export function AuthProvider({children}) {
         setIsLoggedIn(true);
       },
       logout: async () => {
-        await AsyncStorage.multiRemove(['teacherData', 'teacher_token']);
+        await AsyncStorage.clear();
         clearSession();
       },
       validateSession,

@@ -7,13 +7,62 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import {BASE_URL} from '../../utils/constants';
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return response.json();
+};
 
 export default function ChangePasswordScreen({navigation}) {
-  const [oldPassword, setOldPassword] = useState('**********');
+  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const resetPassword = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      Alert.alert('Error', 'Please fill all password fields');
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const raw = await AsyncStorage.getItem('teacherData');
+      const teacher = raw ? JSON.parse(raw) : {};
+      const data = await postForm('changepass.php', {
+        empcode: teacher?.EmpCode,
+        oldpassword: oldPassword,
+        newpassword: newPassword,
+        confirmpassword: confirmPassword,
+      });
+
+      Alert.alert('Success', data?.message || 'Password updated', [
+        {text: 'OK', onPress: () => navigation.goBack()},
+      ]);
+    } catch (error) {
+      console.log('CHANGE PASSWORD ERROR =>', error);
+      Alert.alert('Error', 'Password update failed');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -43,8 +92,12 @@ export default function ChangePasswordScreen({navigation}) {
             secureTextEntry
           />
 
-          <TouchableOpacity style={styles.btn}>
-            <Text style={styles.btnText}>Reset Password</Text>
+          <TouchableOpacity style={styles.btn} onPress={resetPassword}>
+            {saving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>Reset Password</Text>
+            )}
           </TouchableOpacity>
 
           <Text style={styles.instructionTitle}>Instruction</Text>

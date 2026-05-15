@@ -1,5 +1,12 @@
 // export const BASE_URL = 'https://www.sunrisebhambla.com/teacher/api/';
 export const BASE_URL = 'https://dukeinfosys.org/rkcdemo/teacher/api/';
+
+export const API_ENDPOINTS = {
+  LOGIN: 'tlogin.php',
+  TEACHER_TOKEN: 'token_teacher.php',
+  UPDATE_LOGIN: 'updatelogin.php',
+  COUNT_ATTENDANCE: 'countattendance.php',
+};
 /* =========================
    APP COLORS
 ========================= */
