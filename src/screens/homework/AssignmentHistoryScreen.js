@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,50 +7,239 @@ import {
   ScrollView,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
+  Alert,
+  Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import { API_ENDPOINTS, BASE_URL } from '../../utils/constants';
 
-export default function AssignmentHistoryScreen({navigation, route}) {
+const getFirstValue = (source, keys, fallback = '') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return String(value);
+    }
+  }
+
+  return fallback;
+};
+
+const getListFromResponse = response => {
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  const wrapper = response?.response || response;
+
+  return (
+    wrapper?.Res ||
+    wrapper?.Rest ||
+    wrapper?.rest ||
+    wrapper?.data ||
+    wrapper?.list ||
+    []
+  );
+};
+
+const postForm = async (endpoint, fields) => {
+  const formData = new FormData();
+
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value === null || value === undefined ? '' : value);
+  });
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    body: formData,
+  });
+
+  const text = await response.text();
+
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    console.log(`${endpoint} JSON PARSE ERROR =>`, error);
+    console.log(`${endpoint} RAW RESPONSE =>`, text);
+    return null;
+  }
+};
+
+const normalizeClass = item => ({
+  id: getFirstValue(item, ['Classid', 'ClassId', 'classid', 'id']),
+  name: getFirstValue(item, ['ClassName', 'Class', 'classname', 'name']),
+});
+
+const normalizeHomework = item => ({
+  className: getFirstValue(item, ['ClassName', 'className']),
+  sectionName: getFirstValue(item, ['SectionName', 'sectionName']),
+  subjectName: getFirstValue(item, ['SubjectName', 'subjectName']),
+  dueDate: getFirstValue(item, ['due_date', 'DueDate', 'dueDate']),
+  description: getFirstValue(item, ['desp', 'Description', 'description']),
+});
+
+const normalizeClassName = value =>
+  String(value || '')
+    .trim()
+    .replace(/^0+/, '');
+
+async function loadTeacherContext() {
+  const raw = await AsyncStorage.getItem('teacherData');
+  const parsed = raw ? JSON.parse(raw) : {};
+  const [empCode, branchId, sessionId, session] = await Promise.all([
+    AsyncStorage.getItem('EmpCode'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+  ]);
+
+  return {
+    ...parsed,
+    EmpCode: parsed?.EmpCode || empCode || '',
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId:
+      parsed?.SessionId || parsed?.Session || sessionId || session || '',
+  };
+}
+
+function PickerModal({ visible, items, loading, onClose, onSelect }) {
+  return (
+    <Modal visible={visible} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.pickerCard}>
+          <View style={styles.pickerHeader}>
+            <Text style={styles.pickerTitle}>Filter Class</Text>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+          </View>
+
+          {loading ? (
+            <ActivityIndicator color="#5A33C5" style={styles.modalLoader} />
+          ) : (
+            <ScrollView style={styles.pickerList}>
+              <TouchableOpacity
+                style={styles.pickerOption}
+                onPress={() => onSelect(null)}
+              >
+                <Text style={styles.pickerOptionText}>All Classes</Text>
+              </TouchableOpacity>
+
+              {items.map(item => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.pickerOption}
+                  onPress={() => onSelect(item)}
+                >
+                  <Text style={styles.pickerOptionText}>{item.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+export default function AssignmentHistoryScreen({ navigation, route }) {
   const type = route?.params?.type || 'assignment';
   const isHomework = type === 'homework';
+  const [classes, setClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [homeworkList, setHomeworkList] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [loadingList, setLoadingList] = useState(false);
+  const [classModalVisible, setClassModalVisible] = useState(false);
 
-  const data = isHomework
-    ? [
-        {
-          dueDate: '12-08-2023',
-          classSection: '9th - Tulip',
-          subject: 'Computer Science',
-          description:
-            '1. What is HTML?\n2. Write the full form of CPU.',
-          hasAttachment: false,
-        },
-        {
-          dueDate: '12-08-2023',
-          classSection: '9th - Tulip',
-          subject: 'Computer Science',
-          description:
-            '1. Define computer.\n2. Write any four input devices.',
-          hasAttachment: false,
-        },
-      ]
-    : [
-        {
-          dueDate: '12-08-2023',
-          classSection: '9th - Tulip',
-          subject: 'Computer Science',
-          description:
-            '1. What do you understand by micro computers?\n2. Explain the four types of computer.',
-          hasAttachment: true,
-        },
-        {
-          dueDate: '12-08-2023',
-          classSection: '9th - Tulip',
-          subject: 'Computer Science',
-          description:
-            '1. What do you understand by micro computers?\n2. Explain the four types of computer.',
-          hasAttachment: true,
-        },
-      ];
+  const filteredList = useMemo(() => {
+    if (!selectedClass?.name) {
+      return homeworkList;
+    }
+
+    return homeworkList.filter(
+      item =>
+        normalizeClassName(item.className) ===
+        normalizeClassName(selectedClass.name),
+    );
+  }, [homeworkList, selectedClass]);
+
+  const loadClasses = useCallback(async teacherContext => {
+    if (
+      !teacherContext?.EmpCode ||
+      !teacherContext?.BranchId ||
+      !teacherContext?.SessionId
+    ) {
+      return;
+    }
+
+    try {
+      setLoadingClasses(true);
+      const data = await postForm(API_ENDPOINTS.FILL_CLASS, {
+        BranchId: teacherContext.BranchId,
+        SessionId: teacherContext.SessionId,
+        EmpCode: teacherContext.EmpCode,
+      });
+      const classList = getListFromResponse(data)
+        .map(normalizeClass)
+        .filter(item => item.id && item.name);
+
+      setClasses(classList);
+    } catch (error) {
+      console.log('fillclass.php CALL ERROR =>', error);
+      Alert.alert('Error', 'Class list load nahi ho payi.');
+    } finally {
+      setLoadingClasses(false);
+    }
+  }, []);
+
+  const loadHomeworkList = useCallback(async teacherContext => {
+    if (
+      !teacherContext?.EmpCode ||
+      !teacherContext?.BranchId ||
+      !teacherContext?.SessionId
+    ) {
+      return;
+    }
+
+    try {
+      setLoadingList(true);
+      const data = await postForm(API_ENDPOINTS.HOMEWORK_LIST, {
+        empcode: teacherContext.EmpCode,
+        branchid: teacherContext.BranchId,
+        sessionid: teacherContext.SessionId,
+      });
+      const list = getListFromResponse(data).map(normalizeHomework);
+
+      setHomeworkList(list);
+    } catch (error) {
+      console.log('homeworklist.php CALL ERROR =>', error);
+      Alert.alert('Error', 'Homework history load nahi ho payi.');
+    } finally {
+      setLoadingList(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      try {
+        const teacherContext = await loadTeacherContext();
+        await Promise.all([
+          loadClasses(teacherContext),
+          loadHomeworkList(teacherContext),
+        ]);
+      } catch (error) {
+        console.log('HOMEWORK HISTORY INIT ERROR =>', error);
+      }
+    };
+
+    init();
+  }, [loadClasses, loadHomeworkList]);
 
   return (
     <View style={styles.wrapper}>
@@ -66,50 +255,76 @@ export default function AssignmentHistoryScreen({navigation, route}) {
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          {data.map((item, index) => (
-            <HistoryCard key={index} item={item} />
-          ))}
+          <TouchableOpacity
+            style={styles.filterBox}
+            onPress={() => setClassModalVisible(true)}
+          >
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.filterText,
+                !selectedClass && styles.placeholderText,
+              ]}
+            >
+              {selectedClass?.name || 'All Classes'}
+            </Text>
+            <Text style={styles.arrow}>v</Text>
+          </TouchableOpacity>
+
+          {loadingList ? (
+            <ActivityIndicator color="#5A33C5" style={styles.loader} />
+          ) : filteredList.length ? (
+            filteredList.map((item, index) => (
+              <HistoryCard key={`${item.dueDate}-${index}`} item={item} />
+            ))
+          ) : (
+            <Text style={styles.emptyText}>Homework history empty hai.</Text>
+          )}
         </ScrollView>
       </SafeAreaView>
+
+      <PickerModal
+        visible={classModalVisible}
+        items={classes}
+        loading={loadingClasses}
+        onClose={() => setClassModalVisible(false)}
+        onSelect={item => {
+          setSelectedClass(item);
+          setClassModalVisible(false);
+        }}
+      />
     </View>
   );
 }
 
-function HistoryCard({item}) {
+function HistoryCard({ item }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardTop}>
         <View />
         <View style={styles.dueBadge}>
-          <Text style={styles.dueText}>Due Date: {item.dueDate}</Text>
+          <Text style={styles.dueText}>Due Date: {item.dueDate || '-'}</Text>
         </View>
       </View>
 
       <View style={styles.infoRow}>
         <View style={styles.infoCol}>
           <Text style={styles.label}>Class/Section</Text>
-          <Text style={styles.value}>{item.classSection}</Text>
+          <Text style={styles.value}>
+            {item.className || '-'} / {item.sectionName || '-'}
+          </Text>
         </View>
 
         <View style={styles.infoCol}>
           <Text style={styles.label}>Subject</Text>
-          <Text style={styles.value}>{item.subject}</Text>
+          <Text style={styles.value}>{item.subjectName || '-'}</Text>
         </View>
       </View>
 
       <View style={styles.descBox}>
         <Text style={styles.descTitle}>Description</Text>
-        <Text style={styles.descText}>{item.description}</Text>
+        <Text style={styles.descText}>{item.description || '-'}</Text>
       </View>
-
-      {item.hasAttachment && (
-        <TouchableOpacity style={styles.attachmentRow}>
-          <View style={styles.attachIconBox}>
-            <Text style={styles.attachIcon}>🔗</Text>
-          </View>
-          <Text style={styles.attachText}>View Attachment</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
@@ -130,6 +345,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 30,
+  },
+  filterBox: {
+    height: 46,
+    borderWidth: 1,
+    borderColor: '#D5D5D5',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    marginBottom: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filterText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#222',
+  },
+  placeholderText: {
+    color: '#777',
+  },
+  arrow: {
+    fontSize: 16,
+    color: '#222',
+    marginLeft: 8,
+  },
+  loader: {
+    marginTop: 30,
+  },
+  emptyText: {
+    marginTop: 30,
+    color: '#777',
+    fontSize: 15,
+    textAlign: 'center',
   },
   card: {
     backgroundColor: '#fff',
@@ -199,27 +449,59 @@ const styles = StyleSheet.create({
     color: '#777',
     lineHeight: 18,
   },
-  attachmentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingBottom: 18,
-  },
-  attachIconBox: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#F1F1F1',
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    padding: 20,
   },
-  attachIcon: {
-    fontSize: 17,
+  pickerCard: {
+    width: '100%',
+    maxWidth: 360,
+    maxHeight: '75%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
   },
-  attachText: {
-    fontSize: 14,
-    fontWeight: '800',
+  pickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  pickerTitle: {
     color: '#222',
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F0F0',
+  },
+  closeButtonText: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  modalLoader: {
+    paddingVertical: 28,
+  },
+  pickerList: {
+    marginTop: 4,
+  },
+  pickerOption: {
+    minHeight: 46,
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#E6E6E6',
+  },
+  pickerOptionText: {
+    color: '#222',
+    fontSize: 15,
   },
 });

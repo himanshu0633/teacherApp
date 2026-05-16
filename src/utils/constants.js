@@ -6,19 +6,26 @@ export const API_ENDPOINTS = {
   TEACHER_TOKEN: 'token_teacher.php',
   UPDATE_LOGIN: 'updatelogin.php',
   COUNT_ATTENDANCE: 'countattendance.php',
+  FILL_CLASS: 'fillclass.php',
+  SHOW_SECTION: 'show_section.php',
+  VIEW_ATTENDANCE: 'ViewAttendence.php',
+  SUBJECT: 'subject.php',
+  ASSIGN_HOMEWORK: 'AssignHomework.php',
+  ASSIGNMENT: 'assignment.php',
+  HOMEWORK_LIST: 'homeworklist.php',
 };
 /* =========================
    APP COLORS
 ========================= */
 
 export const COLORS = {
-  text: '#6C6C6C',          // Body Text
-  darkText: '#242424',      // Heading / Dark Text
-  success: '#3FD43C',       // Green
-  danger: '#E83939',        // Red
-  primary: '#4F25C6',       // Header Background / Main Brand
-  highlight: '#0098EE',     // Highlight Blue
-  gradientBlue: '#0481C7',  // Custom blue for gradients
+  text: '#6C6C6C', // Body Text
+  darkText: '#242424', // Heading / Dark Text
+  success: '#3FD43C', // Green
+  danger: '#E83939', // Red
+  primary: '#4F25C6', // Header Background / Main Brand
+  highlight: '#0098EE', // Highlight Blue
+  gradientBlue: '#0481C7', // Custom blue for gradients
 
   white: '#FFFFFF',
   black: '#000000',
