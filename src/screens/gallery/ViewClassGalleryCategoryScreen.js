@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,30 @@ import {
   Image,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import {API_ENDPOINTS} from '../../utils/constants';
+import {postForm} from '../../services/teacherApi';
+
+const getTeacherContext = async () => {
+  const [saved, branchId, sessionId, session, empCode] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+    AsyncStorage.getItem('EmpCode'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+  };
+};
 
 export default function ViewClassGalleryCategoryScreen({navigation}) {
   return (
@@ -22,10 +44,43 @@ export default function ViewClassGalleryCategoryScreen({navigation}) {
 }
 
 export function ListScreen({navigation, title, type}) {
-  const rows = [
-    {id: '#01', date: '09-07-2025', className: 'Class V', category: 'Earth Day Activity'},
-    {id: '#02', date: '08-07-2025', className: 'Class VI', category: 'Bookmark Activity'},
-  ];
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const loadRows = useCallback(async () => {
+    setLoading(true);
+    try {
+      const context = await getTeacherContext();
+      const payload = {
+        EmpCode: context.EmpCode,
+        SessionId: context.SessionId,
+        BranchId: context.BranchId,
+      };
+
+      console.log('CLASS GALLERY VIEW PAYLOAD =>', payload);
+      const data = await postForm(
+        API_ENDPOINTS.VIEW_CLASS_GALLERY_CATEGORY_IMAGE,
+        payload,
+      );
+      console.log('CLASS GALLERY VIEW RESPONSE =>', data);
+
+      if (data?.status === true || String(data?.status).toLowerCase() === 'true') {
+        setRows(data?.response || []);
+      } else {
+        setRows([]);
+      }
+    } catch (error) {
+      console.log('CLASS GALLERY VIEW ERROR =>', error);
+      Alert.alert('Error', 'Class gallery list could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', loadRows);
+    return unsubscribe;
+  }, [loadRows, navigation]);
 
   return (
     <View style={styles.wrapper}>
@@ -41,48 +96,76 @@ export function ListScreen({navigation, title, type}) {
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          {rows.map(item => (
-            <View key={item.id} style={styles.card}>
-              <View style={styles.cardHead}>
-                <Text style={styles.idText}>{item.id}</Text>
-                <View style={styles.actions}>
-                  <TouchableOpacity>
-                    <Text style={styles.edit}>✎</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity>
-                    <Text style={styles.delete}>🗑</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.body}>
-                <Info label="Date" value={item.date} />
-                <Info label="Class" value={item.className} />
-                <Info label="Category Name" value={item.category} />
-
-                <Text style={styles.imageLabel}>
-                  {type === 'images' ? 'Gallery Images' : 'Category Image'}
-                </Text>
-
-                {type === 'images' ? (
-                  <View style={styles.galleryRow}>
-                    <Thumb />
-                    <Thumb />
-                    <TouchableOpacity
-                      style={styles.moreThumb}
-                      onPress={() => navigation.navigate('GalleryImageGridScreen')}>
-                      <Thumb dark />
-                      <Text style={styles.moreText}>+5</Text>
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <Thumb />
-                )}
-              </View>
+          {loading ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator color="#5A33C5" />
             </View>
-          ))}
+          ) : rows.length ? (
+            rows.map((item, index) => (
+              <GalleryCard
+                key={`${item.categoryid || index}`}
+                item={item}
+                index={index}
+                type={type}
+                navigation={navigation}
+              />
+            ))
+          ) : (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyText}>No class gallery data found.</Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
+    </View>
+  );
+}
+
+function GalleryCard({item, index, type, navigation}) {
+  const images = item?.categoryImages || [];
+  const firstImages = images.slice(0, 2);
+  const count = Number(item?.imageCount || images.length || 0);
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHead}>
+        <Text style={styles.idText}>#{String(index + 1).padStart(2, '0')}</Text>
+      </View>
+
+      <View style={styles.body}>
+        <Info label="Date" value={item?.date || '-'} />
+        <Info label="Class" value={item?.className || '-'} />
+        <Info label="Category Name" value={item?.categoryName || '-'} />
+
+        <Text style={styles.imageLabel}>
+          {type === 'images' ? 'Gallery Images' : 'Category Image'}
+        </Text>
+
+        {images.length ? (
+          <View style={styles.galleryRow}>
+            {(type === 'images' ? firstImages : images.slice(0, 1)).map((image, imgIndex) => (
+              <Thumb key={`${image.image}-${imgIndex}`} uri={image.image} />
+            ))}
+
+            {type === 'images' && count > firstImages.length ? (
+              <TouchableOpacity
+                style={styles.moreThumb}
+                onPress={() =>
+                  navigation.navigate('GalleryImageGridScreen', {
+                    id: item.categoryid,
+                    title: item.categoryName,
+                    date: item.date,
+                  })
+                }>
+                <Thumb uri={firstImages[0]?.image || images[0]?.image} dark />
+                <Text style={styles.moreText}>+{count - firstImages.length}</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        ) : (
+          <Text style={styles.noImageText}>No image</Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -96,17 +179,8 @@ function Info({label, value}) {
   );
 }
 
-function Thumb({dark}) {
-  return (
-    <Image
-      source={{
-        uri: dark
-          ? 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=300'
-          : 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=300',
-      }}
-      style={[styles.thumb, dark && styles.darkThumb]}
-    />
-  );
+function Thumb({uri, dark}) {
+  return <Image source={{uri}} style={[styles.thumb, dark && styles.darkThumb]} />;
 }
 
 const styles = StyleSheet.create({
@@ -114,6 +188,18 @@ const styles = StyleSheet.create({
   topSafe: {backgroundColor: '#5A33C5'},
   container: {flex: 1, backgroundColor: '#F7F7F7'},
   content: {paddingHorizontal: 20, paddingTop: 30, paddingBottom: 30},
+  centerBox: {paddingVertical: 40, alignItems: 'center'},
+  emptyBox: {
+    minHeight: 110,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  emptyText: {fontSize: 13, color: '#777', textAlign: 'center'},
   card: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
@@ -133,14 +219,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   idText: {fontSize: 14, color: '#0098EE', fontWeight: '800'},
-  actions: {flexDirection: 'row', alignItems: 'center', gap: 18},
-  edit: {fontSize: 20, color: '#29B842', fontWeight: '800'},
-  delete: {fontSize: 18, color: '#FF3B4F'},
   body: {paddingHorizontal: 15, paddingTop: 16, paddingBottom: 18},
   infoRow: {flexDirection: 'row', marginBottom: 10},
   label: {width: '46%', fontSize: 13, color: '#222', fontWeight: '800'},
   value: {flex: 1, fontSize: 13, color: '#777'},
-  imageLabel: {fontSize: 13, color: '#222', fontWeight: '800', marginTop: 2, marginBottom: 12},
+  imageLabel: {
+    fontSize: 13,
+    color: '#222',
+    fontWeight: '800',
+    marginTop: 2,
+    marginBottom: 12,
+  },
   thumb: {width: 66, height: 50, borderRadius: 7, resizeMode: 'cover', marginRight: 8},
   darkThumb: {opacity: 0.7},
   galleryRow: {flexDirection: 'row'},
@@ -153,4 +242,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     top: 14,
   },
+  noImageText: {fontSize: 12, color: '#777'},
 });

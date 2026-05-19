@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,16 +7,75 @@ import {
   StatusBar,
   Image,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import {API_ENDPOINTS} from '../../utils/constants';
+import {postForm} from '../../services/teacherApi';
 
-export default function GalleryImageGridScreen({navigation}) {
-  const images = [
-    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500',
-    'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=500',
-    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=500',
-    'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=500',
-  ];
+const getTeacherContext = async () => {
+  const [saved, branchId, sessionId, session, empCode] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+    AsyncStorage.getItem('EmpCode'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+  };
+};
+
+export default function GalleryImageGridScreen({navigation, route}) {
+  const {id, title = 'Gallery Images', date = ''} = route?.params || {};
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const loadImages = useCallback(async () => {
+    if (!id) {
+      setImages([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const context = await getTeacherContext();
+      const payload = {
+        EmpCode: context.EmpCode,
+        SessionId: context.SessionId,
+        BranchId: context.BranchId,
+        id,
+      };
+
+      console.log('CLASS GALLERY GRID PAYLOAD =>', payload);
+      const data = await postForm(
+        API_ENDPOINTS.VIEW_CLASS_GALLERY_CATEGORY_IMAGES,
+        payload,
+      );
+      console.log('CLASS GALLERY GRID RESPONSE =>', data);
+
+      if (data?.status === true || String(data?.status).toLowerCase() === 'true') {
+        setImages(data?.categoryImages || data?.response || []);
+      } else {
+        setImages([]);
+      }
+    } catch (error) {
+      console.log('CLASS GALLERY GRID ERROR =>', error);
+      Alert.alert('Error', 'Gallery images could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    loadImages();
+  }, [loadImages]);
 
   return (
     <View style={styles.wrapper}>
@@ -32,14 +91,28 @@ export default function GalleryImageGridScreen({navigation}) {
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.title}>Earth Day Activity</Text>
-          <Text style={styles.date}>09-07-2025</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.date}>{date || '-'}</Text>
 
-          <View style={styles.grid}>
-            {images.map((img, index) => (
-              <Image key={index} source={{uri: img}} style={styles.image} />
-            ))}
-          </View>
+          {loading ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator color="#5A33C5" />
+            </View>
+          ) : images.length ? (
+            <View style={styles.grid}>
+              {images.map((item, index) => (
+                <Image
+                  key={`${item.image || index}`}
+                  source={{uri: item.image || item}}
+                  style={styles.image}
+                />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyText}>No images found.</Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -64,6 +137,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 30,
   },
+  centerBox: {paddingVertical: 40, alignItems: 'center'},
+  emptyBox: {
+    minHeight: 110,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  emptyText: {fontSize: 13, color: '#777', textAlign: 'center'},
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

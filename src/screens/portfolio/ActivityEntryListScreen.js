@@ -8,7 +8,6 @@ export default function ActivityEntryListScreen({navigation}) {
       title="Activity Entry List"
       awardLabel="Prize Won"
       activityLabel="Activity"
-      activityValue="Dance"
     />
   );
 }

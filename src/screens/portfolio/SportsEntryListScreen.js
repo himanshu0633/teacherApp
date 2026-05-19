@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,43 @@ import {
   Image,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CommonHeader from '../../components/CommonHeader';
+import {API_ENDPOINTS} from '../../utils/constants';
+import {postForm} from '../../services/teacherApi';
+
+const getTeacherContext = async () => {
+  const [saved, branchId, sessionId, session, empCode] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+    AsyncStorage.getItem('EmpCode'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+  };
+};
+
+const categoryLabel = value => {
+  if (String(value) === '1180') {
+    return 'Participation';
+  }
+  if (String(value) === '1181') {
+    return 'Achievement';
+  }
+  return value || '-';
+};
+
+const isImageFile = url => /\.(png|jpe?g|gif|webp|jfif)$/i.test(url || '');
 
 export default function SportsEntryListScreen({navigation}) {
   return (
@@ -17,19 +52,95 @@ export default function SportsEntryListScreen({navigation}) {
       navigation={navigation}
       title="Sports Entry List"
       awardLabel="Achievement/Award"
-      activityLabel="Activity"
-      activityValue="Badminton"
+      activityLabel="Sports"
     />
   );
 }
 
-export function EntryListScreen({
-  navigation,
-  title,
-  awardLabel,
-  activityLabel,
-  activityValue,
-}) {
+export function EntryListScreen({navigation, title, awardLabel, activityLabel}) {
+  const [entries, setEntries] = useState([]);
+  const [teacher, setTeacher] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const loadEntries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const context = teacher || (await getTeacherContext());
+      setTeacher(context);
+      console.log('SPORTS ENTRY LIST CONTEXT =>', context);
+
+      if (!context.BranchId || !context.SessionId || !context.EmpCode) {
+        console.log('SPORTS ENTRY LIST MISSING CONTEXT =>', context);
+        Alert.alert('Error', 'Branch, session ya employee detail nahi mili.');
+        return;
+      }
+
+      const payload = {
+        BranchId: context.BranchId,
+        SessionId: context.SessionId,
+        empcode: context.EmpCode,
+      };
+      console.log('SPORTS ENTRY LIST PAYLOAD =>', payload);
+
+      const data = await postForm(API_ENDPOINTS.SPORTS_ENTRY_LIST, payload);
+      console.log('SPORTS ENTRY LIST RESPONSE =>', data);
+
+      if (data?.status === 'true') {
+        const list = data?.response?.Rest || [];
+        console.log('SPORTS ENTRY LIST COUNT =>', list.length);
+        setEntries(list);
+      } else {
+        setEntries([]);
+        Alert.alert('No Data', data?.msg || 'Sports entry list nahi mili.');
+      }
+    } catch (error) {
+      console.log('SPORTS ENTRY LIST ERROR =>', error);
+      Alert.alert('Error', 'Sports entry list load nahi ho payi.');
+    } finally {
+      setLoading(false);
+    }
+  }, [teacher]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', loadEntries);
+    return unsubscribe;
+  }, [loadEntries, navigation]);
+
+  const deleteEntry = entry => {
+    Alert.alert('Delete Entry', 'Kya aap ye sports entry delete karna chahte hain?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          setDeletingId(entry.Id);
+          try {
+            const payload = {
+              id: entry.Id,
+            };
+            console.log('SPORTS ENTRY DELETE PAYLOAD =>', payload);
+
+            const data = await postForm(API_ENDPOINTS.SPORTS_ENTRY_DELETE, payload);
+            console.log('SPORTS ENTRY DELETE RESPONSE =>', data);
+
+            if (data?.status === 'true') {
+              setEntries(prev => prev.filter(item => item.Id !== entry.Id));
+              Alert.alert('Success', data?.msg || 'Sports entry delete ho gayi.');
+            } else {
+              Alert.alert('Error', data?.msg || 'Sports entry delete nahi ho payi.');
+            }
+          } catch (error) {
+            console.log('SPORTS ENTRY DELETE ERROR =>', error);
+            Alert.alert('Error', 'Sports entry delete nahi ho payi.');
+          } finally {
+            setDeletingId(null);
+          }
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.wrapper}>
       <StatusBar backgroundColor="#5A33C5" barStyle="light-content" />
@@ -44,41 +155,77 @@ export function EntryListScreen({
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.card}>
-            <View style={styles.cardHead}>
-              <Text style={styles.name}>Malvika Sharma</Text>
-              <TouchableOpacity>
-                <Text style={styles.delete}>🗑</Text>
-              </TouchableOpacity>
+          {loading ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator color="#5A33C5" />
             </View>
-
-            <View style={styles.body}>
-              <Info label="Adm No." value="112089" />
-              <Info label="Year" value="2022" />
-              <Info label={awardLabel} value="First" />
-              <Info label="Level" value="Zonal Level" />
-              <Info label="Category" value="Achievement" />
-              <Info label={activityLabel} value={activityValue} />
-              <Info label="Updated On" value="31-07-2023" />
-
-              <Text style={styles.descTitle}>Description</Text>
-              <Text style={styles.descText}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. At ille
-                pellit
-              </Text>
-
-              <Text style={styles.imageTitle}>Images</Text>
-
-              <Image
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=200',
-                }}
-                style={styles.thumb}
+          ) : entries.length ? (
+            entries.map(entry => (
+              <EntryCard
+                key={entry.Id}
+                entry={entry}
+                awardLabel={awardLabel}
+                activityLabel={activityLabel}
+                deleting={deletingId === entry.Id}
+                onDelete={() => deleteEntry(entry)}
               />
+            ))
+          ) : (
+            <View style={styles.emptyBox}>
+              <Text style={styles.emptyText}>Sports entry list empty hai.</Text>
             </View>
-          </View>
+          )}
         </ScrollView>
       </SafeAreaView>
+    </View>
+  );
+}
+
+function EntryCard({entry, awardLabel, activityLabel, deleting, onDelete}) {
+  const fileUrl = entry?.file || '';
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHead}>
+        <Text style={styles.name}>{entry?.stname || '-'}</Text>
+        <TouchableOpacity disabled={deleting} onPress={onDelete}>
+          {deleting ? (
+            <ActivityIndicator color="#E83939" size="small" />
+          ) : (
+            <Text style={styles.delete}>×</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.body}>
+        <Info label="Adm No." value={entry?.adminno || '-'} />
+        <Info label="Class" value={entry?.classname || '-'} />
+        <Info label="Year" value={entry?.Year || '-'} />
+        <Info label={awardLabel} value={entry?.PrizeWon || '-'} />
+        <Info label="Level" value={entry?.Level || '-'} />
+        <Info label="Category" value={categoryLabel(entry?.category)} />
+        <Info label={activityLabel} value={entry?.SportsName || '-'} />
+
+        <Text style={styles.descTitle}>Description</Text>
+        <Text style={styles.descText}>{entry?.des || '-'}</Text>
+
+        {fileUrl ? (
+          <>
+            <Text style={styles.imageTitle}>Attachment</Text>
+            {isImageFile(fileUrl) ? (
+              <TouchableOpacity onPress={() => Linking.openURL(fileUrl)}>
+                <Image source={{uri: fileUrl}} style={styles.thumb} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.fileBtn}
+                onPress={() => Linking.openURL(fileUrl)}>
+                <Text style={styles.fileBtnText}>Open File</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -97,23 +244,45 @@ const styles = StyleSheet.create({
   topSafe: {backgroundColor: '#5A33C5'},
   container: {flex: 1, backgroundColor: '#F7F7F7'},
   content: {paddingHorizontal: 20, paddingTop: 30, paddingBottom: 30},
+  centerBox: {paddingVertical: 40, alignItems: 'center'},
+  emptyBox: {
+    minHeight: 110,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  emptyText: {fontSize: 13, color: '#777', textAlign: 'center'},
   card: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 7,
     overflow: 'hidden',
     backgroundColor: '#fff',
+    marginBottom: 16,
   },
   cardHead: {
-    height: 34,
+    minHeight: 34,
     backgroundColor: '#F1F1F1',
     paddingHorizontal: 15,
+    paddingVertical: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  name: {fontSize: 14, color: '#0098EE', fontWeight: '800'},
-  delete: {fontSize: 18, color: 'red'},
+  name: {flex: 1, fontSize: 14, color: '#0098EE', fontWeight: '800'},
+  delete: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    color: '#E83939',
+    fontSize: 24,
+    lineHeight: 23,
+    textAlign: 'center',
+  },
   body: {paddingHorizontal: 15, paddingTop: 16, paddingBottom: 16},
   infoRow: {flexDirection: 'row', marginBottom: 10},
   label: {width: '54%', fontSize: 13, color: '#222', fontWeight: '800'},
@@ -128,4 +297,13 @@ const styles = StyleSheet.create({
   descText: {fontSize: 12, color: '#777', lineHeight: 16, marginBottom: 15},
   imageTitle: {fontSize: 13, color: '#222', fontWeight: '800', marginBottom: 10},
   thumb: {width: 66, height: 50, borderRadius: 7, resizeMode: 'cover'},
+  fileBtn: {
+    height: 36,
+    alignSelf: 'flex-start',
+    borderRadius: 7,
+    backgroundColor: '#5A33C5',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+  },
+  fileBtnText: {fontSize: 13, color: '#fff', fontWeight: '800'},
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import {View, SafeAreaView, StyleSheet, StatusBar} from 'react-native';
 import CommonHeader from '../../components/CommonHeader';
 import AttendanceDetailsCard from '../studentAttendence/AttendanceDetailsCard';
+import {API_ENDPOINTS} from '../../utils/constants';
 
 export default function CoachingClassAttendanceScreen({navigation}) {
   return (
@@ -19,7 +20,9 @@ export default function CoachingClassAttendanceScreen({navigation}) {
 
       {/* Body */}
       <SafeAreaView style={styles.container}>
-        <AttendanceDetailsCard />
+        <AttendanceDetailsCard
+          attendanceEndpoint={API_ENDPOINTS.VIEW_COACHING_ATTENDANCE}
+        />
       </SafeAreaView>
     </View>
   );

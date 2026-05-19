@@ -192,7 +192,9 @@ function PickerModal({
   );
 }
 
-export default function AttendanceDetailsCard() {
+export default function AttendanceDetailsCard({
+  attendanceEndpoint = API_ENDPOINTS.VIEW_ATTENDANCE,
+}) {
   const [teacher, setTeacher] = useState({});
   const [selectedDate, setSelectedDate] = useState(today);
   const [calendarVisible, setCalendarVisible] = useState(false);
@@ -366,7 +368,7 @@ export default function AttendanceDetailsCard() {
 
     try {
       setLoadingAttendance(true);
-      const data = await postForm(API_ENDPOINTS.VIEW_ATTENDANCE, {
+      const data = await postForm(attendanceEndpoint, {
         Date: formatApiDate(selectedDate),
         ClassId: selectedClass.id,
         SectionId: selectedSection?.id || '',
@@ -388,7 +390,7 @@ export default function AttendanceDetailsCard() {
         students: getListFromResponse(data),
       });
     } catch (error) {
-      console.log('ViewAttendence.php CALL ERROR =>', error);
+      console.log(`${attendanceEndpoint} CALL ERROR =>`, error);
       Alert.alert('Error', 'Attendance load nahi ho payi.');
     } finally {
       setLoadingAttendance(false);

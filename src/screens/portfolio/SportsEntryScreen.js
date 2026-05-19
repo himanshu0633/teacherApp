@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,323 @@ import {
   TextInput,
   StatusBar,
   ScrollView,
+  Modal,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {errorCodes, isErrorWithCode, pick, types} from '@react-native-documents/picker';
 import CommonHeader from '../../components/CommonHeader';
+import {API_ENDPOINTS} from '../../utils/constants';
+import {postForm} from '../../services/teacherApi';
 
-export default function SportsEntryScreen({navigation}) {
+const CATEGORY_OPTIONS = [
+  {id: '1180', label: 'Participation'},
+  {id: '1181', label: 'Achievement'},
+];
+
+const emptyStudent = {
+  className: '',
+  enrollNo: '',
+  name: '',
+  fatherName: '',
+  mobileNo: '',
+  address: '',
+};
+
+const getTeacherContext = async () => {
+  const [saved, branchId, sessionId, session, empCode] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+    AsyncStorage.getItem('EmpCode'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+  };
+};
+
+const normalizeStudent = data => ({
+  className: data?.Class || data?.classname || '',
+  enrollNo: data?.EnrollNo || data?.adminno || '',
+  name: data?.Name || data?.stname || '',
+  fatherName: data?.FatherName || '',
+  mobileNo: data?.MobileNo || '',
+  address: data?.Address || '',
+});
+
+const normalizeOption = (item, labelKeys) => ({
+  id: String(item?.Id || item?.id || ''),
+  label: labelKeys.map(key => item?.[key]).find(Boolean) || '',
+});
+
+export default function SportsEntryScreen({
+  navigation,
+  title = 'Sports Entry',
+  listRoute = 'SportsEntryListScreen',
+  firstLabel = 'Sports Name',
+  awardLabel = 'Award/Participate',
+  entryType = 'sports',
+}) {
+  const [teacher, setTeacher] = useState(null);
+  const [adminNo, setAdminNo] = useState('');
+  const [studentName, setStudentName] = useState('');
+  const [student, setStudent] = useState(emptyStudent);
+  const [entries, setEntries] = useState([]);
+  const [levels, setLevels] = useState([]);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [selectedLevel, setSelectedLevel] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [year, setYear] = useState('');
+  const [prizeWon, setPrizeWon] = useState('');
+  const [description, setDescription] = useState('');
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [loadingLookups, setLoadingLookups] = useState(false);
+  const [activePicker, setActivePicker] = useState(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const context = await getTeacherContext();
+      setTeacher(context);
+      setLoadingLookups(true);
+
+      try {
+        const [entryData, levelData] = await Promise.all([
+          postForm(
+            entryType === 'activity'
+              ? API_ENDPOINTS.ACTIVITY_LIST
+              : API_ENDPOINTS.SPORTS_LIST,
+            {},
+          ),
+          postForm(API_ENDPOINTS.LEVEL_LIST, {}),
+        ]);
+
+        setEntries(
+          (entryData?.response?.Rest || [])
+            .map(item => normalizeOption(item, ['SportsName', 'Activity', 'Name']))
+            .filter(item => item.id && item.label),
+        );
+        setLevels(
+          (levelData?.response?.Rest || [])
+            .map(item => normalizeOption(item, ['LevelName', 'Name']))
+            .filter(item => item.id && item.label),
+        );
+      } catch (error) {
+        console.log('PORTFOLIO LOOKUP ERROR =>', error);
+        Alert.alert('Error', `${firstLabel} ya level list load nahi ho payi.`);
+      } finally {
+        setLoadingLookups(false);
+      }
+    };
+
+    init();
+  }, [entryType, firstLabel]);
+
+  const pickerConfig = useMemo(
+    () => ({
+      entry: {
+        title: firstLabel,
+        items: entries,
+        loading: loadingLookups,
+        onSelect: setSelectedEntry,
+      },
+      level: {
+        title: 'Level',
+        items: levels,
+        loading: loadingLookups,
+        onSelect: setSelectedLevel,
+      },
+      category: {
+        title: 'Category',
+        items: CATEGORY_OPTIONS,
+        loading: false,
+        onSelect: setSelectedCategory,
+      },
+    }),
+    [entries, firstLabel, levels, loadingLookups],
+  );
+
+  const searchStudent = async () => {
+    const queryAdminNo = adminNo.trim();
+    const queryName = studentName.trim();
+
+    if (!queryAdminNo && !queryName) {
+      Alert.alert('Required', 'Admission No ya Student Name enter karein.');
+      return;
+    }
+
+    if (!teacher?.BranchId || !teacher?.SessionId) {
+      Alert.alert('Error', 'Branch ya session detail nahi mili.');
+      return;
+    }
+
+    setLoadingSearch(true);
+    try {
+      const data = await postForm(API_ENDPOINTS.STUDENT_SEARCH, {
+        adminno: queryAdminNo,
+        name: queryAdminNo ? '' : queryName,
+        BranchId: teacher.BranchId,
+        SessionId: teacher.SessionId,
+      });
+
+      if (data?.status !== 'true') {
+        setStudent(emptyStudent);
+        Alert.alert('No Data', data?.msg || 'Student detail nahi mili.');
+        return;
+      }
+
+      const nextStudent = normalizeStudent(data);
+      setStudent(nextStudent);
+      setAdminNo(nextStudent.enrollNo || queryAdminNo);
+      setStudentName(nextStudent.name || queryName);
+    } catch (error) {
+      console.log('STUDENT SEARCH ERROR =>', error);
+      Alert.alert('Error', 'Student search nahi ho paya.');
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  const resetForm = () => {
+    setSelectedEntry(null);
+    setSelectedLevel(null);
+    setSelectedCategory(null);
+    setSelectedFile(null);
+    setYear('');
+    setPrizeWon('');
+    setDescription('');
+  };
+
+  const saveEntry = async () => {
+    if (!student.enrollNo || !student.name || !student.className) {
+      Alert.alert('Required', 'Pehle student search karke detail fill karein.');
+      return;
+    }
+
+    if (!selectedEntry || !selectedLevel || !selectedCategory || !year.trim()) {
+      Alert.alert('Required', `${firstLabel}, level, category aur year select karein.`);
+      return;
+    }
+
+    const isActivity = entryType === 'activity';
+    const payload = isActivity
+      ? {
+          Enollno: student.enrollNo,
+          Enrollno: student.enrollNo,
+          stname: student.name,
+          classname: student.className,
+          BranchId: teacher?.BranchId,
+          SessionId: teacher?.SessionId,
+          Activity: selectedEntry.id,
+          Year: year.trim(),
+          Level: selectedLevel.id,
+          PrizeWon: prizeWon.trim(),
+          des: description.trim(),
+          category: selectedCategory.label,
+          empcode: teacher?.EmpCode,
+          ...(selectedFile ? {file: selectedFile} : {}),
+        }
+      : {
+          Enrollno: student.enrollNo,
+          stname: student.name,
+          classname: student.className,
+          BranchId: teacher?.BranchId,
+          SessionId: teacher?.SessionId,
+          SportsId: selectedEntry.id,
+          Year: year.trim(),
+          Level: selectedLevel.id,
+          PrizeWon: prizeWon.trim(),
+          des: description.trim(),
+          category: selectedCategory.id,
+          empcode: teacher?.EmpCode,
+          ...(selectedFile ? {file: selectedFile} : {}),
+        };
+
+    setLoadingSubmit(true);
+    try {
+      const endpoint = isActivity
+        ? API_ENDPOINTS.SAVE_ACTIVITY_ENTRY
+        : API_ENDPOINTS.SAVE_SPORTS_ENTRY;
+
+      console.log('PORTFOLIO SAVE TYPE =>', entryType);
+      console.log('PORTFOLIO SAVE ENDPOINT =>', endpoint);
+      console.log('PORTFOLIO SAVE PAYLOAD =>', payload);
+
+      const data = await postForm(endpoint, payload);
+      console.log('PORTFOLIO SAVE RESPONSE =>', data);
+
+      const saved =
+        String(data?.status).toLowerCase() === 'true' ||
+        String(data?.status).toLowerCase() === 'success';
+
+      if (saved) {
+        Alert.alert(
+          'Success',
+          data?.msg ||
+            data?.message ||
+            `${isActivity ? 'Activity' : 'Sports'} entry save ho gayi.`,
+        );
+        resetForm();
+        return;
+      }
+
+      Alert.alert(
+        'Error',
+        data?.msg ||
+          data?.message ||
+          `${isActivity ? 'Activity' : 'Sports'} entry save nahi ho payi.`,
+      );
+    } catch (error) {
+      console.log('SAVE PORTFOLIO ENTRY ERROR =>', error);
+      Alert.alert('Error', `${isActivity ? 'Activity' : 'Sports'} entry save nahi ho payi.`);
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
+
+  const pickAttachment = async () => {
+    try {
+      const [file] = await pick({
+        type: [types.images, types.pdf],
+      });
+
+      if (file) {
+        setSelectedFile({
+          uri: file.uri,
+          name: file.name || 'attachment',
+          type: file.type || 'application/octet-stream',
+        });
+      }
+    } catch (error) {
+      if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) {
+        return;
+      }
+
+      console.log('PORTFOLIO FILE PICK ERROR =>', error);
+      Alert.alert('Error', 'File select nahi ho payi.');
+    }
+  };
+
+  const currentPicker = pickerConfig[activePicker];
+
   return (
     <View style={styles.wrapper}>
       <StatusBar backgroundColor="#5A33C5" barStyle="light-content" />
 
       <SafeAreaView style={styles.topSafe}>
         <CommonHeader
-          title="Sports Entry"
+          title={title}
           onBack={() => navigation.goBack()}
           backgroundColor="#5A33C5"
           rightIcon={
-            <TouchableOpacity onPress={() => navigation.navigate('SportsEntryListScreen')}>
+            <TouchableOpacity onPress={() => navigation.navigate(listRoute)}>
               <Text style={styles.eyeIcon}>◎</Text>
             </TouchableOpacity>
           }
@@ -31,42 +333,99 @@ export default function SportsEntryScreen({navigation}) {
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <SearchBox />
+          <SearchBox
+            adminNo={adminNo}
+            studentName={studentName}
+            loading={loadingSearch}
+            onAdminNoChange={setAdminNo}
+            onStudentNameChange={setStudentName}
+            onSearch={searchStudent}
+          />
 
-          <StudentDetail />
+          <StudentDetail student={student} />
 
           <AddDetail
-            firstLabel="Sports Name"
-            awardLabel="Award/Participate"
+            firstLabel={firstLabel}
+            awardLabel={awardLabel}
+            selectedEntry={selectedEntry}
+            selectedLevel={selectedLevel}
+            selectedCategory={selectedCategory}
+            selectedFile={selectedFile}
+            year={year}
+            prizeWon={prizeWon}
+            description={description}
+            loadingSubmit={loadingSubmit}
+            onEntryPress={() => setActivePicker('entry')}
+            onLevelPress={() => setActivePicker('level')}
+            onCategoryPress={() => setActivePicker('category')}
+            onYearChange={setYear}
+            onPrizeWonChange={setPrizeWon}
+            onDescriptionChange={setDescription}
+            onUploadPress={pickAttachment}
+            onSubmit={saveEntry}
           />
         </ScrollView>
       </SafeAreaView>
+
+      <PickerModal
+        visible={Boolean(activePicker)}
+        title={currentPicker?.title || ''}
+        items={currentPicker?.items || []}
+        loading={Boolean(currentPicker?.loading)}
+        onClose={() => setActivePicker(null)}
+        onSelect={item => {
+          currentPicker?.onSelect(item);
+          setActivePicker(null);
+        }}
+      />
     </View>
   );
 }
 
-function SearchBox() {
+function SearchBox({
+  adminNo,
+  studentName,
+  loading,
+  onAdminNoChange,
+  onStudentNameChange,
+  onSearch,
+}) {
   return (
     <>
       <View style={styles.inputBox}>
         <Text style={styles.smallLabel}>Admission No</Text>
-        <TextInput value="112089" style={styles.input} />
+        <TextInput
+          value={adminNo}
+          onChangeText={onAdminNoChange}
+          placeholder="Admission No"
+          placeholderTextColor="#777"
+          style={styles.input}
+        />
       </View>
 
       <Text style={styles.orText}>OR</Text>
 
       <View style={styles.inputBox}>
-        <TextInput placeholder="Student Name" placeholderTextColor="#222" style={styles.input} />
+        <TextInput
+          value={studentName}
+          onChangeText={onStudentNameChange}
+          placeholder="Student Name"
+          placeholderTextColor="#222"
+          style={styles.input}
+        />
       </View>
 
-      <TouchableOpacity style={styles.searchBtn}>
-        <Text style={styles.btnText}>Search</Text>
+      <TouchableOpacity
+        style={[styles.searchBtn, loading && styles.disabledBtn]}
+        disabled={loading}
+        onPress={onSearch}>
+        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Search</Text>}
       </TouchableOpacity>
     </>
   );
 }
 
-function StudentDetail() {
+function StudentDetail({student}) {
   return (
     <View style={styles.studentCard}>
       <View style={styles.sectionHead}>
@@ -75,18 +434,18 @@ function StudentDetail() {
 
       <View style={styles.detailBody}>
         <View style={styles.row}>
-          <Info label="Class" value="8th" />
-          <Info label="Student Name" value="Malvika Sharma" />
+          <Info label="Class" value={student.className || '-'} />
+          <Info label="Student Name" value={student.name || '-'} />
         </View>
 
         <View style={styles.row}>
-          <Info label="Father’s Name" value="Vipan Sharma" />
-          <Info label="Phone no." value="9876543210" />
+          <Info label="Father's Name" value={student.fatherName || '-'} />
+          <Info label="Phone no." value={student.mobileNo || '-'} />
         </View>
 
         <View style={styles.addressBox}>
           <Text style={styles.addressTitle}>Address</Text>
-          <Text style={styles.addressText}>Vill. Dhakawa P.O. Jhiralri</Text>
+          <Text style={styles.addressText}>{student.address || '-'}</Text>
         </View>
       </View>
     </View>
@@ -102,7 +461,26 @@ function Info({label, value}) {
   );
 }
 
-function AddDetail({firstLabel, awardLabel}) {
+function AddDetail({
+  firstLabel,
+  awardLabel,
+  selectedEntry,
+  selectedLevel,
+  selectedCategory,
+  selectedFile,
+  year,
+  prizeWon,
+  description,
+  loadingSubmit,
+  onEntryPress,
+  onLevelPress,
+  onCategoryPress,
+  onYearChange,
+  onPrizeWonChange,
+  onDescriptionChange,
+  onUploadPress,
+  onSubmit,
+}) {
   return (
     <View style={styles.addCard}>
       <View style={styles.addHead}>
@@ -110,55 +488,119 @@ function AddDetail({firstLabel, awardLabel}) {
       </View>
 
       <View style={styles.addBody}>
-        <SelectBox label={firstLabel} />
-        <SelectBox label="Level" />
-        <InputBox label="Year" />
-        <InputBox label={awardLabel} />
-        <DescriptionBox />
-        <SelectBox label="Category" />
+        <SelectBox
+          label={firstLabel}
+          value={selectedEntry?.label}
+          onPress={onEntryPress}
+        />
+        <SelectBox label="Level" value={selectedLevel?.label} onPress={onLevelPress} />
+        <InputBox
+          label="Year"
+          value={year}
+          keyboardType="number-pad"
+          maxLength={4}
+          onChangeText={onYearChange}
+        />
+        <InputBox label={awardLabel} value={prizeWon} onChangeText={onPrizeWonChange} />
+        <DescriptionBox value={description} onChangeText={onDescriptionChange} />
+        <SelectBox
+          label="Category"
+          value={selectedCategory?.label}
+          onPress={onCategoryPress}
+        />
 
-        <TouchableOpacity style={styles.uploadBox}>
-          <Text style={styles.uploadText}>Upload doc/image</Text>
+        <TouchableOpacity style={styles.uploadBox} onPress={onUploadPress}>
+          <Text style={styles.uploadText}>
+            {selectedFile?.name || 'Upload doc/image'}
+          </Text>
           <View style={styles.plusBox}>
             <Text style={styles.plus}>+</Text>
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.submitBtn}>
-          <Text style={styles.btnText}>Submit</Text>
+        <TouchableOpacity
+          style={[styles.submitBtn, loadingSubmit && styles.disabledBtn]}
+          disabled={loadingSubmit}
+          onPress={onSubmit}>
+          {loadingSubmit ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.btnText}>Submit</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-function SelectBox({label}) {
+function SelectBox({label, value, onPress}) {
   return (
-    <TouchableOpacity style={styles.fieldBox}>
-      <Text style={styles.fieldText}>{label}</Text>
+    <TouchableOpacity style={styles.fieldBox} onPress={onPress}>
+      <Text style={[styles.fieldText, !value && styles.placeholderText]}>
+        {value || label}
+      </Text>
       <Text style={styles.down}>⌄</Text>
     </TouchableOpacity>
   );
 }
 
-function InputBox({label}) {
+function InputBox({label, value, onChangeText, keyboardType, maxLength}) {
   return (
     <View style={styles.fieldBox}>
-      <TextInput placeholder={label} placeholderTextColor="#222" style={styles.fieldInput} />
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={label}
+        placeholderTextColor="#222"
+        keyboardType={keyboardType}
+        maxLength={maxLength}
+        style={styles.fieldInput}
+      />
     </View>
   );
 }
 
-function DescriptionBox() {
+function DescriptionBox({value, onChangeText}) {
   return (
     <View style={styles.descBox}>
       <TextInput
+        value={value}
+        onChangeText={onChangeText}
         placeholder="Description"
         placeholderTextColor="#222"
         multiline
         style={styles.descInput}
       />
     </View>
+  );
+}
+
+function PickerModal({visible, title, items, loading, onClose, onSelect}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={onClose}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>{title}</Text>
+
+          {loading ? (
+            <ActivityIndicator color="#5A33C5" />
+          ) : items.length ? (
+            <ScrollView>
+              {items.map(item => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.modalItem}
+                  onPress={() => onSelect(item)}>
+                  <Text style={styles.modalItemText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : (
+            <Text style={styles.emptyModalText}>List empty hai.</Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    </Modal>
   );
 }
 
@@ -199,6 +641,7 @@ const styles = StyleSheet.create({
     marginBottom: 27,
   },
   btnText: {color: '#fff', fontSize: 16, fontWeight: '800'},
+  disabledBtn: {opacity: 0.65},
   studentCard: {
     borderWidth: 1,
     borderColor: '#BFE3F9',
@@ -217,7 +660,7 @@ const styles = StyleSheet.create({
   sectionTitle: {fontSize: 14, fontWeight: '800', color: '#222'},
   detailBody: {padding: 15},
   row: {flexDirection: 'row', marginBottom: 14},
-  infoCol: {flex: 1},
+  infoCol: {flex: 1, paddingRight: 8},
   infoLabel: {fontSize: 12, color: '#777', marginBottom: 6},
   infoValue: {fontSize: 14, color: '#222', fontWeight: '800'},
   addressBox: {
@@ -243,7 +686,7 @@ const styles = StyleSheet.create({
   },
   addBody: {paddingHorizontal: 13, paddingTop: 21, paddingBottom: 18},
   fieldBox: {
-    height: 45,
+    minHeight: 45,
     borderWidth: 1,
     borderColor: '#D6D6D6',
     borderRadius: 7,
@@ -254,7 +697,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  fieldText: {fontSize: 14, color: '#222'},
+  fieldText: {flex: 1, fontSize: 14, color: '#222', paddingVertical: 12},
+  placeholderText: {color: '#222'},
   fieldInput: {flex: 1, padding: 0, fontSize: 14, color: '#222'},
   down: {fontSize: 22, color: '#222', marginTop: -5},
   descBox: {
@@ -278,7 +722,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  uploadText: {fontSize: 14, color: '#222'},
+  uploadText: {flex: 1, fontSize: 14, color: '#222'},
   plusBox: {
     width: 60,
     height: 58,
@@ -296,5 +740,38 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+  },
+  modalCard: {
+    maxHeight: '70%',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+  },
+  modalTitle: {
+    fontSize: 15,
+    color: '#222',
+    fontWeight: '800',
+    paddingHorizontal: 18,
+    paddingBottom: 10,
+  },
+  modalItem: {
+    minHeight: 44,
+    justifyContent: 'center',
+    paddingHorizontal: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#EFEFEF',
+  },
+  modalItemText: {fontSize: 14, color: '#222'},
+  emptyModalText: {
+    paddingHorizontal: 18,
+    paddingVertical: 20,
+    fontSize: 13,
+    color: '#777',
   },
 });

@@ -2,7 +2,7 @@ import {PermissionsAndroid, Platform} from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import {API_ENDPOINTS, BASE_URL} from '../utils/constants';
 
-const postForm = async (endpoint, fields) => {
+export const postForm = async (endpoint, fields) => {
   const formData = new FormData();
 
   Object.entries(fields).forEach(([key, value]) => {

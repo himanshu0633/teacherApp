@@ -9,6 +9,7 @@ import {
   StatusBar,
   ActivityIndicator,
   Alert,
+  Image,
   Modal,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -81,6 +82,13 @@ const normalizeHomework = item => ({
   subjectName: getFirstValue(item, ['SubjectName', 'subjectName']),
   dueDate: getFirstValue(item, ['due_date', 'DueDate', 'dueDate']),
   description: getFirstValue(item, ['desp', 'Description', 'description']),
+  imageUrl: getFirstValue(item, [
+    'imgpath',
+    'imagepath',
+    'imagePath',
+    'ImagePath',
+  ]),
+  fileType: getFirstValue(item, ['filetype', 'fileType', 'FileType']),
 });
 
 const normalizeClassName = value =>
@@ -147,6 +155,31 @@ function PickerModal({ visible, items, loading, onClose, onSelect }) {
   );
 }
 
+function ImagePreviewModal({ imageUrl, onClose }) {
+  return (
+    <Modal
+      visible={Boolean(imageUrl)}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.imageModalOverlay}>
+        <TouchableOpacity style={styles.imageModalClose} onPress={onClose}>
+          <Text style={styles.imageModalCloseText}>X</Text>
+        </TouchableOpacity>
+
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.fullImage}
+            resizeMode="contain"
+          />
+        ) : null}
+      </View>
+    </Modal>
+  );
+}
+
 export default function AssignmentHistoryScreen({ navigation, route }) {
   const type = route?.params?.type || 'assignment';
   const isHomework = type === 'homework';
@@ -156,6 +189,7 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
   const [loadingClasses, setLoadingClasses] = useState(false);
   const [loadingList, setLoadingList] = useState(false);
   const [classModalVisible, setClassModalVisible] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState('');
 
   const filteredList = useMemo(() => {
     if (!selectedClass?.name) {
@@ -209,7 +243,7 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
 
     try {
       setLoadingList(true);
-      const data = await postForm(API_ENDPOINTS.HOMEWORK_LIST, {
+      const data = await postForm(API_ENDPOINTS.ASSIGNMENT_LIST, {
         empcode: teacherContext.EmpCode,
         branchid: teacherContext.BranchId,
         sessionid: teacherContext.SessionId,
@@ -275,7 +309,11 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
             <ActivityIndicator color="#5A33C5" style={styles.loader} />
           ) : filteredList.length ? (
             filteredList.map((item, index) => (
-              <HistoryCard key={`${item.dueDate}-${index}`} item={item} />
+              <HistoryCard
+                key={`${item.dueDate}-${index}`}
+                item={item}
+                onOpenImage={setPreviewImageUrl}
+              />
             ))
           ) : (
             <Text style={styles.emptyText}>Homework history empty hai.</Text>
@@ -293,11 +331,18 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
           setClassModalVisible(false);
         }}
       />
+
+      <ImagePreviewModal
+        imageUrl={previewImageUrl}
+        onClose={() => setPreviewImageUrl('')}
+      />
     </View>
   );
 }
 
-function HistoryCard({ item }) {
+function HistoryCard({ item, onOpenImage }) {
+  const hasImage = Boolean(item.imageUrl);
+
   return (
     <View style={styles.card}>
       <View style={styles.cardTop}>
@@ -325,6 +370,19 @@ function HistoryCard({ item }) {
         <Text style={styles.descTitle}>Description</Text>
         <Text style={styles.descText}>{item.description || '-'}</Text>
       </View>
+
+      {hasImage ? (
+        <View style={styles.attachmentBox}>
+          <Text style={styles.descTitle}>Attachment</Text>
+          <TouchableOpacity onPress={() => onOpenImage(item.imageUrl)}>
+            <Image
+              source={{ uri: item.imageUrl }}
+              style={styles.attachmentImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -448,6 +506,44 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
     lineHeight: 18,
+  },
+  attachmentBox: {
+    marginHorizontal: 15,
+    marginBottom: 14,
+  },
+  attachmentImage: {
+    width: '100%',
+    height: 190,
+    borderRadius: 8,
+    backgroundColor: '#E8E8EE',
+  },
+  imageModalOverlay: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  imageModalClose: {
+    position: 'absolute',
+    top: 44,
+    right: 20,
+    zIndex: 2,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F0F0F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageModalCloseText: {
+    color: '#222',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  fullImage: {
+    width: '100%',
+    height: '86%',
   },
   modalOverlay: {
     flex: 1,
