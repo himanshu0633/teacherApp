@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export const PURPLE = '#5A31C2';
 export const BLUE = '#05A9F4';
@@ -115,6 +115,22 @@ export const circularStyles = StyleSheet.create({
   fieldText: {
     color: TEXT,
     fontSize: 14,
+    flex: 1,
+  },
+  disabledText: {
+    color: MUTED,
+  },
+  messageBox: {
+    minHeight: 98,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    color: TEXT,
+    fontSize: 14,
+    paddingHorizontal: 15,
+    paddingTop: 14,
+    marginBottom: 18,
   },
   required: {
     color: '#FF0909',
@@ -135,6 +151,8 @@ export const circularStyles = StyleSheet.create({
   uploadText: {
     color: TEXT,
     fontSize: 14,
+    flex: 1,
+    marginRight: 12,
   },
   uploadButton: {
     width: 61,
@@ -153,7 +171,81 @@ export const circularStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  disabledButton: {
+    opacity: 0.65,
+  },
   submitText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  helperText: {
+    color: MUTED,
+    fontSize: 12,
+    marginTop: -28,
+    marginBottom: 28,
+  },
+  centeredState: {
+    paddingVertical: 34,
+    alignItems: 'center',
+  },
+  stateText: {
+    color: MUTED,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    maxHeight: '65%',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    paddingTop: 12,
+  },
+  modalTitle: {
+    color: TEXT,
+    fontSize: 15,
+    fontWeight: '700',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  modalOption: {
+    minHeight: 48,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ECECEC',
+  },
+  multiOption: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ECECEC',
+  },
+  modalOptionText: {
+    color: TEXT,
+    fontSize: 14,
+    flex: 1,
+    marginRight: 12,
+  },
+  modalDoneButton: {
+    height: 45,
+    marginHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 18,
+    borderRadius: 6,
+    backgroundColor: PURPLE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalDoneText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '700',
@@ -299,7 +391,7 @@ export const circularStyles = StyleSheet.create({
     paddingHorizontal: 17,
     paddingTop: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 9,
     elevation: 4,
@@ -335,7 +427,19 @@ export const circularStyles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
   },
+  readDotRead: {
+    backgroundColor: '#27B43E',
+  },
+  readDotUnread: {
+    backgroundColor: '#FF0D12',
+  },
   readText: {
     fontSize: 10,
+  },
+  readTextRead: {
+    color: '#27B43E',
+  },
+  readTextUnread: {
+    color: '#FF0D12',
   },
 });

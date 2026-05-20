@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import { StyleSheet } from 'react-native';
 
 export const PURPLE = '#5A31C2';
 export const BLUE = '#079FE3';
@@ -107,6 +107,14 @@ export const disciplineStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  inputText: {
+    color: TEXT,
+    fontSize: 14,
+    flex: 1,
+  },
+  placeholderText: {
+    color: TEXT,
+  },
   orText: {
     color: TEXT,
     fontSize: 9,
@@ -132,6 +140,9 @@ export const disciplineStyles = StyleSheet.create({
   resetButton: {
     backgroundColor: BLUE,
   },
+  disabledButton: {
+    opacity: 0.65,
+  },
   actionText: {
     color: '#FFFFFF',
     fontSize: 16,
@@ -146,6 +157,10 @@ export const disciplineStyles = StyleSheet.create({
     paddingTop: 11,
     paddingBottom: 10,
     marginBottom: 25,
+  },
+  selectedStudentCard: {
+    borderColor: '#22B63A',
+    backgroundColor: '#F2FFF5',
   },
   studentHeader: {
     flexDirection: 'row',
@@ -167,6 +182,10 @@ export const disciplineStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  checkedCircle: {
+    backgroundColor: '#22B63A',
+    borderColor: '#22B63A',
+  },
   studentGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -184,6 +203,20 @@ export const disciplineStyles = StyleSheet.create({
     color: TEXT,
     fontSize: 14,
     fontWeight: '700',
+  },
+  emptyState: {
+    borderWidth: 1,
+    borderColor: '#E1E1E1',
+    borderRadius: 7,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    marginBottom: 25,
+    alignItems: 'center',
+  },
+  emptyText: {
+    color: MUTED,
+    fontSize: 13,
+    textAlign: 'center',
   },
   submitPanel: {
     borderRadius: 6,
@@ -207,5 +240,35 @@ export const disciplineStyles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '700',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    maxHeight: '65%',
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    paddingTop: 12,
+  },
+  modalTitle: {
+    color: TEXT,
+    fontSize: 15,
+    fontWeight: '700',
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  modalOption: {
+    minHeight: 48,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#ECECEC',
+  },
+  modalOptionText: {
+    color: TEXT,
+    fontSize: 14,
   },
 });

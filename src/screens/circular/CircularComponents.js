@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   CheckCheck,
@@ -16,9 +16,9 @@ import {
   Link2,
   User,
 } from 'lucide-react-native';
-import {PURPLE, TEXT, circularStyles as styles} from './circularStyles';
+import { PURPLE, TEXT, circularStyles as styles } from './circularStyles';
 
-export function CircularHeader({title, onBack, rightAction}) {
+export function CircularHeader({ title, onBack, rightAction }) {
   const insets = useSafeAreaInsets();
   const topInset =
     Platform.OS === 'android'
@@ -26,14 +26,15 @@ export function CircularHeader({title, onBack, rightAction}) {
       : insets.top;
 
   return (
-    <View style={[styles.headerSafe, {paddingTop: topInset}]}>
+    <View style={[styles.headerSafe, { paddingTop: topInset }]}>
       <StatusBar backgroundColor={PURPLE} barStyle="light-content" />
       <View style={styles.header}>
         <TouchableOpacity
           accessibilityRole="button"
           onPress={onBack}
           style={styles.headerButton}
-          activeOpacity={0.75}>
+          activeOpacity={0.75}
+        >
           <ArrowLeft size={22} color="#fff" strokeWidth={2.2} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
@@ -45,7 +46,8 @@ export function CircularHeader({title, onBack, rightAction}) {
               accessibilityRole="button"
               onPress={rightAction}
               style={styles.statusShortcut}
-              activeOpacity={0.75}>
+              activeOpacity={0.75}
+            >
               <CheckCheck size={24} color="#EC008C" strokeWidth={2.4} />
             </TouchableOpacity>
           ) : null}
@@ -55,15 +57,20 @@ export function CircularHeader({title, onBack, rightAction}) {
   );
 }
 
-export function CircularTabs({active, onCreate, onList}) {
+export function CircularTabs({ active, onCreate, onList }) {
   const tabs = [
-    {key: 'create', label: 'Create Circular', Icon: FileText, onPress: onCreate},
-    {key: 'list', label: 'View Circulars', Icon: Eye, onPress: onList},
+    {
+      key: 'create',
+      label: 'Create Circular',
+      Icon: FileText,
+      onPress: onCreate,
+    },
+    { key: 'list', label: 'View Circulars', Icon: Eye, onPress: onList },
   ];
 
   return (
     <View style={styles.tabs}>
-      {tabs.map(({key, label, Icon, onPress}) => {
+      {tabs.map(({ key, label, Icon, onPress }) => {
         const isActive = active === key;
         return (
           <TouchableOpacity
@@ -71,7 +78,8 @@ export function CircularTabs({active, onCreate, onList}) {
             accessibilityRole="button"
             onPress={onPress}
             style={[styles.tabButton, isActive && styles.activeTab]}
-            activeOpacity={0.8}>
+            activeOpacity={0.8}
+          >
             <Icon
               size={19}
               color={isActive ? '#fff' : TEXT}
@@ -87,9 +95,13 @@ export function CircularTabs({active, onCreate, onList}) {
   );
 }
 
-export function AttachmentButton() {
+export function AttachmentButton({ onPress }) {
   return (
-    <TouchableOpacity style={styles.attachmentRow} activeOpacity={0.75}>
+    <TouchableOpacity
+      style={styles.attachmentRow}
+      onPress={onPress}
+      activeOpacity={0.75}
+    >
       <View style={styles.attachmentIcon}>
         <Link2 size={21} color={TEXT} strokeWidth={2.2} />
       </View>
@@ -98,12 +110,13 @@ export function AttachmentButton() {
   );
 }
 
-export function CircularCard({item, onPress}) {
+export function CircularCard({ item, onPress }) {
   return (
     <TouchableOpacity
       style={styles.circularCard}
       onPress={onPress}
-      activeOpacity={0.8}>
+      activeOpacity={0.8}
+    >
       <View style={styles.cardTitleBar}>
         <Text style={styles.cardTitle}>{item.title}</Text>
       </View>

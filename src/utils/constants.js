@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
   UPDATE_LOGIN: 'updatelogin.php',
   COUNT_ATTENDANCE: 'countattendance.php',
   FILL_CLASS: 'fillclass.php',
+  GET_ALL_CLASS: 'get_all_class.php',
   SHOW_SECTION: 'show_section.php',
   VIEW_ATTENDANCE: 'ViewAttendence.php',
   VIEW_COACHING_ATTENDANCE: 'ViewCoachingAttendance.php',
@@ -25,6 +26,9 @@ export const API_ENDPOINTS = {
   ADD_MARKS: 'addmarks1.php',
   SAVE_MARKS: 'savemarks1.php',
   STUDENT_SEARCH: 'student/studentsearch.php',
+  STUDENT_LIST: 'studentlist.php',
+  SEND_PARAMETER: 'sendparameter.php',
+  UPDATEDISCIPLINE: 'updatediscipline.php',
   SPORTS_LIST: 'student/getsportslist.php',
   ACTIVITY_LIST: 'student/Activitylist.php',
   LEVEL_LIST: 'student/getlevellist.php',
@@ -38,6 +42,11 @@ export const API_ENDPOINTS = {
   INSERT_CLASS_GALLERY_IMAGE: 'insert_galclasscat_image_api.php',
   VIEW_CLASS_GALLERY_CATEGORY_IMAGE: 'view_category_image_api.php',
   VIEW_CLASS_GALLERY_CATEGORY_IMAGES: 'view_category_images_api.php',
+  STAFF_CIRCULAR: 'staff_circular.php',
+  TEACHER_LIST_FILTER: 'teacherlist-filter.php',
+  SEND_BY_ME_CIRCULAR_LIST: 'send-by-me-circularlist.php',
+  VIEW_CIRCULAR_STAFF: 'ViewCircularStaff.php',
+  CIRCULAR_READ_STATUS: 'info-read-status.php',
 };
 /* =========================
    APP COLORS
