@@ -173,7 +173,7 @@ export default function PostSchoolDiaryScreen({navigation}) {
       }
 
       console.log('SCHOOL DIARY FILE PICK ERROR =>', error);
-      Alert.alert('Error', 'File select nahi ho payi.');
+  Alert.alert('Error', 'File selection failed.');
     }
   };
 
@@ -193,7 +193,7 @@ export default function PostSchoolDiaryScreen({navigation}) {
       const context = await getTeacherContext();
 
       if (!context.BranchId || !context.SessionId) {
-        Alert.alert('Error', 'Branch ya session detail nahi mili.');
+  Alert.alert('Error', 'Branch or session details not found.');
         return;
       }
 
@@ -217,10 +217,10 @@ export default function PostSchoolDiaryScreen({navigation}) {
         return;
       }
 
-      Alert.alert('Error', data?.msg || data?.message || 'School diary save nahi ho payi.');
+  Alert.alert('Error', data?.msg || data?.message || 'Failed to save school diary.');
     } catch (error) {
       console.log('SCHOOL DIARY SAVE ERROR =>', error);
-      Alert.alert('Error', 'School diary save nahi ho payi.');
+  Alert.alert('Error', 'Failed to save school diary.');
     } finally {
       setSubmitting(false);
     }

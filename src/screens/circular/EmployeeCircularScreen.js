@@ -323,7 +323,7 @@ export default function EmployeeCircularScreen({ navigation }) {
       setStaffList(nextStaff);
     } catch (error) {
       console.log('EMPLOYEE CIRCULAR STAFF LIST ERROR =>', error);
-      Alert.alert('Error', 'Staff list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load staff list.');
       setStaffList([]);
     } finally {
       setStaffLoading(false);
@@ -404,7 +404,7 @@ export default function EmployeeCircularScreen({ navigation }) {
       }
 
       console.log('EMPLOYEE CIRCULAR FILE PICK ERROR =>', error);
-      Alert.alert('Error', 'File select nahi ho payi.');
+  Alert.alert('Error', 'File selection failed.');
     }
   };
 
@@ -439,7 +439,7 @@ export default function EmployeeCircularScreen({ navigation }) {
       const context = teacher || (await parseTeacherData());
 
       if (!context.EmpCode || !context.SessionId) {
-        Alert.alert('Error', 'Employee ya session detail nahi mili.');
+  Alert.alert('Error', 'Employee or session details not found.');
         return;
       }
 
@@ -471,11 +471,11 @@ export default function EmployeeCircularScreen({ navigation }) {
 
       Alert.alert(
         'Error',
-        data?.msg || data?.message || 'Circular save nahi ho paya.',
+  data?.msg || data?.message || 'Failed to save circular.',
       );
     } catch (error) {
       console.log('EMPLOYEE CIRCULAR SAVE ERROR =>', error);
-      Alert.alert('Error', 'Circular save nahi ho paya.');
+  Alert.alert('Error', 'Failed to save circular.');
     } finally {
       setSubmitting(false);
     }

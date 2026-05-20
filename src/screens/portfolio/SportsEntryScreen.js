@@ -118,7 +118,7 @@ export default function SportsEntryScreen({
         );
       } catch (error) {
         console.log('PORTFOLIO LOOKUP ERROR =>', error);
-        Alert.alert('Error', `${firstLabel} ya level list load nahi ho payi.`);
+  Alert.alert('Error', `Failed to load ${firstLabel} or level list.`);
       } finally {
         setLoadingLookups(false);
       }
@@ -161,7 +161,7 @@ export default function SportsEntryScreen({
     }
 
     if (!teacher?.BranchId || !teacher?.SessionId) {
-      Alert.alert('Error', 'Branch ya session detail nahi mili.');
+  Alert.alert('Error', 'Branch or session details not found.');
       return;
     }
 
@@ -176,7 +176,7 @@ export default function SportsEntryScreen({
 
       if (data?.status !== 'true') {
         setStudent(emptyStudent);
-        Alert.alert('No Data', data?.msg || 'Student detail nahi mili.');
+  Alert.alert('No Data', data?.msg || 'Student details not found.');
         return;
       }
 
@@ -186,7 +186,7 @@ export default function SportsEntryScreen({
       setStudentName(nextStudent.name || queryName);
     } catch (error) {
       console.log('STUDENT SEARCH ERROR =>', error);
-      Alert.alert('Error', 'Student search nahi ho paya.');
+  Alert.alert('Error', 'Student search failed.');
     } finally {
       setLoadingSearch(false);
     }
@@ -279,11 +279,11 @@ export default function SportsEntryScreen({
         'Error',
         data?.msg ||
           data?.message ||
-          `${isActivity ? 'Activity' : 'Sports'} entry save nahi ho payi.`,
+          `${isActivity ? 'Activity' : 'Sports'} entry save failed.`,
       );
     } catch (error) {
       console.log('SAVE PORTFOLIO ENTRY ERROR =>', error);
-      Alert.alert('Error', `${isActivity ? 'Activity' : 'Sports'} entry save nahi ho payi.`);
+  Alert.alert('Error', `${isActivity ? 'Activity' : 'Sports'} entry save failed.`);
     } finally {
       setLoadingSubmit(false);
     }
@@ -308,7 +308,7 @@ export default function SportsEntryScreen({
       }
 
       console.log('PORTFOLIO FILE PICK ERROR =>', error);
-      Alert.alert('Error', 'File select nahi ho payi.');
+  Alert.alert('Error', 'File selection failed.');
     }
   };
 

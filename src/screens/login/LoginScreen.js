@@ -209,7 +209,7 @@ export default function LoginScreen() {
         const isSaved = await saveTeacherData(data);
 
         if (!isSaved) {
-          Alert.alert('Error', 'Data save nahi hua');
+          Alert.alert('Error', 'Data not saved');
           return;
         }
 

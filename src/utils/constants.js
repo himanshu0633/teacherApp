@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
   STUDENT_LIST: 'studentlist.php',
   SEND_PARAMETER: 'sendparameter.php',
   UPDATEDISCIPLINE: 'updatediscipline.php',
+  CREATE_CLASS_LINK: 'create-online-link-for-class.php',
+  LIST_CLASS_LINK: 'list-online-link-for-class.php',
   SPORTS_LIST: 'student/getsportslist.php',
   ACTIVITY_LIST: 'student/Activitylist.php',
   LEVEL_LIST: 'student/getlevellist.php',

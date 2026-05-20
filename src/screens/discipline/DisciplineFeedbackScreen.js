@@ -249,7 +249,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
       setClasses(nextClasses);
     } catch (error) {
       console.log('DISCIPLINE CLASS LIST ERROR =>', error);
-      Alert.alert('Error', 'Class list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load class list.');
     } finally {
       setLoadingClasses(false);
     }
@@ -278,7 +278,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
     const context = teacher || (await getTeacherContext());
 
     if (!context.BranchId || !context.SessionId) {
-      Alert.alert('Error', 'Branch ya session detail nahi mili.');
+  Alert.alert('Error', 'Branch or session details not found.');
       return;
     }
 
@@ -325,7 +325,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
       }
     } catch (error) {
       console.log('DISCIPLINE STUDENT SEARCH ERROR =>', error);
-      Alert.alert('Error', 'Students search nahi ho paye.');
+  Alert.alert('Error', 'Student search failed.');
     } finally {
       setSearching(false);
     }
@@ -359,7 +359,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
     const ctx = teacher || (await getTeacherContext());
 
     if (!ctx.BranchId || !ctx.SessionId || !ctx.EmpCode) {
-      Alert.alert('Error', 'Branch/Session/EmpCode nahi mila');
+  Alert.alert('Error', 'Branch, session or EmpCode not found.');
       return;
     }
 
@@ -410,7 +410,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
       } else if (successCount > 0) {
         Alert.alert('Partial', `${successCount} succeeded, ${failCount} failed.`);
       } else {
-        Alert.alert('Error', 'Feedback submit nahi hua.');
+    Alert.alert('Error', 'Feedback submission failed.');
       }
     } catch (error) {
       console.log('DISCIPLINE SUBMIT FINAL ERROR =>', error);
@@ -484,7 +484,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
           ) : (
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>
-                Search se students yahan aayenge.
+                Students from search will appear here.
               </Text>
             </View>
           )}
@@ -516,7 +516,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
                     setParameters(rows.filter(r => r.id));
                   } catch (error) {
             const type = feedbackType || 'Smiley';
-                    Alert.alert('Error', 'Parameters load nahi huye');
+                    Alert.alert('Error', 'Failed to load parameters');
                   } finally {
                     setLoadingParameters(false);
                   }

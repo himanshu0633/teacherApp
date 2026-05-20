@@ -114,7 +114,7 @@ export default function ViewCircularScreen({ navigation, route }) {
         console.log('EMPLOYEE CIRCULAR DETAIL SESSION ID =>', sessionId);
 
         if (!sessionId) {
-          Alert.alert('Error', 'Session detail nahi mili.');
+          Alert.alert('Error', 'Session details not found.');
           return;
         }
 
@@ -158,7 +158,7 @@ export default function ViewCircularScreen({ navigation, route }) {
         }
       } catch (error) {
         console.log('EMPLOYEE CIRCULAR DETAIL ERROR =>', error);
-        Alert.alert('Error', 'Circular detail load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load circular details.');
       } finally {
         setLoading(false);
       }
@@ -172,7 +172,7 @@ export default function ViewCircularScreen({ navigation, route }) {
     console.log('CIRCULAR ATTACHMENT URL =>', fileUrl);
 
     if (!fileUrl) {
-      Alert.alert('Info', 'Attachment available nahi hai.');
+  Alert.alert('Info', 'No attachment available.');
       return;
     }
 
@@ -180,7 +180,7 @@ export default function ViewCircularScreen({ navigation, route }) {
       await Linking.openURL(fileUrl);
     } catch (error) {
       console.log('CIRCULAR ATTACHMENT OPEN ERROR =>', error);
-      Alert.alert('Error', 'Attachment open nahi ho paya.');
+  Alert.alert('Error', 'Unable to open attachment.');
     }
   };
 

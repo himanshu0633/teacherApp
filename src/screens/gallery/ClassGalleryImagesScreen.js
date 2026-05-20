@@ -178,11 +178,21 @@ export default function ClassGalleryImagesScreen({navigation}) {
         console.log('CLASS GALLERY CLASS RESPONSE =>', classData);
         console.log('CLASS GALLERY CATEGORY RESPONSE =>', categoryData);
 
-        setClasses(
-          getListFromResponse(classData)
-            .map(normalizeClass)
-            .filter(item => item.id && item.label),
-        );
+        const loadedClasses = getListFromResponse(classData)
+          .map(normalizeClass)
+          .filter(item => item.id && item.label);
+
+        setClasses(loadedClasses);
+
+        // If classes loaded but none selected yet, open the class picker
+        if (!selectedClass && loadedClasses.length) {
+          setActivePicker('class');
+        }
+
+        // If no classes returned, show an alert so user knows to retry
+        if (!loadedClasses.length) {
+          Alert.alert('No classes', 'No classes were returned from the server. Please try again.');
+        }
         setCategories(
           (categoryData?.response || [])
             .map(normalizeCategory)

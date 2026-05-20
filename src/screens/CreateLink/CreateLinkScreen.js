@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,13 @@ import {
   Modal,
   Pressable,
   Platform,
+  TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { postForm } from '../../services/teacherApi';
+import { API_ENDPOINTS } from '../../utils/constants';
 
 const CommonHeader = ({ title, onBack, backgroundColor, rightIcon }) => (
   <View style={[styles.headerContainer, { backgroundColor }]}>
@@ -37,27 +42,211 @@ export default function CreateLinkScreen({ navigation }) {
   const [link, setLink] = useState('');
   const [subject, setSubject] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [links, setLinks] = useState([
-    {
-      id: 1,
-      className: 'Class V',
-      subject: 'Computer Science',
-      link: 'https://meet.google.com/abc-defg-hij',
-    },
-    {
-      id: 2,
-      className: 'Class VI',
-      subject: 'Mathematics',
-      link: 'https://zoom.us/j/123456789',
-    },
-  ]);
-
-  const classOptions = ['Class V', 'Class VI', 'Class VII', 'Class VIII', 'Class IX', 'Class X'];
+  const [links, setLinks] = useState([]);
+  const [classOptions, setClassOptions] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [loadingLinks, setLoadingLinks] = useState(false);
+  const [teacherCtx, setTeacherCtx] = useState(null);
 
   const handleSelectClass = (className) => {
     setSelectedClass(className);
     setModalVisible(false);
   };
+
+  const getTeacherContext = async () => {
+    const raw = await AsyncStorage.getItem('teacherData');
+    let parsed = {};
+
+    try {
+      parsed = raw ? JSON.parse(raw) : {};
+    } catch (error) {
+      parsed = {};
+    }
+
+    const storedBranch = await AsyncStorage.getItem('BranchId');
+    const storedSession = await AsyncStorage.getItem('SessionId');
+
+    // Normalize common server key names. Some responses use EmpID, Session, SessionName etc.
+    const EmpCode =
+      parsed?.EmpCode || parsed?.EmpId || parsed?.EmpID || parsed?.empcode || parsed?.Empcode || parsed?.EmpID || '';
+    const BranchId = parsed?.BranchId || parsed?.branchId || parsed?.BranchID || storedBranch || '';
+    const SessionId =
+      parsed?.SessionId || parsed?.Session || parsed?.SessionName || parsed?.SessionID || storedSession || '';
+
+    return { EmpCode: String(EmpCode), BranchId: String(BranchId), SessionId: String(SessionId) };
+  };
+
+  const loadClasses = useCallback(async () => {
+    let ctx = teacherCtx || (await getTeacherContext());
+    // fallback: try to read BranchId/SessionId/EmpCode individually from AsyncStorage
+    if (!ctx.EmpCode || !ctx.BranchId || !ctx.SessionId) {
+      const [storedEmp, storedBranch, storedSession] = await Promise.all([
+        AsyncStorage.getItem('EmpCode'),
+        AsyncStorage.getItem('BranchId'),
+        AsyncStorage.getItem('SessionId'),
+      ]);
+
+      ctx = {
+        EmpCode: ctx.EmpCode || storedEmp || '',
+        BranchId: ctx.BranchId || storedBranch || '',
+        SessionId: ctx.SessionId || storedSession || '',
+      };
+    }
+
+  // Even if some context fields are missing, attempt the API call
+  // (server often returns results with partial context). Log the ctx for debugging.
+  console.log('loadClasses using ctx =>', ctx);
+
+    setLoadingClasses(true);
+    try {
+      const data = await postForm(API_ENDPOINTS.FILL_CLASS, {
+        BranchId: ctx.BranchId,
+        SessionId: ctx.SessionId,
+        EmpCode: ctx.EmpCode,
+      });
+
+      // Log raw response to help debugging when server shapes differ
+      console.log('fillclass.php RESPONSE =>', JSON.stringify(data));
+
+      const getListFromResponse = response => {
+        try {
+          if (typeof response === 'string') {
+            response = JSON.parse(response);
+          }
+        } catch (e) {
+          // not JSON, continue
+        }
+
+        if (Array.isArray(response)) return response;
+        let wrapper = response?.response || response;
+
+        // If wrapper is a JSON string, parse it
+        if (typeof wrapper === 'string') {
+          try {
+            wrapper = JSON.parse(wrapper);
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        const candidate = wrapper?.Res || wrapper?.Rest || wrapper?.rest || wrapper?.data || wrapper?.list;
+        if (Array.isArray(candidate)) return candidate;
+
+        // Fallback: recursively find first array inside response object
+        const findFirstArray = obj => {
+          if (!obj || typeof obj !== 'object') return null;
+          if (Array.isArray(obj)) return obj;
+          for (const key of Object.keys(obj)) {
+            try {
+              const value = obj[key];
+              if (Array.isArray(value)) return value;
+              if (value && typeof value === 'object') {
+                const found = findFirstArray(value);
+                if (found) return found;
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+          return null;
+        };
+
+        const found = findFirstArray(wrapper) || [];
+        return found;
+      };
+
+      const rows = getListFromResponse(data).map(item => ({
+        id: String(item?.Classid || item?.ClassId || item?.id || ''),
+        name: item?.ClassName || item?.className || item?.name || item?.Class || '',
+      }));
+
+    const filtered = rows.filter(r => r.id && r.name);
+    setClassOptions(filtered);
+    console.log('PARSED CLASSES =>', JSON.stringify(filtered));
+
+      if (!filtered.length) {
+        console.log('fillclass.php parsed rows empty, raw:', data);
+        // Inform user in-app if they opened modal and it's empty
+        // (do not aggressively alert on background load)
+        // If modal already visible, show an alert so user knows
+        if (modalVisible) {
+          Alert.alert('No classes', 'No classes were found. Please check teacher/branch settings or try again.');
+        }
+      }
+    } catch (error) {
+      console.log('fillclass.php CALL ERROR =>', error);
+      Alert.alert('Error', 'Failed to load classes');
+    } finally {
+      setLoadingClasses(false);
+    }
+  }, []);
+
+  const loadLinks = useCallback(async () => {
+    let ctx = teacherCtx || (await getTeacherContext());
+    if (!ctx.EmpCode || !ctx.BranchId || !ctx.SessionId) {
+      const [storedEmp, storedBranch, storedSession] = await Promise.all([
+        AsyncStorage.getItem('EmpCode'),
+        AsyncStorage.getItem('BranchId'),
+        AsyncStorage.getItem('SessionId'),
+      ]);
+
+      ctx = {
+        EmpCode: ctx.EmpCode || storedEmp || '',
+        BranchId: ctx.BranchId || storedBranch || '',
+        SessionId: ctx.SessionId || storedSession || '',
+      };
+    }
+
+    if (!ctx.EmpCode || !ctx.BranchId || !ctx.SessionId) return;
+
+    setLoadingLinks(true);
+    try {
+      const data = await postForm(API_ENDPOINTS.LIST_CLASS_LINK, {
+        EmpCode: ctx.EmpCode,
+        BranchId: ctx.BranchId,
+        SessionId: ctx.SessionId,
+      });
+
+      const getListFromResponse = response => {
+        if (Array.isArray(response)) return response;
+        const wrapper = response?.response || response;
+        return (
+          wrapper?.Res || wrapper?.Rest || wrapper?.rest || wrapper?.data || wrapper?.list || []
+        );
+      };
+
+      const rows = getListFromResponse(data).map((item, idx) => ({
+        id: item?.id || item?.ID || String(idx),
+        className: item?.ClassName || item?.className || item?.Class || '',
+        subject: item?.subject || item?.Subject || item?.SubjectName || '',
+        link: item?.onlinelink || item?.link || item?.OnlineLink || '',
+      }));
+
+  setLinks(rows);
+    } catch (error) {
+      console.log('list-online-link-for-class.php CALL ERROR =>', error);
+      Alert.alert('Error', 'Failed to load class links');
+    } finally {
+      setLoadingLinks(false);
+    }
+  }, []);
+
+  // load data on mount
+  useLoadCreateLinkData(loadClasses, loadLinks, setTeacherCtx);
+
+  // When class options load and we're on create screen, open the modal if no selection
+  useEffect(() => {
+    if (screen === 'create' && classOptions.length && !selectedClass) {
+      setModalVisible(true);
+    }
+  }, [screen, classOptions, selectedClass]);
+
+  // Refresh classes when switching to create screen
+  useEffect(() => {
+    if (screen === 'create') {
+      loadClasses();
+    }
+  }, [screen, loadClasses]);
 
   const handleSubmit = () => {
     if (!selectedClass) {
@@ -73,17 +262,88 @@ export default function CreateLinkScreen({ navigation }) {
       return;
     }
 
-    const newLink = {
-      id: Date.now(),
-      className: selectedClass,
-      subject: subject.trim(),
-      link: link.trim(),
-    };
-    setLinks([newLink, ...links]);
-    setSelectedClass('');
-    setLink('');
-    setSubject('');
-    Alert.alert('Success', 'Online class link created successfully');
+    (async () => {
+      // Prefer AsyncStorage values for EmpCode/BranchId/SessionId
+      const [storedEmp, storedBranch, storedSession] = await Promise.all([
+        AsyncStorage.getItem('EmpCode'),
+        AsyncStorage.getItem('BranchId'),
+        AsyncStorage.getItem('SessionId'),
+      ]);
+
+      // Also resolve normalized context from teacherData (handles EmpID/Session names etc.)
+      const normalizedCtx = await getTeacherContext();
+
+      const EmpCode = (storedEmp && String(storedEmp)) || (normalizedCtx?.EmpCode) || (teacherCtx?.EmpCode || '');
+      const BranchId = (storedBranch && String(storedBranch)) || (normalizedCtx?.BranchId) || (teacherCtx?.BranchId || '');
+      const SessionId = (storedSession && String(storedSession)) || (normalizedCtx?.SessionId) || (teacherCtx?.SessionId || '');
+
+      if (!EmpCode || !BranchId || !SessionId) {
+        Alert.alert('Error', 'Required EmpCode / BranchId / SessionId not found in storage');
+        return;
+      }
+
+      try {
+        const payload = {
+          class: selectedClass?.id || selectedClass,
+          onlinelink: link.trim(),
+          subject: subject.trim(),
+          EmpCode,
+          BranchId,
+          SessionId,
+        };
+
+        console.log('CREATE CLASS LINK PAYLOAD =>', payload);
+        const data = await postForm(API_ENDPOINTS.CREATE_CLASS_LINK, payload);
+        console.log('CREATE CLASS LINK RAW =>', data);
+
+        // Normalize/unpack response which may be stringified or wrapped under `response` etc.
+        let normalized = data;
+        try {
+          if (typeof normalized === 'string') normalized = JSON.parse(normalized);
+        } catch (e) {
+          // not JSON — proceed
+        }
+        if (normalized && normalized.response) {
+          normalized = normalized.response;
+          try {
+            if (typeof normalized === 'string') normalized = JSON.parse(normalized);
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        const statusVal = normalized?.status ?? normalized?.Status ?? normalized?.success ?? normalized?.code ?? normalized?.statuscode;
+        const msgVal = normalized?.msg ?? normalized?.message ?? normalized?.Message ?? normalized?.msgtext;
+        const statusStr = String(statusVal ?? '').toLowerCase();
+        const msgStr = String(msgVal ?? '').toLowerCase();
+
+        const isSuccess = (
+          statusVal === true ||
+          statusVal === 1 ||
+          statusStr === 'true' ||
+          statusStr === '1' ||
+          statusStr === 'success' ||
+          msgStr.includes('success')
+        );
+
+        console.log('CREATE CLASS LINK NORMALIZED =>', normalized, { statusVal, msgVal, isSuccess });
+
+        if (isSuccess) {
+          Alert.alert('Success', msgVal || 'Online class link created successfully');
+          setSelectedClass('');
+          setLink('');
+          setSubject('');
+          // refresh list
+          await loadLinks();
+          return;
+        }
+
+        Alert.alert('Error', msgVal || 'Failed to create online class link');
+      } catch (error) {
+        console.log('CREATE CLASS LINK ERROR =>', error);
+        Alert.alert('Error', 'Failed to create online class link');
+      }
+    })();
   };
 
   const handleDeleteLink = (id) => {
@@ -144,7 +404,7 @@ export default function CreateLinkScreen({ navigation }) {
                 onPress={() => setModalVisible(true)}
               >
                 <Text style={[styles.selectText, !selectedClass && styles.placeholderText]}>
-                  {selectedClass || 'Select Class'}
+                  {selectedClass?.name || selectedClass || 'Select Class'}
                 </Text>
                 <Text style={styles.dropdownIcon}>▼</Text>
               </TouchableOpacity>
@@ -210,32 +470,73 @@ export default function CreateLinkScreen({ navigation }) {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Class</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={styles.closeModal}>✕</Text>
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {classOptions.map((className) => (
-                <TouchableOpacity
-                  key={className}
-                  style={styles.modalOption}
-                  onPress={() => handleSelectClass(className)}
-                >
-                  <Text style={styles.modalOptionText}>{className}</Text>
-                  {selectedClass === className && <Text style={styles.checkIcon}>✓</Text>}
+        <TouchableWithoutFeedback>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Class</Text>
+                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeModal}>✕</Text>
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              </View>
+
+              {loadingClasses ? (
+                <View style={{paddingVertical: 24, alignItems: 'center'}}>
+                  <ActivityIndicator color="#4B46FF" />
+                </View>
+              ) : classOptions.length ? (
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {classOptions.map((c) => (
+                    <TouchableOpacity
+                      key={c.id}
+                      style={styles.modalOption}
+                      onPress={() => handleSelectClass(c)}
+                    >
+                      <Text style={styles.modalOptionText}>{c.name}</Text>
+                      {selectedClass?.id === c.id && <Text style={styles.checkIcon}>✓</Text>}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={{paddingVertical: 24, alignItems: 'center'}}>
+                  <Text style={styles.emptyText}>No classes available</Text>
+                </View>
+              )}
+            </View>
           </View>
-        </Pressable>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
 }
+
+// load classes and links on mount
+const useLoadCreateLinkData = (loadClassesFn, loadLinksFn, setTeacherCtx) => {
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem('teacherData');
+        const parsed = raw ? JSON.parse(raw) : {};
+        if (mounted && parsed) {
+          setTeacherCtx(prev => ({ ...prev, ...parsed }));
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      // call loaders
+      await loadClassesFn();
+      await loadLinksFn();
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [loadClassesFn, loadLinksFn, setTeacherCtx]);
+};
+
 
 const styles = StyleSheet.create({
   wrapper: {

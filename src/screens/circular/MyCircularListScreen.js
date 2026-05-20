@@ -96,7 +96,7 @@ export default function MyCircularListScreen({ navigation }) {
       const context = await readTeacherContext();
 
       if (!context.EmpCode || !context.BranchId || !context.SessionId) {
-        Alert.alert('Error', 'Employee, branch ya session detail nahi mili.');
+  Alert.alert('Error', 'Employee, branch or session details not found.');
         return;
       }
 
