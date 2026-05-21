@@ -226,7 +226,7 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
       setClasses(classList);
     } catch (error) {
       console.log('fillclass.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Class list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load class list.');
     } finally {
       setLoadingClasses(false);
     }
@@ -253,7 +253,7 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
       setHomeworkList(list);
     } catch (error) {
       console.log('homeworklist.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Homework history load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load homework history.');
     } finally {
       setLoadingList(false);
     }

@@ -156,7 +156,7 @@ export default function SportsEntryScreen({
     const queryName = studentName.trim();
 
     if (!queryAdminNo && !queryName) {
-      Alert.alert('Required', 'Admission No ya Student Name enter karein.');
+  Alert.alert('Required', 'Please enter admission number or student name.');
       return;
     }
 
@@ -204,12 +204,12 @@ export default function SportsEntryScreen({
 
   const saveEntry = async () => {
     if (!student.enrollNo || !student.name || !student.className) {
-      Alert.alert('Required', 'Pehle student search karke detail fill karein.');
+  Alert.alert('Required', 'Please search the student first and fill the details.');
       return;
     }
 
     if (!selectedEntry || !selectedLevel || !selectedCategory || !year.trim()) {
-      Alert.alert('Required', `${firstLabel}, level, category aur year select karein.`);
+  Alert.alert('Required', `Please select ${firstLabel}, level, category and year.`);
       return;
     }
 
@@ -265,11 +265,11 @@ export default function SportsEntryScreen({
         String(data?.status).toLowerCase() === 'success';
 
       if (saved) {
-        Alert.alert(
+  Alert.alert(
           'Success',
           data?.msg ||
             data?.message ||
-            `${isActivity ? 'Activity' : 'Sports'} entry save ho gayi.`,
+            `${isActivity ? 'Activity' : 'Sports'} entry saved successfully.`,
         );
         resetForm();
         return;

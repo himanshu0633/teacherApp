@@ -223,7 +223,7 @@ export default function MarkEntryScreen({navigation}) {
       setClasses(list);
     } catch (error) {
       console.log('marksclasssec.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Class list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load class list.');
     } finally {
       setLoadingClasses(false);
     }
@@ -246,11 +246,11 @@ export default function MarkEntryScreen({navigation}) {
 
       setExamHeads(list);
       if (!list.length) {
-        Alert.alert('No Data', 'Exam head list empty hai.');
+  Alert.alert('No Data', 'Exam head list is empty.');
       }
     } catch (error) {
       console.log('examhead.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Exam head load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load exam heads.');
     } finally {
       setLoadingField('');
     }
@@ -270,11 +270,11 @@ export default function MarkEntryScreen({navigation}) {
 
       setExamTypes(list);
       if (!list.length) {
-        Alert.alert('No Data', 'Exam type list empty hai.');
+  Alert.alert('No Data', 'Exam type list is empty.');
       }
     } catch (error) {
       console.log('examtype.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Exam type load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load exam types.');
     } finally {
       setLoadingField('');
     }
@@ -295,11 +295,11 @@ export default function MarkEntryScreen({navigation}) {
 
       setExamTests(list);
       if (!list.length) {
-        Alert.alert('No Data', 'Exam test list empty hai.');
+  Alert.alert('No Data', 'Exam test list is empty.');
       }
     } catch (error) {
       console.log('getexamtest.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Exam test load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load exam tests.');
     } finally {
       setLoadingField('');
     }
@@ -321,11 +321,11 @@ export default function MarkEntryScreen({navigation}) {
 
       setPaperTypes(list);
       if (!list.length) {
-        Alert.alert('No Data', 'Paper type list empty hai.');
+  Alert.alert('No Data', 'Paper type list is empty.');
       }
     } catch (error) {
       console.log('papertype.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Paper type load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load paper types.');
     } finally {
       setLoadingField('');
     }
@@ -350,11 +350,11 @@ export default function MarkEntryScreen({navigation}) {
 
       setSubjects(list);
       if (!list.length) {
-        Alert.alert('No Data', data?.message || 'Subject list empty hai.');
+  Alert.alert('No Data', data?.message || 'Subject list is empty.');
       }
     } catch (error) {
       console.log('getsubjects.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Subject load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load subjects.');
     } finally {
       setLoadingField('');
     }
@@ -377,7 +377,7 @@ export default function MarkEntryScreen({navigation}) {
       setExamDate(getFirstValue(data, ['examdate', 'ExamDate']));
     } catch (error) {
       console.log('gettotalmarks.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Maximum marks load nahi ho paye.');
+  Alert.alert('Error', 'Failed to load maximum marks.');
     } finally {
       setLoadingField('');
     }
@@ -450,37 +450,37 @@ export default function MarkEntryScreen({navigation}) {
 
   const requireSelection = () => {
     if (!selectedClass?.id) {
-      Alert.alert('Required', 'Class select karein.');
+  Alert.alert('Required', 'Please select a class.');
       return false;
     }
 
     if (!selectedExamHead?.id) {
-      Alert.alert('Required', 'Exam Head select karein.');
+  Alert.alert('Required', 'Please select an exam head.');
       return false;
     }
 
     if (!selectedExamType?.id) {
-      Alert.alert('Required', 'Exam Type select karein.');
+  Alert.alert('Required', 'Please select an exam type.');
       return false;
     }
 
     if (!selectedExamTest?.name) {
-      Alert.alert('Required', 'Exam Test select karein.');
+  Alert.alert('Required', 'Please select an exam test.');
       return false;
     }
 
     if (!selectedPaperType?.name) {
-      Alert.alert('Required', 'Type select karein.');
+  Alert.alert('Required', 'Please select a type.');
       return false;
     }
 
     if (!selectedSubject?.id) {
-      Alert.alert('Required', 'Subject select karein.');
+  Alert.alert('Required', 'Please select a subject.');
       return false;
     }
 
     if (!totalMarks) {
-      Alert.alert('Required', 'Maximum Marks load nahi hue.');
+  Alert.alert('Required', 'Maximum marks not loaded.');
       return false;
     }
 
@@ -510,7 +510,7 @@ export default function MarkEntryScreen({navigation}) {
       const data = await postForm(API_ENDPOINTS.ADD_MARKS, marksPayload());
 
       if (!data || data?.status === 'Failed' || data?.status === false) {
-        Alert.alert('No Data', data?.message || 'Student list nahi mili.');
+  Alert.alert('No Data', data?.message || 'No students found.');
         setStudents([]);
         setShowStudents(false);
         return;
@@ -526,7 +526,7 @@ export default function MarkEntryScreen({navigation}) {
       setShowStudents(true);
     } catch (error) {
       console.log('addmarks1.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Student marks load nahi ho paye.');
+  Alert.alert('Error', 'Failed to load student marks.');
     } finally {
       setLoadingStudents(false);
     }
@@ -534,7 +534,7 @@ export default function MarkEntryScreen({navigation}) {
 
   const saveMarks = async nextLocked => {
     if (!students.length) {
-      Alert.alert('Required', 'Pehle students show karein.');
+  Alert.alert('Required', 'Please display students first.');
       return;
     }
 
@@ -552,15 +552,15 @@ export default function MarkEntryScreen({navigation}) {
       });
 
       if (data?.status === 'Failed' || data?.status === false) {
-        Alert.alert('Error', data?.message || 'Marks save nahi ho paye.');
+  Alert.alert('Error', data?.message || 'Failed to save marks.');
         return;
       }
 
       setLocked(nextLocked);
-      Alert.alert('Success', data?.message || 'Marks save ho gaye.');
+  Alert.alert('Success', data?.message || 'Marks saved successfully.');
     } catch (error) {
       console.log('savemarks1.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Marks save nahi ho paye.');
+  Alert.alert('Error', 'Failed to save marks.');
     } finally {
       setSavingMarks(false);
     }

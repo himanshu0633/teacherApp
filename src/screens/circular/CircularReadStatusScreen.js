@@ -76,7 +76,7 @@ export default function CircularReadStatusScreen({ navigation, route }) {
         setStatusRows(getRows(data).map(normalizeStatus));
       } catch (error) {
         console.log('CIRCULAR READ STATUS ERROR =>', error);
-        Alert.alert('Error', 'Read status load nahi ho paya.');
+  Alert.alert('Error', 'Failed to load read status.');
       } finally {
         setLoading(false);
       }

@@ -274,7 +274,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
       setClasses(classList);
     } catch (error) {
       console.log('fillclass.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Class list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load class list.');
     } finally {
       setLoadingClasses(false);
     }
@@ -301,7 +301,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
         setSections(sectionList);
       } catch (error) {
         console.log('show_section.php CALL ERROR =>', error);
-        Alert.alert('Error', 'Section list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load section list.');
       } finally {
         setLoadingSections(false);
       }
@@ -331,7 +331,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
         setSubjects(subjectList);
       } catch (error) {
         console.log('subject.php CALL ERROR =>', error);
-        Alert.alert('Error', 'Subject list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load subject list.');
       } finally {
         setLoadingSubjects(false);
       }
@@ -424,28 +424,28 @@ export default function HomeworkAssignmentScreen({ navigation }) {
       }
 
       console.log('ASSIGNMENT FILE PICK ERROR =>', error);
-      Alert.alert('Error', 'File select nahi ho payi.');
+  Alert.alert('Error', 'File selection failed.');
     }
   };
 
   const submitHomework = async () => {
     if (!selectedClass?.id) {
-      Alert.alert('Required', 'Class select karein.');
+  Alert.alert('Required', 'Please select a class.');
       return;
     }
 
     if (!selectedSection?.id) {
-      Alert.alert('Required', 'Section select karein.');
+  Alert.alert('Required', 'Please select a section.');
       return;
     }
 
     if (!selectedSubject?.id) {
-      Alert.alert('Required', 'Subject select karein.');
+  Alert.alert('Required', 'Please select a subject.');
       return;
     }
 
     if (!description.trim()) {
-      Alert.alert('Required', 'Description type karein.');
+  Alert.alert('Required', 'Please enter a description.');
       return;
     }
 
@@ -477,7 +477,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
           'Error',
           data?.message ||
             data?.msg ||
-            `${isHomework ? 'Homework' : 'Assignment'} send nahi hua.`,
+            `${isHomework ? 'Homework' : 'Assignment'} failed to send.`,
         );
         return;
       }
@@ -497,7 +497,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
       );
       Alert.alert(
         'Error',
-        `${isHomework ? 'Homework' : 'Assignment'} send nahi ho paya.`,
+  `${isHomework ? 'Homework' : 'Assignment'} failed to send.`,
       );
     } finally {
       setSubmitting(false);
@@ -559,7 +559,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
               value={selectedSection?.name}
               onPress={() => {
                 if (!selectedClass?.id) {
-                  Alert.alert('Required', 'Pehle class select karein.');
+                  Alert.alert('Required', 'Please select the class first.');
                   return;
                 }
 
@@ -571,7 +571,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
               value={selectedSubject?.name}
               onPress={() => {
                 if (!selectedSection?.id) {
-                  Alert.alert('Required', 'Pehle section select karein.');
+                  Alert.alert('Required', 'Please select the section first.');
                   return;
                 }
 

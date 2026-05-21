@@ -332,12 +332,12 @@ export default function EmployeeCircularScreen({ navigation }) {
 
   const openStaffPicker = async () => {
     if (!employeeType) {
-      Alert.alert('Required', 'Employee type select karein.');
+  Alert.alert('Required', 'Please select employee type.');
       return;
     }
 
     if (!selectedBranch?.id) {
-      Alert.alert('Required', 'Branch select karein.');
+  Alert.alert('Required', 'Please select a branch.');
       return;
     }
 
@@ -410,27 +410,27 @@ export default function EmployeeCircularScreen({ navigation }) {
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert('Required', 'Circular name enter karein.');
+  Alert.alert('Required', 'Please enter circular name.');
       return;
     }
 
     if (!employeeType) {
-      Alert.alert('Required', 'Employee type select karein.');
+  Alert.alert('Required', 'Please select employee type.');
       return;
     }
 
     if (!selectedBranch?.id) {
-      Alert.alert('Required', 'Branch select karein.');
+  Alert.alert('Required', 'Please select a branch.');
       return;
     }
 
     if (!selectedStaffCodes.length) {
-      Alert.alert('Required', 'Staff select karein.');
+  Alert.alert('Required', 'Please select staff.');
       return;
     }
 
     if (!description.trim()) {
-      Alert.alert('Required', 'Description enter karein.');
+  Alert.alert('Required', 'Please enter a description.');
       return;
     }
 

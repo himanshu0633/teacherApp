@@ -270,7 +270,7 @@ export default function AttendanceDetailsCard({
       setClasses(classList);
     } catch (error) {
       console.log('fillclass.php CALL ERROR =>', error);
-      Alert.alert('Error', 'Class list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load class list.');
     } finally {
       setLoadingClasses(false);
     }
@@ -297,7 +297,7 @@ export default function AttendanceDetailsCard({
         setSections(sectionList);
       } catch (error) {
         console.log('show_section.php CALL ERROR =>', error);
-        Alert.alert('Error', 'Section list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load section list.');
       } finally {
         setLoadingSections(false);
       }
@@ -357,12 +357,12 @@ export default function AttendanceDetailsCard({
 
   const viewAttendance = async () => {
     if (!selectedDate) {
-      Alert.alert('Required', 'Date select karein.');
+  Alert.alert('Required', 'Please select a date.');
       return;
     }
 
     if (!selectedClass?.id) {
-      Alert.alert('Required', 'Class select karein.');
+  Alert.alert('Required', 'Please select a class.');
       return;
     }
 
@@ -377,7 +377,7 @@ export default function AttendanceDetailsCard({
       });
 
       if (!data || data?.status === false || data?.status === 'false') {
-        Alert.alert('No Data', data?.msg || 'Attendance data nahi mili.');
+  Alert.alert('No Data', data?.msg || 'No attendance data found.');
         setAttendance(null);
         return;
       }
@@ -391,7 +391,7 @@ export default function AttendanceDetailsCard({
       });
     } catch (error) {
       console.log(`${attendanceEndpoint} CALL ERROR =>`, error);
-      Alert.alert('Error', 'Attendance load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load attendance.');
     } finally {
       setLoadingAttendance(false);
     }
@@ -454,7 +454,7 @@ export default function AttendanceDetailsCard({
             style={styles.selectBox}
             onPress={() => {
               if (!selectedClass?.id) {
-                Alert.alert('Required', 'Pehle class select karein.');
+                Alert.alert('Required', 'Please select the class first.');
                 return;
               }
 

@@ -72,7 +72,7 @@ export function EntryListScreen({navigation, title, awardLabel, activityLabel}) 
 
       if (!context.BranchId || !context.SessionId || !context.EmpCode) {
         console.log('SPORTS ENTRY LIST MISSING CONTEXT =>', context);
-        Alert.alert('Error', 'Branch, session ya employee detail nahi mili.');
+  Alert.alert('Error', 'Branch, session or employee details not found.');
         return;
       }
 
@@ -92,11 +92,11 @@ export function EntryListScreen({navigation, title, awardLabel, activityLabel}) 
         setEntries(list);
       } else {
         setEntries([]);
-        Alert.alert('No Data', data?.msg || 'Sports entry list nahi mili.');
+  Alert.alert('No Data', data?.msg || 'No sports entries found.');
       }
     } catch (error) {
       console.log('SPORTS ENTRY LIST ERROR =>', error);
-      Alert.alert('Error', 'Sports entry list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load sports entries list.');
     } finally {
       setLoading(false);
     }
@@ -126,13 +126,13 @@ export function EntryListScreen({navigation, title, awardLabel, activityLabel}) 
 
             if (data?.status === 'true') {
               setEntries(prev => prev.filter(item => item.Id !== entry.Id));
-              Alert.alert('Success', data?.msg || 'Sports entry delete ho gayi.');
+              Alert.alert('Success', data?.msg || 'Sports entry deleted successfully.');
             } else {
-              Alert.alert('Error', data?.msg || 'Sports entry delete nahi ho payi.');
+              Alert.alert('Error', data?.msg || 'Failed to delete sports entry.');
             }
           } catch (error) {
             console.log('SPORTS ENTRY DELETE ERROR =>', error);
-            Alert.alert('Error', 'Sports entry delete nahi ho payi.');
+            Alert.alert('Error', 'Failed to delete sports entry.');
           } finally {
             setDeletingId(null);
           }

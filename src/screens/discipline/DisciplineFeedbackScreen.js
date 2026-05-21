@@ -414,7 +414,7 @@ export default function DisciplineFeedbackScreen({ navigation, route }) {
       }
     } catch (error) {
       console.log('DISCIPLINE SUBMIT FINAL ERROR =>', error);
-      Alert.alert('Error', 'Feedback submit mein error aaya');
+      Alert.alert('Error', 'An error occurred while submitting feedback.');
     } finally {
       setSubmitting(false);
     }

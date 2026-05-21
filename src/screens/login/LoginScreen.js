@@ -219,7 +219,7 @@ export default function LoginScreen() {
           console.log('teacherData SAVE HO GYA ✅');
           console.log('teacherData =>', teacherData);
         } else {
-          console.log('teacherData SAVE NAHI HUA ❌');
+          console.log('teacherData save failed');
           Alert.alert('Error', 'AsyncStorage save failed');
           return;
         }

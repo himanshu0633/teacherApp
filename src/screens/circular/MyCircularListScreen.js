@@ -114,7 +114,7 @@ export default function MyCircularListScreen({ navigation }) {
       );
     } catch (error) {
       console.log('EMPLOYEE CIRCULAR LIST ERROR =>', error);
-      Alert.alert('Error', 'Circular list load nahi ho payi.');
+  Alert.alert('Error', 'Failed to load circular list.');
     } finally {
       setLoading(false);
       setRefreshing(false);
