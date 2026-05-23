@@ -1,17 +1,85 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
   StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Bell} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {postForm} from '../../services/teacherApi';
+import {API_ENDPOINTS} from '../../utils/constants';
 
-export default function NotificationsScreen({navigation}) {
-  const notifications = [1, 2, 3, 4];
+const getEmpCode = async () => {
+  const raw = await AsyncStorage.getItem('teacherData');
+  let parsed = {};
+
+  try {
+    parsed = raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    parsed = {};
+  }
+
+  return parsed?.EmpCode || (await AsyncStorage.getItem('EmpCode')) || '';
+};
+
+const unreadOnly = rows =>
+  rows.filter(item => String(item?.view || '').trim().toLowerCase() !== 'yes');
+
+const normalizeNotification = item => ({
+  id: String(item?.id || item?.taskid || Math.random()),
+  message: item?.messages || '-',
+  type: item?.type || '',
+  view: item?.view || '',
+  sendBy: item?.sendby || '',
+  createdAt: item?.createdate || '',
+});
+
+export default function NotificationsScreen({navigation, route}) {
+  const [notifications, setNotifications] = useState(
+    route?.params?.notifications || [],
+  );
+  const [loading, setLoading] = useState(!route?.params?.notifications);
+
+  useEffect(() => {
+    if (route?.params?.notifications) {
+      setNotifications(route.params.notifications);
+      setLoading(false);
+      return;
+    }
+
+    const loadNotifications = async () => {
+      setLoading(true);
+      try {
+        const empcode = await getEmpCode();
+
+        if (!empcode) {
+          Alert.alert('Error', 'EmpCode not found.');
+          return;
+        }
+
+        console.log('NOTIFICATIONS SCREEN PAYLOAD =>', {empcode});
+        const data = await postForm(API_ENDPOINTS.NOTIFICATIONS, {empcode});
+        const rows = Array.isArray(data?.response) ? data.response : [];
+        setNotifications(unreadOnly(rows));
+      } catch (error) {
+        console.log('NOTIFICATIONS SCREEN ERROR =>', error);
+        Alert.alert('Error', 'Failed to load notifications.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotifications();
+  }, [route?.params?.notifications]);
+
+  const visibleNotifications = notifications.map(normalizeNotification);
 
   return (
     <View style={styles.wrapper}>
@@ -27,25 +95,41 @@ export default function NotificationsScreen({navigation}) {
 
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          {notifications.map((_, index) => (
-            <TouchableOpacity
-              key={index}
-              activeOpacity={0.85}
-              style={styles.card}>
-              <View style={styles.bellCircle}>
-                <Text style={styles.bellIcon}>♧</Text>
-              </View>
+          {loading ? (
+            <View style={styles.centerState}>
+              <ActivityIndicator color="#5A33C5" />
+            </View>
+          ) : visibleNotifications.length ? (
+            visibleNotifications.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                activeOpacity={0.85}
+                style={styles.card}>
+                <View style={styles.bellCircle}>
+                  <Bell size={24} color="#FFFFFF" strokeWidth={2.2} />
+                </View>
 
-              <View style={styles.textBox}>
-                <Text style={styles.title}>
-                  Time for evening classes 5:30pm from Monday 26-06-2023
-                </Text>
-                <Text style={styles.date}>20-06-2023</Text>
-              </View>
+                <View style={styles.textBox}>
+                  <Text style={styles.title}>{item.message}</Text>
+                  {item.sendBy ? (
+                    <Text style={styles.meta}>By: {item.sendBy}</Text>
+                  ) : null}
+                  <View style={styles.bottomRow}>
+                    <Text style={styles.date}>{item.createdAt || '-'}</Text>
+                    {item.type ? (
+                      <Text style={styles.typeText}>{item.type}</Text>
+                    ) : null}
+                  </View>
+                </View>
 
-              <Text style={styles.arrow}>›</Text>
-            </TouchableOpacity>
-          ))}
+                <Text style={styles.arrow}>›</Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.centerState}>
+              <Text style={styles.emptyText}>No new notifications</Text>
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -77,6 +161,7 @@ const styles = StyleSheet.create({
     borderColor: '#E3E3E3',
     marginBottom: 13,
     paddingHorizontal: 16,
+    paddingVertical: 13,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -89,11 +174,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 16,
   },
-  bellIcon: {
-    color: '#fff',
-    fontSize: 27,
-    lineHeight: 27,
-  },
   textBox: {
     flex: 1,
     paddingRight: 8,
@@ -102,16 +182,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#222',
     lineHeight: 19,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  meta: {
+    marginTop: 7,
+    fontSize: 11,
+    color: '#555',
+    fontWeight: '600',
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    marginTop: 8,
+    gap: 8,
   },
   date: {
-    marginTop: 10,
     fontSize: 11,
     color: '#777',
+  },
+  typeText: {
+    fontSize: 11,
+    color: '#5A33C5',
+    fontWeight: '700',
   },
   arrow: {
     fontSize: 30,
     color: '#111',
     marginTop: -4,
+  },
+  centerState: {
+    minHeight: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    color: '#6D7179',
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

@@ -368,6 +368,8 @@ export default function DashboardScreen({navigation}) {
   }, [setSafeItem]);
 
   const [notificationCount, setNotificationCount] = useState(0);
+  const [notificationRows, setNotificationRows] = useState([]);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
 
   const callUpdateLogin = useCallback(async empCode => {
     try {
@@ -413,11 +415,9 @@ export default function DashboardScreen({navigation}) {
               image: data?.image || current.image,
             }));
 
-            await AsyncStorage.multiSet([
-              ['profile_pic', String(profilePic)],
-              ['profil_pic', String(profilePic)],
-              ['image', String(data?.image || '')],
-            ]);
+            await AsyncStorage.setItem('profile_pic', String(profilePic));
+            await AsyncStorage.setItem('profil_pic', String(profilePic));
+            await AsyncStorage.setItem('image', String(data?.image || ''));
           }
         }
       } catch (error) {
@@ -426,6 +426,60 @@ export default function DashboardScreen({navigation}) {
     },
     [],
   );
+
+  const getNotifications = useCallback(async empCode => {
+    const data = await postForm(API_ENDPOINTS.NOTIFICATIONS, {
+      empcode: empCode,
+    });
+
+    return Array.isArray(data?.response) ? data.response : [];
+  }, []);
+
+  const loadNotifications = useCallback(
+    async empCode => {
+      try {
+        console.log('DASHBOARD NOTIFICATIONS PAYLOAD =>', {empcode: empCode});
+        const rows = await getNotifications(empCode);
+        console.log('DASHBOARD NOTIFICATIONS RESPONSE ROWS =>', rows);
+        setNotificationRows(rows);
+        setNotificationCount(rows.length);
+      } catch (error) {
+        console.log('DASHBOARD NOTIFICATIONS ERROR =>', error);
+        setNotificationRows([]);
+        setNotificationCount(0);
+      }
+    },
+    [getNotifications],
+  );
+
+  const handleNotificationsPress = useCallback(async () => {
+    if (!teacherData.empCode) {
+      Alert.alert('Error', 'EmpCode not found.');
+      return;
+    }
+
+    setLoadingNotifications(true);
+    try {
+      let rows = notificationRows;
+
+      if (!rows.length) {
+        console.log('NOTIFICATIONS PAYLOAD =>', {empcode: teacherData.empCode});
+        rows = await getNotifications(teacherData.empCode);
+        setNotificationRows(rows);
+      }
+
+      console.log('NOTIFICATIONS TO SHOW =>', rows);
+      setNotificationCount(0);
+      navigation.navigate('NotificationsScreen', {
+        notifications: rows,
+      });
+    } catch (error) {
+      console.log('NOTIFICATIONS ERROR =>', error);
+      Alert.alert('Error', 'Failed to load notifications.');
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, [getNotifications, navigation, notificationRows, teacherData.empCode]);
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -482,12 +536,19 @@ export default function DashboardScreen({navigation}) {
           sessionId: finalData.sessionId,
           branchId: finalData.branchId,
         });
+        await loadNotifications(finalData.empCode);
       }
     } catch (error) {
       console.log('LOAD DASHBOARD ERROR =>', error);
       Alert.alert('Error', 'Dashboard data load failed');
     }
-  }, [callAttendanceCount, callUpdateLogin, logout, safeValue]);
+  }, [
+    callAttendanceCount,
+    callUpdateLogin,
+    loadNotifications,
+    logout,
+    safeValue,
+  ]);
 
   useEffect(() => {
     loadDashboardData();
@@ -590,10 +651,11 @@ export default function DashboardScreen({navigation}) {
           </View>
 
           <View style={styles.rightSection}>
-            <TouchableOpacity 
-  activeOpacity={0.7} 
-  style={styles.bellWrapper}
-  onPress={() => navigation.navigate('NotificationsScreen')}
+            <TouchableOpacity
+  activeOpacity={0.7}
+  style={[styles.bellWrapper, loadingNotifications && styles.disabledIcon]}
+  disabled={loadingNotifications}
+  onPress={handleNotificationsPress}
 >
   <Bell size={24} color="#fff" strokeWidth={2.4} />
   {notificationCount > 0 && (   // optional: show only if count > 0
@@ -725,6 +787,9 @@ const styles = StyleSheet.create({
   bellWrapper: {
     marginRight: 18,
     position: 'relative',
+  },
+  disabledIcon: {
+    opacity: 0.6,
   },
   badge: {
     position: 'absolute',

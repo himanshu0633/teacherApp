@@ -137,7 +137,23 @@ export function CircularCard({ item, onPress }) {
             <Text style={styles.metaValue}>{item.by}</Text>
           </View>
         </View>
-        <AttachmentButton />
+        {item.description ? (
+          <Text style={styles.cardDescription} numberOfLines={2}>
+            {item.description}
+          </Text>
+        ) : null}
+        <View style={styles.listInfoRow}>
+          <View style={styles.listInfoPill}>
+            <Text style={styles.listInfoLabel}>Count</Text>
+            <Text style={styles.listInfoValue}>{item.count || '0'}</Text>
+          </View>
+          <View style={styles.listInfoPill}>
+            <Text style={styles.listInfoLabel}>Attachment</Text>
+            <Text style={styles.listInfoValue}>
+              {item.attachment || (item.file ? 'yes' : 'no')}
+            </Text>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );

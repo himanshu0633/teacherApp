@@ -24,18 +24,34 @@ const readSessionId = async () => {
     parsed = {};
   }
 
-  const [sessionId, session] = await AsyncStorage.multiGet([
-    'SessionId',
-    'Session',
+  const [sessionId, session] = await Promise.all([
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
   ]);
-  return (
-    parsed?.SessionId || parsed?.Session || sessionId?.[1] || session?.[1] || ''
-  );
+  return parsed?.SessionId || parsed?.Session || sessionId || session || '';
 };
 
 const firstRow = data => {
   if (Array.isArray(data)) {
     return data[0] || {};
+  }
+
+  const nestedRows =
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response?.Res ||
+    data?.response?.data ||
+    data?.Response?.rest ||
+    data?.Response?.Rest ||
+    data?.Response?.Res ||
+    data?.Response?.data;
+
+  if (Array.isArray(nestedRows)) {
+    return nestedRows[0] || {};
+  }
+
+  if (nestedRows && typeof nestedRows === 'object') {
+    return nestedRows;
   }
 
   if (Array.isArray(data?.data)) {
@@ -54,15 +70,53 @@ const rows = data => {
     return data;
   }
 
-  return (
+  const nextRows =
     data?.data ||
     data?.Data ||
     data?.list ||
     data?.List ||
     data?.result ||
     data?.Result ||
-    []
-  );
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response?.Res ||
+    data?.response?.data ||
+    data?.Response?.rest ||
+    data?.Response?.Rest ||
+    data?.Response?.Res ||
+    data?.Response?.data ||
+    [];
+
+  if (Array.isArray(nextRows)) {
+    return nextRows;
+  }
+
+  return nextRows ? [nextRows] : [];
+};
+
+const normalizeStatus = (item, index) => {
+  const statusText = String(
+    item?.status || item?.Status || item?.read_status || item?.ReadStatus || '',
+  ).toLowerCase();
+  const read =
+    item?.read === true ||
+    item?.IsRead === true ||
+    item?.is_read === '1' ||
+    item?.read_status === '1' ||
+    statusText === 'read' ||
+    statusText === 'true';
+
+  return {
+    id: String(item?.id || item?.EmpCode || index),
+    name:
+      item?.EmpName ||
+      item?.name ||
+      item?.Name ||
+      item?.StaffName ||
+      'Employee',
+    code: item?.EmpCode || item?.code || item?.Code || '',
+    read,
+  };
 };
 
 const normalizeDetail = (detail, fallback) => ({
@@ -84,6 +138,7 @@ const normalizeDetail = (detail, fallback) => ({
     detail?.description || detail?.Description || fallback?.description || '',
   file: detail?.file || detail?.File || fallback?.file || '',
   extraFile: detail?.ExtraFile || detail?.extraFile || '',
+  fileType: detail?.FileType || detail?.fileType || fallback?.fileType || '',
   unique_id: detail?.unique_id || detail?.UniqueId || fallback?.unique_id || '',
 });
 
@@ -149,7 +204,7 @@ export default function ViewCircularScreen({ navigation, route }) {
             statusPayload,
           );
           console.log('EMPLOYEE CIRCULAR READ STATUS RESPONSE =>', statusData);
-          setReadStatus(rows(statusData));
+          setReadStatus(rows(statusData).map(normalizeStatus));
         } else {
           console.log(
             'EMPLOYEE CIRCULAR READ STATUS SKIPPED => unique_id missing',
@@ -206,42 +261,105 @@ export default function ViewCircularScreen({ navigation, route }) {
               <ActivityIndicator color="#5A31C2" />
             </View>
           ) : (
-            <View style={styles.detailCard}>
-              <View style={styles.cardTitleBar}>
-                <Text style={styles.cardTitle}>{circular.title}</Text>
-              </View>
-              <View style={styles.detailBody}>
-                <View style={styles.detailGrid}>
-                  <View style={styles.detailCell}>
-                    <Text style={styles.detailLabel}>Circular Date</Text>
-                    <Text style={styles.detailValue}>{circular.date}</Text>
+            <>
+              <View style={styles.detailCard}>
+                <View style={styles.cardTitleBar}>
+                  <Text style={styles.cardTitle}>{circular.title}</Text>
+                </View>
+                <View style={styles.detailBody}>
+                  <View style={styles.detailGrid}>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>Circular Date</Text>
+                      <Text style={styles.detailValue}>{circular.date}</Text>
+                    </View>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>Circular By</Text>
+                      <Text style={styles.detailValue}>{circular.by}</Text>
+                    </View>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>Employee Type</Text>
+                      <Text style={styles.detailValue}>
+                        {circular.employeeType || '-'}
+                      </Text>
+                    </View>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>Branch</Text>
+                      <Text style={styles.detailValue}>
+                        {circular.branch || '-'}
+                      </Text>
+                    </View>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>File Type</Text>
+                      <Text style={styles.detailValue}>
+                        {circular.fileType || '-'}
+                      </Text>
+                    </View>
+                    <View style={styles.detailCell}>
+                      <Text style={styles.detailLabel}>Unique ID</Text>
+                      <Text style={styles.detailValue}>
+                        {circular.unique_id || '-'}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.detailCell}>
-                    <Text style={styles.detailLabel}>Circular By</Text>
-                    <Text style={styles.detailValue}>{circular.by}</Text>
-                  </View>
-                  <View style={styles.detailCell}>
-                    <Text style={styles.detailLabel}>Employee Type</Text>
-                    <Text style={styles.detailValue}>
-                      {circular.employeeType}
+
+                  <View style={styles.descriptionBox}>
+                    <Text style={styles.descriptionTitle}>Description</Text>
+                    <Text style={styles.descriptionText}>
+                      {circular.description || 'No description'}
                     </Text>
                   </View>
-                  <View style={styles.detailCell}>
-                    <Text style={styles.detailLabel}>Branch</Text>
-                    <Text style={styles.detailValue}>{circular.branch}</Text>
-                  </View>
-                </View>
 
-                <View style={styles.descriptionBox}>
-                  <Text style={styles.descriptionTitle}>Description</Text>
-                  <Text style={styles.descriptionText}>
-                    {circular.description || 'No description'}
-                  </Text>
+                  <AttachmentButton onPress={openAttachment} />
                 </View>
-
-                <AttachmentButton onPress={openAttachment} />
               </View>
-            </View>
+
+              <View style={styles.detailStatusCard}>
+                <Text style={styles.detailSectionTitle}>Read Status</Text>
+                {readStatus.length ? (
+                  readStatus.map((item, index) => (
+                    <View
+                      key={item.id}
+                      style={[
+                        styles.statusRow,
+                        index === readStatus.length - 1 &&
+                          styles.lastStatusRow,
+                      ]}
+                    >
+                      <View style={styles.statusPerson}>
+                        <Text style={styles.personName}>{item.name}</Text>
+                        <Text style={styles.personCode}>
+                          Emp Code - {item.code}
+                        </Text>
+                      </View>
+                      <View style={styles.readBadge}>
+                        <View
+                          style={[
+                            styles.readDot,
+                            item.read
+                              ? styles.readDotRead
+                              : styles.readDotUnread,
+                          ]}
+                        />
+                        <Text
+                          style={[
+                            styles.readText,
+                            item.read
+                              ? styles.readTextRead
+                              : styles.readTextUnread,
+                          ]}
+                        >
+                          {item.read ? 'Read' : 'Unread'}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <View style={styles.centeredState}>
+                    <Text style={styles.stateText}>No read status found.</Text>
+                  </View>
+                )}
+              </View>
+            </>
           )}
         </ScrollView>
       </SafeAreaView>

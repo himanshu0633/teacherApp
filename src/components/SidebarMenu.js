@@ -47,9 +47,9 @@ const MENU_ITEMS = [
   },
 
     {  
-    label: 'E-PTM SRP',
+    label: 'E-PTM SPR',
     icon: Images,
-    screen: 'EPTMSRPScreen',
+    screen: 'EPTMSPRScreen',
     visibility: 'common',
   },
   {
@@ -74,7 +74,7 @@ const MENU_ITEMS = [
     label: 'Student Circular',
     icon: Megaphone,
     screen: 'StudentCircularScreen',
-    visibility: 'principal',
+    visibility: 'common',
   },
   {
     label: 'Discipline',

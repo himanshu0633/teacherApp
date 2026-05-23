@@ -23,7 +23,7 @@ import { TEXT, circularStyles as styles } from './circularStyles';
 import { postForm } from '../../services/teacherApi';
 import { API_ENDPOINTS } from '../../utils/constants';
 
-const EMPLOYEE_TYPES = ['Teaching', 'Non Teaching', 'All'];
+const EMPLOYEE_TYPES = ['All', 'Teaching', 'NonTeaching'];
 
 const parseMaybeJson = value => {
   if (!value || typeof value !== 'string') {
@@ -190,7 +190,7 @@ const getRows = data => {
     return data;
   }
 
-  return (
+  const rows =
     data?.data ||
     data?.Data ||
     data?.list ||
@@ -199,8 +199,21 @@ const getRows = data => {
     data?.Result ||
     data?.staff ||
     data?.Staff ||
-    []
-  );
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response?.Res ||
+    data?.response?.data ||
+    data?.Response?.rest ||
+    data?.Response?.Rest ||
+    data?.Response?.Res ||
+    data?.Response?.data ||
+    [];
+
+  if (Array.isArray(rows)) {
+    return rows;
+  }
+
+  return rows ? [rows] : [];
 };
 
 const normalizeStaff = item => {
@@ -491,7 +504,11 @@ export default function EmployeeCircularScreen({ navigation }) {
         <CircularTabs
           active="create"
           onCreate={() => {}}
-          onList={() => navigation.navigate('MyCircularListScreen')}
+          onList={() =>
+            navigation.navigate('MyCircularListScreen', {
+              circularType: 'employee',
+            })
+          }
         />
 
         <ScrollView

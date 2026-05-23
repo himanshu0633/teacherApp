@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,47 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const DEFAULT_AVATAR = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 
 export default function AttendanceScreen({navigation}) {
+  const [teacher, setTeacher] = useState({
+    name: 'NA',
+    designation: 'NA',
+    profilePic: '',
+  });
+
+  useEffect(() => {
+    const loadTeacher = async () => {
+      const raw = await AsyncStorage.getItem('teacherData');
+      const storedName = await AsyncStorage.getItem('name');
+      const storedDesignation = await AsyncStorage.getItem('DesignationName');
+      const storedProfilePic =
+        (await AsyncStorage.getItem('profile_pic')) ||
+        (await AsyncStorage.getItem('profil_pic'));
+      let parsed = {};
+
+      try {
+        parsed = raw ? JSON.parse(raw) : {};
+      } catch (error) {
+        parsed = {};
+      }
+
+      setTeacher({
+        name: parsed?.name || storedName || 'NA',
+        designation:
+          parsed?.DesignationName ||
+          parsed?.designation ||
+          storedDesignation ||
+          'NA',
+        profilePic: parsed?.profile_pic || parsed?.profil_pic || storedProfilePic || '',
+      });
+    };
+
+    loadTeacher();
+  }, []);
+
   return (
     <View style={styles.root}>
       {/* Safe Area same gradient */}
@@ -41,13 +80,21 @@ export default function AttendanceScreen({navigation}) {
         <View style={styles.profileSection}>
           <Image
             source={{
-              uri: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+              uri: teacher.profilePic || DEFAULT_AVATAR,
             }}
             style={styles.avatar}
           />
 
-          <Text style={styles.name}>VIPAN SHARMA</Text>
-          <Text style={styles.role}>IT- Teacher</Text>
+          <Text
+            style={styles.name}
+            numberOfLines={2}
+            adjustsFontSizeToFit
+            minimumFontScale={0.78}>
+            {teacher.name}
+          </Text>
+          <Text style={styles.role} numberOfLines={2}>
+            {teacher.designation}
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -159,15 +206,21 @@ const styles = StyleSheet.create({
 
   name: {
     marginTop: 14,
-    fontSize: 20,
+    width: '100%',
+    paddingHorizontal: 28,
+    fontSize: 19,
     fontWeight: '900',
     color: '#222',
+    textAlign: 'center',
   },
 
   role: {
     marginTop: 4,
+    width: '100%',
+    paddingHorizontal: 28,
     fontSize: 15,
     color: '#7A7A7A',
+    textAlign: 'center',
   },
 
   menuCard: {

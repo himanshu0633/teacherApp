@@ -14,7 +14,7 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {User, KeyRound} from 'lucide-react-native';
+import {Eye, EyeOff, KeyRound, User} from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import {useAuth} from '../../context/AuthContext';
@@ -90,6 +90,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const setSafeItem = async (key, value) => {
@@ -290,12 +291,22 @@ export default function LoginScreen() {
               placeholder="Password"
               placeholderTextColor="#333"
               style={styles.input}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
               autoCorrect={false}
             />
+            <Pressable
+              onPress={() => setShowPassword(current => !current)}
+              hitSlop={10}
+              style={styles.eyeButton}>
+              {showPassword ? (
+                <EyeOff size={22} color="#222" strokeWidth={2.1} />
+              ) : (
+                <Eye size={22} color="#222" strokeWidth={2.1} />
+              )}
+            </Pressable>
           </View>
 
           <Pressable
@@ -375,6 +386,13 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     color: '#111',
+  },
+
+  eyeButton: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   loginBtn: {

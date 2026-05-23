@@ -17,15 +17,28 @@ const getRows = data => {
     return data;
   }
 
-  return (
+  const rows =
     data?.data ||
     data?.Data ||
     data?.list ||
     data?.List ||
     data?.result ||
     data?.Result ||
-    []
-  );
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response?.Res ||
+    data?.response?.data ||
+    data?.Response?.rest ||
+    data?.Response?.Rest ||
+    data?.Response?.Res ||
+    data?.Response?.data ||
+    [];
+
+  if (Array.isArray(rows)) {
+    return rows;
+  }
+
+  return rows ? [rows] : [];
 };
 
 const normalizeStatus = (item, index) => {

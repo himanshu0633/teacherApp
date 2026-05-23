@@ -1,5 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -7,28 +9,60 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Search} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {postForm} from '../../services/teacherApi';
+import {API_ENDPOINTS} from '../../utils/constants';
 
 const TEXT = '#202124';
 const BLUE = '#0798EA';
 
-const ptmRecords = [
-  {
-    id: '1',
-    calledBy: 'Vipan Sharma',
-    empCode: '307',
-    date: '02-08-2023',
-    student: 'Malvika Sharma',
-    admissionNo: '112089',
-    rollNo: '823',
-    mobileNo: '9876543210',
-    talkWith: 'Father',
-    mode: 'Online',
-    satisfaction: 'Very Good',
-    description: 'Lorem ipsum set doler met good performance',
-  },
-];
+const normalizeRecord = (item, index) => ({
+  id: String(item?.id || item?.RollNo || item?.EnrollNo || index),
+  calledBy: item?.CalledBy || item?.calledBy || '-',
+  empCode: item?.EmpCode || item?.empCode || '-',
+  date: item?.date || item?.Date || '-',
+  student: item?.StudentName || item?.student || '-',
+  admissionNo: item?.EnrollNo || item?.AdmissionNo || '-',
+  rollNo: item?.RollNo || item?.rollNo || '-',
+  className: item?.ClassName || '-',
+  mobileNo: item?.Mobile || item?.MobileNo || '-',
+  talkWith: item?.TalkWith || '-',
+  mode: item?.mode || item?.Mode || '-',
+  satisfaction: item?.psat || item?.satisfaction || '-',
+  area: item?.area || '-',
+  description: item?.Description || item?.description || '-',
+});
+
+const getRows = data => {
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  return (
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response?.Res ||
+    data?.rest ||
+    data?.Res ||
+    data?.data ||
+    []
+  );
+};
+
+const getEmpCode = async () => {
+  const raw = await AsyncStorage.getItem('teacherData');
+  let parsed = {};
+
+  try {
+    parsed = raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    parsed = {};
+  }
+
+  return parsed?.EmpCode || (await AsyncStorage.getItem('EmpCode')) || '';
+};
 
 function DetailRow({label, value}) {
   return (
@@ -53,10 +87,12 @@ function PtmRecordCard({record}) {
         <DetailRow label="Student" value={record.student} />
         <DetailRow label="Admission No" value={record.admissionNo} />
         <DetailRow label="Roll No" value={record.rollNo} />
+        <DetailRow label="Class" value={record.className} />
         <DetailRow label="Mobile No" value={record.mobileNo} />
         <DetailRow label="Talk With" value={record.talkWith} />
         <DetailRow label="Mode" value={record.mode} />
         <DetailRow label="P-Satisfaction" value={record.satisfaction} />
+        <DetailRow label="Area" value={record.area} />
 
         <View style={styles.descriptionBox}>
           <Text style={styles.descriptionTitle}>Description</Text>
@@ -67,9 +103,41 @@ function PtmRecordCard({record}) {
   );
 }
 
-export default function EPtmRecordScreen({navigation}) {
+export default function EPtmRecordScreen({navigation, route}) {
   const [searchText, setSearchText] = useState('');
+  const [records, setRecords] = useState(route?.params?.records || []);
+  const [loading, setLoading] = useState(false);
+  const ptmRecords = records.map(normalizeRecord);
   const normalizedSearch = searchText.trim().toLowerCase();
+
+  useEffect(() => {
+    if (route?.params?.records) {
+      setRecords(route.params.records);
+      return;
+    }
+
+    const loadRecords = async () => {
+      setLoading(true);
+      try {
+        const EmpCode = await getEmpCode();
+
+        if (!EmpCode) {
+          Alert.alert('Error', 'EmpCode not found.');
+          return;
+        }
+
+        const data = await postForm(API_ENDPOINTS.SHOW_PTM, {EmpCode});
+        setRecords(getRows(data));
+      } catch (error) {
+        console.log('E-PTM RECORD SCREEN ERROR =>', error);
+        Alert.alert('Error', 'Failed to load PTM records.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadRecords();
+  }, [route?.params?.records]);
   const filteredRecords = ptmRecords.filter(record => {
     if (!normalizedSearch) {
       return true;
@@ -79,6 +147,7 @@ export default function EPtmRecordScreen({navigation}) {
       record.student.toLowerCase().includes(normalizedSearch) ||
       record.admissionNo.toLowerCase().includes(normalizedSearch) ||
       record.rollNo.toLowerCase().includes(normalizedSearch) ||
+      record.className.toLowerCase().includes(normalizedSearch) ||
       record.calledBy.toLowerCase().includes(normalizedSearch) ||
       record.empCode.toLowerCase().includes(normalizedSearch)
     );
@@ -110,11 +179,17 @@ export default function EPtmRecordScreen({navigation}) {
             />
           </View>
 
-          {filteredRecords.map(record => (
-            <PtmRecordCard key={record.id} record={record} />
-          ))}
+          {loading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator color={BLUE} />
+            </View>
+          ) : (
+            filteredRecords.map(record => (
+              <PtmRecordCard key={record.id} record={record} />
+            ))
+          )}
 
-          {filteredRecords.length === 0 && (
+          {!loading && filteredRecords.length === 0 && (
             <Text style={styles.emptyText}>No records found</Text>
           )}
         </ScrollView>
@@ -232,5 +307,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginTop: 20,
+  },
+  loadingBox: {
+    minHeight: 160,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

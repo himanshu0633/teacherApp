@@ -38,6 +38,7 @@ import SchoolDiaryScreen from '../screens/SchoolDiary/SchoolDiaryScreen';
 import EmployeeCircularScreen from '../screens/circular/EmployeeCircularScreen';
 import StudentCircularScreen from '../screens/circular/StudentCircularScreen';
 import MyCircularListScreen from '../screens/circular/MyCircularListScreen';
+import SendByMeCircularListScreen from '../screens/circular/SendByMeCircularListScreen';
 import ViewCircularScreen from '../screens/circular/ViewCircularScreen';
 import CircularReadStatusScreen from '../screens/circular/CircularReadStatusScreen';
 import DisciplineScreen from '../screens/discipline/DisciplineScreen';
@@ -144,6 +145,7 @@ export default function AppNavigator() {
 <Stack.Screen name="EmployeeCircularScreen" component={EmployeeCircularScreen} />
 <Stack.Screen name="StudentCircularScreen" component={StudentCircularScreen} />
 <Stack.Screen name="MyCircularListScreen" component={MyCircularListScreen} />
+<Stack.Screen name="SendByMeCircularListScreen" component={SendByMeCircularListScreen} />
 <Stack.Screen name="ViewCircularScreen" component={ViewCircularScreen} />
 <Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
 <Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
@@ -151,6 +153,7 @@ export default function AppNavigator() {
 <Stack.Screen name="MyFeedbackListScreen" component={MyFeedbackListScreen} />
 <Stack.Screen name="EmployeeDalRecordScreen" component={EmployeeDalRecordScreen} />
 <Stack.Screen name="EPtmRecordScreen" component={EPtmRecordScreen} />
+<Stack.Screen name="EPTMSPRScreen" component={EPTMSRPScreen} />
 <Stack.Screen name="EPTMSRPScreen" component={EPTMSRPScreen} />
 <Stack.Screen name="EmployeeLeaveRequestScreen" component={EmployeeLeaveRequestScreen} />
 <Stack.Screen name="EmployeeRequestsScreen" component={EmployeeRequestsScreen} />
