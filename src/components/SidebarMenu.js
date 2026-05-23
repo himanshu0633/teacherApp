@@ -18,13 +18,13 @@ import {
   Images,
   Briefcase,
   NotebookPen,
+  ClipboardList,
   Megaphone,
   ShieldAlert,
   MessageSquareMore,
   LogOut,
   ChevronRight,
 } from 'lucide-react-native';
-
 
 const MENU_ITEMS = [
   {
@@ -46,7 +46,7 @@ const MENU_ITEMS = [
     visibility: 'common',
   },
 
-    {  
+  {
     label: 'E-PTM SPR',
     icon: Images,
     screen: 'EPTMSPRScreen',
@@ -70,7 +70,7 @@ const MENU_ITEMS = [
     screen: 'EmployeeCircularScreen',
     visibility: 'common',
   },
-    {
+  {
     label: 'Student Circular',
     icon: Megaphone,
     screen: 'StudentCircularScreen',
@@ -83,12 +83,17 @@ const MENU_ITEMS = [
     visibility: 'common',
   },
   {
+    label: 'Task Management',
+    icon: ClipboardList,
+    screen: 'TaskManagementScreen',
+    visibility: 'staff',
+  },
+  {
     label: 'My Feedback List',
     icon: MessageSquareMore,
     screen: 'MyFeedbackListScreen',
     visibility: 'common',
   },
-
 ];
 
 const isPrincipalDesignation = designation =>
@@ -142,20 +147,22 @@ export default function SidebarMenu({
             styles.drawer,
             {
               width: menuWidth,
-              transform: [{translateX: slideAnim}],
+              transform: [{ translateX: slideAnim }],
             },
-          ]}>
+          ]}
+        >
           <LinearGradient
             colors={['#0A8BE8', '#0A8BE8', '#2C8A3D']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.header}>
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.header}
+          >
             <View style={styles.headerTopSpace} />
 
             <View style={styles.profileWrap}>
               {showNetworkImage ? (
                 <Image
-                  source={{uri: teacherData.profilePic}}
+                  source={{ uri: teacherData.profilePic }}
                   style={styles.avatar}
                   resizeMode="cover"
                 />
@@ -181,7 +188,8 @@ export default function SidebarMenu({
           <ScrollView
             bounces={false}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.menuList}>
+            contentContainerStyle={styles.menuList}
+          >
             {visibleMenuItems.map((item, index) => {
               const Icon = item.icon;
               const isBlue = item.label === 'Marks Entry';
@@ -191,7 +199,8 @@ export default function SidebarMenu({
                   key={`${item.label}-${index}`}
                   activeOpacity={0.8}
                   style={styles.menuItem}
-                  onPress={() => handleItemPress(item)}>
+                  onPress={() => handleItemPress(item)}
+                >
                   <View style={styles.menuLeft}>
                     <Icon
                       size={20}
@@ -199,10 +208,8 @@ export default function SidebarMenu({
                       strokeWidth={1.9}
                     />
                     <Text
-                      style={[
-                        styles.menuLabel,
-                        isBlue && {color: '#1E90FF', fontWeight: '500'},
-                      ]}>
+                      style={[styles.menuLabel, isBlue && styles.menuLabelBlue]}
+                    >
                       {item.label}
                     </Text>
                   </View>
@@ -219,7 +226,8 @@ export default function SidebarMenu({
             <TouchableOpacity
               activeOpacity={0.8}
               style={[styles.menuItem, styles.logoutItem]}
-              onPress={onLogout}>
+              onPress={onLogout}
+            >
               <View style={styles.menuLeft}>
                 <LogOut size={20} color="#FF1F1F" strokeWidth={2} />
                 <Text style={styles.logoutText}>Logout</Text>
@@ -339,6 +347,11 @@ const styles = StyleSheet.create({
     color: '#222',
     marginLeft: 14,
     fontWeight: '400',
+  },
+
+  menuLabelBlue: {
+    color: '#1E90FF',
+    fontWeight: '500',
   },
 
   logoutItem: {

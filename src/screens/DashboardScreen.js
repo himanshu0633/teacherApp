@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -34,8 +34,8 @@ import {
   MessageSquareText,
 } from 'lucide-react-native';
 import SidebarMenu from '../components/SidebarMenu';
-import {useAuth} from '../context/AuthContext';
-import {API_ENDPOINTS, BASE_URL} from '../utils/constants';
+import { useAuth } from '../context/AuthContext';
+import { API_ENDPOINTS, BASE_URL } from '../utils/constants';
 
 const GRID_ITEMS = [
   {
@@ -102,6 +102,13 @@ const GRID_ITEMS = [
     visibility: 'staff',
   },
   {
+    id: 16,
+    title: 'Task\nManagement',
+    icon: ClipboardList,
+    screen: 'TaskManagementScreen',
+    visibility: 'staff',
+  },
+  {
     id: 10,
     title: 'Employee DAL Record',
     icon: FileText,
@@ -144,7 +151,6 @@ const GRID_ITEMS = [
     alertMessage: 'This feature is coming soon.',
     visibility: 'principal',
   },
-
 ];
 
 const isPrincipalDesignation = designation =>
@@ -236,7 +242,7 @@ const updateTeacherLogin = empCode => {
   });
 };
 
-const getAttendanceCount = ({empCode, sessionId, branchId}) => {
+const getAttendanceCount = ({ empCode, sessionId, branchId }) => {
   return postForm(API_ENDPOINTS.COUNT_ATTENDANCE, {
     empcode: empCode,
     SessionId: sessionId,
@@ -244,8 +250,8 @@ const getAttendanceCount = ({empCode, sessionId, branchId}) => {
   });
 };
 
-export default function DashboardScreen({navigation}) {
-  const {logout} = useAuth();
+export default function DashboardScreen({ navigation }) {
+  const { logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [teacherData, setTeacherData] = useState({
     name: 'NA',
@@ -304,102 +310,111 @@ export default function DashboardScreen({navigation}) {
     await AsyncStorage.setItem(key, finalValue);
   }, []);
 
-  const saveTeacherData = useCallback(async teacherResponse => {
-    try {
-      const currentRaw = await AsyncStorage.getItem('teacherData');
-      let currentData = {};
-
+  const saveTeacherData = useCallback(
+    async teacherResponse => {
       try {
-        currentData = currentRaw ? JSON.parse(currentRaw) : {};
+        const currentRaw = await AsyncStorage.getItem('teacherData');
+        let currentData = {};
+
+        try {
+          currentData = currentRaw ? JSON.parse(currentRaw) : {};
+        } catch (error) {
+          currentData = {};
+        }
+
+        const updatedTeacherData = {
+          ...currentData,
+          ...teacherResponse,
+        };
+
+        await AsyncStorage.setItem(
+          'teacherData',
+          JSON.stringify(updatedTeacherData),
+        );
+        await setSafeItem('EmpCode', updatedTeacherData?.EmpCode);
+        await setSafeItem('EmpID', updatedTeacherData?.EmpID);
+        await setSafeItem('name', updatedTeacherData?.name);
+        await setSafeItem('EmpTypeID', updatedTeacherData?.EmpTypeID);
+        await setSafeItem('JobType', updatedTeacherData?.JobType);
+        await setSafeItem('SessionName', updatedTeacherData?.SessionName);
+        await setSafeItem('DepartmentName', updatedTeacherData?.DepartmentName);
+        await setSafeItem('LoginTypeName', updatedTeacherData?.LoginTypeName);
+        await setSafeItem(
+          'DesignationName',
+          updatedTeacherData?.DesignationName,
+        );
+        await setSafeItem('DOB', updatedTeacherData?.DOB);
+        await setSafeItem('DOJ', updatedTeacherData?.DOJ);
+        await setSafeItem(
+          'ResidentialAddress',
+          updatedTeacherData?.ResidentialAddress,
+        );
+        await setSafeItem('MobileNo', updatedTeacherData?.MobileNo);
+        await setSafeItem('EmpCategory', updatedTeacherData?.EmpCategory);
+        await setSafeItem('Gender', updatedTeacherData?.Gender);
+        await setSafeItem('response', updatedTeacherData?.response);
+        await setSafeItem('Session', updatedTeacherData?.Session);
+        await setSafeItem('SessionId', updatedTeacherData?.SessionId);
+        await setSafeItem('image', updatedTeacherData?.image || 'No');
+        await setSafeItem(
+          'profil_pic',
+          updatedTeacherData?.profil_pic || updatedTeacherData?.profile_pic,
+        );
+        await setSafeItem(
+          'profile_pic',
+          updatedTeacherData?.profile_pic || updatedTeacherData?.profil_pic,
+        );
+        await setSafeItem('BranchId', updatedTeacherData?.BranchId);
+        await setSafeItem('branchName', updatedTeacherData?.branchName);
+        await setSafeItem('SectionName', updatedTeacherData?.SectionName);
+        await setSafeItem('SectionId', updatedTeacherData?.SectionId);
+        await setSafeItem('Classid', updatedTeacherData?.Classid);
+        await setSafeItem('ClassName', updatedTeacherData?.ClassName);
+        return updatedTeacherData;
       } catch (error) {
-        currentData = {};
+        console.log('SAVE UPDATED STORAGE ERROR =>', error);
+        return false;
       }
-
-      const updatedTeacherData = {
-        ...currentData,
-        ...teacherResponse,
-      };
-
-      await AsyncStorage.setItem(
-        'teacherData',
-        JSON.stringify(updatedTeacherData),
-      );
-      await setSafeItem('EmpCode', updatedTeacherData?.EmpCode);
-      await setSafeItem('EmpID', updatedTeacherData?.EmpID);
-      await setSafeItem('name', updatedTeacherData?.name);
-      await setSafeItem('EmpTypeID', updatedTeacherData?.EmpTypeID);
-      await setSafeItem('JobType', updatedTeacherData?.JobType);
-      await setSafeItem('SessionName', updatedTeacherData?.SessionName);
-      await setSafeItem('DepartmentName', updatedTeacherData?.DepartmentName);
-      await setSafeItem('LoginTypeName', updatedTeacherData?.LoginTypeName);
-      await setSafeItem('DesignationName', updatedTeacherData?.DesignationName);
-      await setSafeItem('DOB', updatedTeacherData?.DOB);
-      await setSafeItem('DOJ', updatedTeacherData?.DOJ);
-      await setSafeItem(
-        'ResidentialAddress',
-        updatedTeacherData?.ResidentialAddress,
-      );
-      await setSafeItem('MobileNo', updatedTeacherData?.MobileNo);
-      await setSafeItem('EmpCategory', updatedTeacherData?.EmpCategory);
-      await setSafeItem('Gender', updatedTeacherData?.Gender);
-      await setSafeItem('response', updatedTeacherData?.response);
-      await setSafeItem('Session', updatedTeacherData?.Session);
-      await setSafeItem('SessionId', updatedTeacherData?.SessionId);
-      await setSafeItem('image', updatedTeacherData?.image || 'No');
-      await setSafeItem(
-        'profil_pic',
-        updatedTeacherData?.profil_pic || updatedTeacherData?.profile_pic,
-      );
-      await setSafeItem(
-        'profile_pic',
-        updatedTeacherData?.profile_pic || updatedTeacherData?.profil_pic,
-      );
-      await setSafeItem('BranchId', updatedTeacherData?.BranchId);
-      await setSafeItem('branchName', updatedTeacherData?.branchName);
-      await setSafeItem('SectionName', updatedTeacherData?.SectionName);
-      await setSafeItem('SectionId', updatedTeacherData?.SectionId);
-      await setSafeItem('Classid', updatedTeacherData?.Classid);
-      await setSafeItem('ClassName', updatedTeacherData?.ClassName);
-      return updatedTeacherData;
-    } catch (error) {
-      console.log('SAVE UPDATED STORAGE ERROR =>', error);
-      return false;
-    }
-  }, [setSafeItem]);
+    },
+    [setSafeItem],
+  );
 
   const [notificationCount, setNotificationCount] = useState(0);
   const [notificationRows, setNotificationRows] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
 
-  const callUpdateLogin = useCallback(async empCode => {
-    try {
-      const data = normalizeApiObject(await updateTeacherLogin(empCode));
+  const callUpdateLogin = useCallback(
+    async empCode => {
+      try {
+        const data = normalizeApiObject(await updateTeacherLogin(empCode));
 
-      if (data && typeof data === 'object') {
-        const savedData = await saveTeacherData(data);
+        if (data && typeof data === 'object') {
+          const savedData = await saveTeacherData(data);
 
-        if (savedData) {
-          setTeacherData({
-            name: safeValue(savedData?.name),
-            designation: safeValue(savedData?.DesignationName),
-            branchName: safeValue(savedData?.branchName),
-            empCode: savedData?.EmpCode || empCode || '',
-            profilePic: savedData?.profile_pic || savedData?.profil_pic || '',
-            image: savedData?.image || 'No',
-            sessionName: savedData?.SessionName || '2023-24',
-          });
+          if (savedData) {
+            setTeacherData({
+              name: safeValue(savedData?.name),
+              designation: safeValue(savedData?.DesignationName),
+              branchName: safeValue(savedData?.branchName),
+              empCode: savedData?.EmpCode || empCode || '',
+              profilePic: savedData?.profile_pic || savedData?.profil_pic || '',
+              image: savedData?.image || 'No',
+              sessionName: savedData?.SessionName || '2023-24',
+            });
+          }
         }
+      } catch (error) {
+        console.log('updatelogin.php CALL ERROR =>', error);
       }
-    } catch (error) {
-      console.log('updatelogin.php CALL ERROR =>', error);
-    }
-  }, [safeValue, saveTeacherData]);
+    },
+    [safeValue, saveTeacherData],
+  );
 
   const callAttendanceCount = useCallback(
-    async ({empCode, sessionId, branchId}) => {
+    async ({ empCode, sessionId, branchId }) => {
       try {
         const data = normalizeApiObject(
-          await getAttendanceCount({empCode, sessionId, branchId}),
+          await getAttendanceCount({ empCode, sessionId, branchId }),
         );
 
         if (data) {
@@ -438,7 +453,7 @@ export default function DashboardScreen({navigation}) {
   const loadNotifications = useCallback(
     async empCode => {
       try {
-        console.log('DASHBOARD NOTIFICATIONS PAYLOAD =>', {empcode: empCode});
+        console.log('DASHBOARD NOTIFICATIONS PAYLOAD =>', { empcode: empCode });
         const rows = await getNotifications(empCode);
         console.log('DASHBOARD NOTIFICATIONS RESPONSE ROWS =>', rows);
         setNotificationRows(rows);
@@ -463,7 +478,9 @@ export default function DashboardScreen({navigation}) {
       let rows = notificationRows;
 
       if (!rows.length) {
-        console.log('NOTIFICATIONS PAYLOAD =>', {empcode: teacherData.empCode});
+        console.log('NOTIFICATIONS PAYLOAD =>', {
+          empcode: teacherData.empCode,
+        });
         rows = await getNotifications(teacherData.empCode);
         setNotificationRows(rows);
       }
@@ -523,7 +540,8 @@ export default function DashboardScreen({navigation}) {
           '',
         image: parsed?.image || image || 'No',
         sessionName: parsed?.SessionName || sessionName || '2023-24',
-        sessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+        sessionId:
+          parsed?.SessionId || parsed?.Session || sessionId || session || '',
         branchId: parsed?.BranchId || branchId || '',
       };
 
@@ -564,7 +582,7 @@ export default function DashboardScreen({navigation}) {
 
     setTimeout(() => {
       Alert.alert('Logout', 'Are you sure you want to logout?', [
-        {text: 'Cancel', style: 'cancel'},
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Logout',
           style: 'destructive',
@@ -603,7 +621,8 @@ export default function DashboardScreen({navigation}) {
         key={item.id}
         activeOpacity={0.85}
         style={styles.gridCard}
-        onPress={() => onPressGrid(item)}>
+        onPress={() => onPressGrid(item)}
+      >
         <Icon size={36} color="#1B98F3" strokeWidth={2.1} />
         <Text style={styles.gridText}>{item.title}</Text>
       </TouchableOpacity>
@@ -632,9 +651,10 @@ export default function DashboardScreen({navigation}) {
 
       <LinearGradient
         colors={['#0A8BE8', '#38D640']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
-        style={styles.headerGradient}>
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.headerGradient}
+      >
         <View style={styles.topSafeSpace} />
 
         <View style={styles.topBar}>
@@ -652,18 +672,21 @@ export default function DashboardScreen({navigation}) {
 
           <View style={styles.rightSection}>
             <TouchableOpacity
-  activeOpacity={0.7}
-  style={[styles.bellWrapper, loadingNotifications && styles.disabledIcon]}
-  disabled={loadingNotifications}
-  onPress={handleNotificationsPress}
->
-  <Bell size={24} color="#fff" strokeWidth={2.4} />
-  {notificationCount > 0 && (   // optional: show only if count > 0
-    <View style={styles.badge}>
-      <Text style={styles.badgeText}>{notificationCount}</Text>
-    </View>
-  )}
-</TouchableOpacity>
+              activeOpacity={0.7}
+              style={[
+                styles.bellWrapper,
+                loadingNotifications && styles.disabledIcon,
+              ]}
+              disabled={loadingNotifications}
+              onPress={handleNotificationsPress}
+            >
+              <Bell size={24} color="#fff" strokeWidth={2.4} />
+              {notificationCount > 0 && ( // optional: show only if count > 0
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{notificationCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
 
             <TouchableOpacity activeOpacity={0.7} onPress={handleLogout}>
               <LogOut size={24} color="#fff" strokeWidth={2.4} />
@@ -675,7 +698,7 @@ export default function DashboardScreen({navigation}) {
       <View style={styles.avatarWrapper}>
         {showNetworkImage ? (
           <Image
-            source={{uri: teacherData.profilePic}}
+            source={{ uri: teacherData.profilePic }}
             style={styles.avatar}
             resizeMode="cover"
           />
@@ -693,35 +716,38 @@ export default function DashboardScreen({navigation}) {
       <View style={styles.contentCard}>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}>
+          contentContainerStyle={styles.scrollContent}
+        >
           <Text style={styles.nameText}>{teacherData.name}</Text>
           <Text style={styles.designationText}>{teacherData.designation}</Text>
 
           <View style={styles.attendanceCard}>
             <View style={styles.attendanceHeader}>
-              <Text style={styles.attendanceHeaderText}>Attendance Summary</Text>
               <Text style={styles.attendanceHeaderText}>
-                 {attendanceCount.day}
+                Attendance Summary
+              </Text>
+              <Text style={styles.attendanceHeaderText}>
+                {attendanceCount.day}
               </Text>
             </View>
 
             <View style={styles.attendanceBody}>
               <View style={styles.attendanceBox}>
-                <View style={[styles.labelBox, {backgroundColor: '#FF0D0D'}]}>
+                <View style={[styles.labelBox, styles.absentLabelBox]}>
                   <Text style={styles.labelText}>A</Text>
                 </View>
                 <Text style={styles.countText}>{attendanceCount.absent}</Text>
               </View>
 
               <View style={styles.attendanceBox}>
-                <View style={[styles.labelBox, {backgroundColor: '#F4BE1F'}]}>
+                <View style={[styles.labelBox, styles.leaveLabelBox]}>
                   <Text style={styles.labelText}>L</Text>
                 </View>
                 <Text style={styles.countText}>{attendanceCount.leave}</Text>
               </View>
 
               <View style={styles.attendanceBox}>
-                <View style={[styles.labelBox, {backgroundColor: '#34B82F'}]}>
+                <View style={[styles.labelBox, styles.presentLabelBox]}>
                   <Text style={styles.labelText}>P</Text>
                 </View>
                 <Text style={styles.countText}>{attendanceCount.present}</Text>
@@ -901,6 +927,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+  },
+  absentLabelBox: {
+    backgroundColor: '#FF0D0D',
+  },
+  leaveLabelBox: {
+    backgroundColor: '#F4BE1F',
+  },
+  presentLabelBox: {
+    backgroundColor: '#34B82F',
   },
   labelText: {
     color: '#fff',

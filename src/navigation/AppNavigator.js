@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useEffect, useState } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/splash/SplashScreen';
 import LoginScreen from '../screens/login/LoginScreen';
 import DashboardScreen from '../screens/DashboardScreen';
-import {useAuth} from '../context/AuthContext';
-
+import { useAuth } from '../context/AuthContext';
 
 import MyProfileScreen from '../screens/MyProfile/MyProfileScreen';
 import EditProfileScreen from '../screens/MyProfile/EditProfileScreen';
@@ -33,7 +32,7 @@ import ViewClassGalleryCategoryScreen from '../screens/gallery/ViewClassGalleryC
 import ClassGalleryImagesScreen from '../screens/gallery/ClassGalleryImagesScreen';
 import ViewClassGalleryImagesScreen from '../screens/gallery/ViewClassGalleryImagesScreen';
 import GalleryImageGridScreen from '../screens/gallery/GalleryImageGridScreen';
-import CreateLinkScreen from "../screens/CreateLink/CreateLinkScreen";
+import CreateLinkScreen from '../screens/CreateLink/CreateLinkScreen';
 import SchoolDiaryScreen from '../screens/SchoolDiary/SchoolDiaryScreen';
 import EmployeeCircularScreen from '../screens/circular/EmployeeCircularScreen';
 import StudentCircularScreen from '../screens/circular/StudentCircularScreen';
@@ -53,11 +52,19 @@ import ExtraDayRequestScreen from '../screens/employeeRequests/ExtraDayRequestSc
 import EComplaintRecordScreen from '../screens/eComplaint/EComplaintRecordScreen';
 import PendingComplaintListScreen from '../screens/eComplaint/PendingComplaintListScreen';
 import ResolvedComplaintListScreen from '../screens/eComplaint/ResolvedComplaintListScreen';
+import {
+  AssignTaskScreen,
+  ForwardTaskScreen,
+  TaskAssignedByMeScreen,
+  TaskAssignedToMeScreen,
+  TaskCommentsScreen,
+  TaskManagementScreen,
+} from '../screens/taskManagement/TaskManagementScreens';
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
   const [showSplash, setShowSplash] = useState(true);
-  const {isLoggedIn, loading} = useAuth();
+  const { isLoggedIn, loading } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -72,95 +79,205 @@ export default function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {isLoggedIn ? (
         <>
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           <Stack.Screen name="ProfileScreen" component={MyProfileScreen} />
           <Stack.Screen name="MySalaryScreen" component={MySalaryScreen} />
-          <Stack.Screen name="SalaryReceiptScreen" component={SalaryReceiptScreen} />
-          <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
-          <Stack.Screen name="ApplyLeaveScreen" component={ApplyLeaveScreen} />
-          <Stack.Screen name="MyLeaveRecordScreen" component={MyLeaveRecordScreen} />
-          <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
           <Stack.Screen
-  name="StudentAttendanceScreen"
-  component={AttendanceScreen}
-  options={{headerShown: false}}
-/>
+            name="SalaryReceiptScreen"
+            component={SalaryReceiptScreen}
+          />
+          <Stack.Screen
+            name="EditProfileScreen"
+            component={EditProfileScreen}
+          />
+          <Stack.Screen name="ApplyLeaveScreen" component={ApplyLeaveScreen} />
+          <Stack.Screen
+            name="MyLeaveRecordScreen"
+            component={MyLeaveRecordScreen}
+          />
+          <Stack.Screen
+            name="ChangePasswordScreen"
+            component={ChangePasswordScreen}
+          />
+          <Stack.Screen
+            name="StudentAttendanceScreen"
+            component={AttendanceScreen}
+            options={{ headerShown: false }}
+          />
 
-    <Stack.Screen
-      name="ViewAttendanceScreen"
-      component={ViewAttendanceScreen}
-      options={{headerShown: false}}
-    />
-    {/* <Stack.Screen
+          <Stack.Screen
+            name="ViewAttendanceScreen"
+            component={ViewAttendanceScreen}
+            options={{ headerShown: false }}
+          />
+          {/* <Stack.Screen
       name="MarkAttendanceScreen"
       component={MarkAttendanceScreen}
       options={{headerShown: false}}
     /> */}
 
-<Stack.Screen
-  name="MainClassAttendanceScreen"
-  component={MainClassAttendanceScreen}
-  options={{headerShown: false}}
-/>
-
-<Stack.Screen
-  name="CoachingClassAttendanceScreen"
-  component={CoachingClassAttendanceScreen}
-  options={{headerShown: false}}
-/>
-          <Stack.Screen name="HomeWorkScreen" component={HomeWorkScreen} />
-          
+          <Stack.Screen
+            name="MainClassAttendanceScreen"
+            component={MainClassAttendanceScreen}
+            options={{ headerShown: false }}
+          />
 
           <Stack.Screen
-  name="AssignmentHistoryScreen"
-  component={AssignmentHistoryScreen}
-  options={{headerShown: false}}
-/>
-<Stack.Screen
-  name="MarkEntryScreen"
-  component={MarkEntryScreen}
-  options={{headerShown: false}}
-/>
-<Stack.Screen
-  name="NotificationsScreen"
-  component={NotificationsScreen}
-  options={{headerShown: false}}
-/>
-<Stack.Screen name="StudentPortfolioScreen" component={StudentPortfolioScreen} />
-<Stack.Screen name="SportsEntryScreen" component={SportsEntryScreen} />
-<Stack.Screen name="ActivityEntryScreen" component={ActivityEntryScreen} />
-<Stack.Screen name="SportsEntryListScreen" component={SportsEntryListScreen} />
-<Stack.Screen name="ActivityEntryListScreen" component={ActivityEntryListScreen} />
-<Stack.Screen name="GalleryScreen" component={ClassGalleryScreen} />
-<Stack.Screen name="CreateClassGalleryCategoryScreen" component={CreateClassGalleryCategoryScreen} />
-<Stack.Screen name="ViewClassGalleryCategoryScreen" component={ViewClassGalleryCategoryScreen} />
-<Stack.Screen name="ClassGalleryImagesScreen" component={ClassGalleryImagesScreen} />
-<Stack.Screen name="ViewClassGalleryImagesScreen" component={ViewClassGalleryImagesScreen} />
-<Stack.Screen name="GalleryImageGridScreen" component={GalleryImageGridScreen} />
-<Stack.Screen name="CreateLinkScreen" component={CreateLinkScreen} />
-<Stack.Screen name="SchoolDiaryScreen" component={SchoolDiaryScreen} />
-<Stack.Screen name="EmployeeCircularScreen" component={EmployeeCircularScreen} />
-<Stack.Screen name="StudentCircularScreen" component={StudentCircularScreen} />
-<Stack.Screen name="MyCircularListScreen" component={MyCircularListScreen} />
-<Stack.Screen name="SendByMeCircularListScreen" component={SendByMeCircularListScreen} />
-<Stack.Screen name="ViewCircularScreen" component={ViewCircularScreen} />
-<Stack.Screen name="CircularReadStatusScreen" component={CircularReadStatusScreen} />
-<Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
-<Stack.Screen name="DisciplineFeedbackScreen" component={DisciplineFeedbackScreen} />
-<Stack.Screen name="MyFeedbackListScreen" component={MyFeedbackListScreen} />
-<Stack.Screen name="EmployeeDalRecordScreen" component={EmployeeDalRecordScreen} />
-<Stack.Screen name="EPtmRecordScreen" component={EPtmRecordScreen} />
-<Stack.Screen name="EPTMSPRScreen" component={EPTMSRPScreen} />
-<Stack.Screen name="EPTMSRPScreen" component={EPTMSRPScreen} />
-<Stack.Screen name="EmployeeLeaveRequestScreen" component={EmployeeLeaveRequestScreen} />
-<Stack.Screen name="EmployeeRequestsScreen" component={EmployeeRequestsScreen} />
-<Stack.Screen name="ExtraDayRequestScreen" component={ExtraDayRequestScreen} />
-<Stack.Screen name="EComplaintRecordScreen" component={EComplaintRecordScreen} />
-<Stack.Screen name="PendingComplaintListScreen" component={PendingComplaintListScreen} />
-<Stack.Screen name="ResolvedComplaintListScreen" component={ResolvedComplaintListScreen} />
+            name="CoachingClassAttendanceScreen"
+            component={CoachingClassAttendanceScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="HomeWorkScreen" component={HomeWorkScreen} />
+
+          <Stack.Screen
+            name="AssignmentHistoryScreen"
+            component={AssignmentHistoryScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="MarkEntryScreen"
+            component={MarkEntryScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="NotificationsScreen"
+            component={NotificationsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="StudentPortfolioScreen"
+            component={StudentPortfolioScreen}
+          />
+          <Stack.Screen
+            name="SportsEntryScreen"
+            component={SportsEntryScreen}
+          />
+          <Stack.Screen
+            name="ActivityEntryScreen"
+            component={ActivityEntryScreen}
+          />
+          <Stack.Screen
+            name="SportsEntryListScreen"
+            component={SportsEntryListScreen}
+          />
+          <Stack.Screen
+            name="ActivityEntryListScreen"
+            component={ActivityEntryListScreen}
+          />
+          <Stack.Screen name="GalleryScreen" component={ClassGalleryScreen} />
+          <Stack.Screen
+            name="CreateClassGalleryCategoryScreen"
+            component={CreateClassGalleryCategoryScreen}
+          />
+          <Stack.Screen
+            name="ViewClassGalleryCategoryScreen"
+            component={ViewClassGalleryCategoryScreen}
+          />
+          <Stack.Screen
+            name="ClassGalleryImagesScreen"
+            component={ClassGalleryImagesScreen}
+          />
+          <Stack.Screen
+            name="ViewClassGalleryImagesScreen"
+            component={ViewClassGalleryImagesScreen}
+          />
+          <Stack.Screen
+            name="GalleryImageGridScreen"
+            component={GalleryImageGridScreen}
+          />
+          <Stack.Screen name="CreateLinkScreen" component={CreateLinkScreen} />
+          <Stack.Screen
+            name="SchoolDiaryScreen"
+            component={SchoolDiaryScreen}
+          />
+          <Stack.Screen
+            name="EmployeeCircularScreen"
+            component={EmployeeCircularScreen}
+          />
+          <Stack.Screen
+            name="StudentCircularScreen"
+            component={StudentCircularScreen}
+          />
+          <Stack.Screen
+            name="MyCircularListScreen"
+            component={MyCircularListScreen}
+          />
+          <Stack.Screen
+            name="SendByMeCircularListScreen"
+            component={SendByMeCircularListScreen}
+          />
+          <Stack.Screen
+            name="ViewCircularScreen"
+            component={ViewCircularScreen}
+          />
+          <Stack.Screen
+            name="CircularReadStatusScreen"
+            component={CircularReadStatusScreen}
+          />
+          <Stack.Screen name="DisciplineScreen" component={DisciplineScreen} />
+          <Stack.Screen
+            name="DisciplineFeedbackScreen"
+            component={DisciplineFeedbackScreen}
+          />
+          <Stack.Screen
+            name="MyFeedbackListScreen"
+            component={MyFeedbackListScreen}
+          />
+          <Stack.Screen
+            name="EmployeeDalRecordScreen"
+            component={EmployeeDalRecordScreen}
+          />
+          <Stack.Screen name="EPtmRecordScreen" component={EPtmRecordScreen} />
+          <Stack.Screen name="EPTMSPRScreen" component={EPTMSRPScreen} />
+          <Stack.Screen name="EPTMSRPScreen" component={EPTMSRPScreen} />
+          <Stack.Screen
+            name="EmployeeLeaveRequestScreen"
+            component={EmployeeLeaveRequestScreen}
+          />
+          <Stack.Screen
+            name="EmployeeRequestsScreen"
+            component={EmployeeRequestsScreen}
+          />
+          <Stack.Screen
+            name="ExtraDayRequestScreen"
+            component={ExtraDayRequestScreen}
+          />
+          <Stack.Screen
+            name="EComplaintRecordScreen"
+            component={EComplaintRecordScreen}
+          />
+          <Stack.Screen
+            name="PendingComplaintListScreen"
+            component={PendingComplaintListScreen}
+          />
+          <Stack.Screen
+            name="ResolvedComplaintListScreen"
+            component={ResolvedComplaintListScreen}
+          />
+          <Stack.Screen
+            name="TaskManagementScreen"
+            component={TaskManagementScreen}
+          />
+          <Stack.Screen name="AssignTaskScreen" component={AssignTaskScreen} />
+          <Stack.Screen
+            name="ForwardTaskScreen"
+            component={ForwardTaskScreen}
+          />
+          <Stack.Screen
+            name="TaskAssignedToMeScreen"
+            component={TaskAssignedToMeScreen}
+          />
+          <Stack.Screen
+            name="TaskAssignedByMeScreen"
+            component={TaskAssignedByMeScreen}
+          />
+          <Stack.Screen
+            name="TaskCommentsScreen"
+            component={TaskCommentsScreen}
+          />
         </>
       ) : (
         <Stack.Screen name="Login" component={LoginScreen} />
