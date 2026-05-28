@@ -4,16 +4,29 @@ import {API_ENDPOINTS, BASE_URL} from '../utils/constants';
 
 export const postForm = async (endpoint, fields) => {
   const formData = new FormData();
+  const values = Object.values(fields).flat();
+  const hasFile = values.some(value => value?.uri);
 
   Object.entries(fields).forEach(([key, value]) => {
-    formData.append(key, value === null || value === undefined ? '' : value);
+    const appendValue = item => {
+      formData.append(key, item === null || item === undefined ? '' : item);
+    };
+
+    if (Array.isArray(value)) {
+      value.forEach(appendValue);
+      return;
+    }
+
+    appendValue(value);
   });
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: hasFile
+      ? undefined
+      : {
+          'Content-Type': 'multipart/form-data',
+        },
     body: formData,
   });
 

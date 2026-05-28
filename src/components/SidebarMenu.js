@@ -89,6 +89,12 @@ const MENU_ITEMS = [
     visibility: 'staff',
   },
   {
+    label: 'Hostel Parenting',
+    icon: NotebookPen,
+    screen: 'HostelParentingScreen',
+    visibility: 'staff',
+  },
+  {
     label: 'My Feedback List',
     icon: MessageSquareMore,
     screen: 'MyFeedbackListScreen',

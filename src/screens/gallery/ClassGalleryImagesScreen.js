@@ -5,6 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  TextInput,
   StatusBar,
   ScrollView,
   Modal,
@@ -140,7 +141,8 @@ export default function ClassGalleryImagesScreen({navigation}) {
   const [categories, setCategories] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [imageName, setImageName] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [loadingLookups, setLoadingLookups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activePicker, setActivePicker] = useState(null);
@@ -184,8 +186,8 @@ export default function ClassGalleryImagesScreen({navigation}) {
 
         setClasses(loadedClasses);
 
-        // If classes loaded but none selected yet, open the class picker
-        if (!selectedClass && loadedClasses.length) {
+        // If classes loaded, open the class picker on first load.
+        if (loadedClasses.length) {
           setActivePicker('class');
         }
 
@@ -257,14 +259,14 @@ export default function ClassGalleryImagesScreen({navigation}) {
 
   const pickImage = async () => {
     try {
-      const [file] = await pick({type: [types.images]});
+      const files = await pick({type: [types.images], allowMultiSelection: true});
 
-      if (file) {
-        setSelectedFile({
+      if (files?.length) {
+        setSelectedFiles(files.map(file => ({
           uri: file.uri,
           name: file.name || 'gallery-image',
           type: file.type || 'image/jpeg',
-        });
+        })));
       }
     } catch (error) {
       if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) {
@@ -277,8 +279,8 @@ export default function ClassGalleryImagesScreen({navigation}) {
   };
 
   const submit = async () => {
-    if (!date || !selectedClass || !selectedCategory || !selectedFile) {
-      Alert.alert('Required', 'Please select date, class, category, and image.');
+    if (!date || !selectedClass || !selectedCategory || !imageName.trim() || !selectedFiles.length) {
+      Alert.alert('Required', 'Please select date, class, category, image name, and image.');
       return;
     }
 
@@ -287,13 +289,12 @@ export default function ClassGalleryImagesScreen({navigation}) {
       const context = teacher || (await getTeacherContext());
       const payload = {
         EmpCode: context.EmpCode,
-        name: selectedFile,
-        file: selectedFile,
-        date,
+        name: imageName.trim(),
         classId: selectedClass.id,
         SessionId: context.SessionId,
         BranchId: context.BranchId,
         galcat: selectedCategory.id,
+        'pic[]': selectedFiles,
       };
 
       console.log('CLASS GALLERY IMAGE SAVE PAYLOAD =>', payload);
@@ -302,7 +303,8 @@ export default function ClassGalleryImagesScreen({navigation}) {
 
       if (success(data)) {
         Alert.alert('Success', data?.message || data?.msg || 'Class gallery image saved.');
-        setSelectedFile(null);
+        setImageName('');
+        setSelectedFiles([]);
         return;
       }
 
@@ -346,7 +348,13 @@ export default function ClassGalleryImagesScreen({navigation}) {
             value={selectedCategory?.label}
             onPress={() => setActivePicker('category')}
           />
-          <UploadBox file={selectedFile} onPress={pickImage} />
+          <InputBox
+            label="Image Name"
+            required
+            value={imageName}
+            onChangeText={setImageName}
+          />
+          <UploadBox files={selectedFiles} onPress={pickImage} />
 
           <View style={styles.bottom}>
             <TouchableOpacity
@@ -418,11 +426,31 @@ function SelectBox({label, value, onPress}) {
   );
 }
 
-function UploadBox({file, onPress}) {
+function InputBox({label, value, onChangeText, required}) {
+  return (
+    <View style={styles.inputBox}>
+      <TextInput
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={`${label}${required ? ' *' : ''}`}
+        placeholderTextColor="#222"
+        style={styles.input}
+      />
+    </View>
+  );
+}
+
+function UploadBox({files, onPress}) {
+  const fileText = files?.length
+    ? files.length === 1
+      ? files[0].name
+      : `${files.length} images selected`
+    : 'Upload Images';
+
   return (
     <TouchableOpacity style={styles.uploadBox} onPress={onPress}>
       <Text style={styles.uploadText} numberOfLines={2}>
-        {file?.name || 'Upload Images'}
+        {fileText}
       </Text>
       <View style={styles.plusBox}>
         <Text style={styles.plus}>+</Text>
@@ -565,6 +593,7 @@ const styles = StyleSheet.create({
   smallLabel: {fontSize: 9, color: '#777'},
   star: {color: 'red'},
   inputText: {fontSize: 14, color: '#222'},
+  input: {fontSize: 14, color: '#222', padding: 0},
   selectBox: {
     minHeight: 45,
     borderWidth: 1,

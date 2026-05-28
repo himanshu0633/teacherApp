@@ -109,6 +109,13 @@ const GRID_ITEMS = [
     visibility: 'staff',
   },
   {
+    id: 17,
+    title: 'Hostel\nParenting',
+    icon: MessageSquareText,
+    screen: 'HostelParentingScreen',
+    visibility: 'staff',
+  },
+  {
     id: 10,
     title: 'Employee DAL Record',
     icon: FileText,

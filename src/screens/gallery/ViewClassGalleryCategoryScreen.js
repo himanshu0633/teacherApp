@@ -123,8 +123,15 @@ export function ListScreen({navigation, title, type}) {
 
 function GalleryCard({item, index, type, navigation}) {
   const images = item?.categoryImages || [];
-  const firstImages = images.slice(0, 2);
+  const previewImages = images.slice(0, 3);
   const count = Number(item?.imageCount || images.length || 0);
+  const openGalleryImages = () => {
+    navigation.navigate('GalleryImageGridScreen', {
+      id: item.categoryid,
+      title: item.categoryName,
+      date: item.date,
+    });
+  };
 
   return (
     <View style={styles.card}>
@@ -143,22 +150,18 @@ function GalleryCard({item, index, type, navigation}) {
 
         {images.length ? (
           <View style={styles.galleryRow}>
-            {(type === 'images' ? firstImages : images.slice(0, 1)).map((image, imgIndex) => (
-              <Thumb key={`${image.image}-${imgIndex}`} uri={image.image} />
-            ))}
+            {(type === 'images' ? previewImages : images.slice(0, 1)).map(
+              (image, imgIndex) => (
+                <Thumb key={`${image.image}-${imgIndex}`} uri={image.image} />
+              ),
+            )}
 
-            {type === 'images' && count > firstImages.length ? (
+            {type === 'images' && count > previewImages.length ? (
               <TouchableOpacity
-                style={styles.moreThumb}
-                onPress={() =>
-                  navigation.navigate('GalleryImageGridScreen', {
-                    id: item.categoryid,
-                    title: item.categoryName,
-                    date: item.date,
-                  })
-                }>
-                <Thumb uri={firstImages[0]?.image || images[0]?.image} dark />
-                <Text style={styles.moreText}>+{count - firstImages.length}</Text>
+                activeOpacity={0.8}
+                style={styles.viewMoreButton}
+                onPress={openGalleryImages}>
+                <Text style={styles.viewMoreText}>View More</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -179,8 +182,8 @@ function Info({label, value}) {
   );
 }
 
-function Thumb({uri, dark}) {
-  return <Image source={{uri}} style={[styles.thumb, dark && styles.darkThumb]} />;
+function Thumb({uri}) {
+  return <Image source={{uri}} style={styles.thumb} />;
 }
 
 const styles = StyleSheet.create({
@@ -231,16 +234,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   thumb: {width: 66, height: 50, borderRadius: 7, resizeMode: 'cover', marginRight: 8},
-  darkThumb: {opacity: 0.7},
-  galleryRow: {flexDirection: 'row'},
-  moreThumb: {position: 'relative'},
-  moreText: {
-    position: 'absolute',
+  galleryRow: {flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap'},
+  viewMoreButton: {
+    minHeight: 34,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    backgroundColor: '#5A33C5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  viewMoreText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '900',
-    alignSelf: 'center',
-    top: 14,
+    fontSize: 12,
+    fontWeight: '800',
   },
   noImageText: {fontSize: 12, color: '#777'},
 });

@@ -110,6 +110,37 @@ const parseDate = value => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+const getDateKey = value => {
+  const raw = String(value || '').trim();
+
+  if (!raw || raw === 'NA') {
+    return '';
+  }
+
+  const normalized = raw.replace(/\//g, '-');
+  const parts = normalized.split('-').map(Number);
+
+  if (parts.length === 3) {
+    const [first, second, third] = parts;
+    const date =
+      first > 31
+        ? new Date(first, second - 1, third)
+        : new Date(third, second - 1, first);
+
+    if (!Number.isNaN(date.getTime())) {
+      return formatDate(date);
+    }
+  }
+
+  const timestamp = Date.parse(raw);
+
+  if (!Number.isNaN(timestamp)) {
+    return formatDate(new Date(timestamp));
+  }
+
+  return normalized;
+};
+
 const buildCalendarDays = monthDate => {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
@@ -159,10 +190,18 @@ const normalizeTeacher = item => {
 };
 
 const normalizeTask = item => {
+  const status =
+    item?.taskstatus ||
+    item?.TaskStatus ||
+    item?.task_status ||
+    item?.status ||
+    item?.Status ||
+    'Pending';
+
   return {
     id: String(item?.id || Math.random()),
     title: item?.taskname || 'Name of the Task',
-    status: item?.taskstatus || 'Pending',
+    status,
     assignedTo: item?.assignto || 'NA',
     assignedBy: item?.assignedby || 'NA',
     priority: item?.priority || 'Low',
@@ -229,11 +268,44 @@ const tasks = [
 ];
 
 const filters = [
-  { label: 'All', color: '#079CEF', Icon: ListChecks },
-  { label: 'Complete', color: '#25B83D', Icon: CheckSquare },
-  { label: 'Pending', color: '#FF4B4B', Icon: HelpCircle },
-  { label: 'Inprogrss', color: '#FFBF21', Icon: CalendarDays },
+  { label: 'All', key: 'all', color: '#079CEF', Icon: ListChecks },
+  { label: 'Completed', key: 'complete', color: '#25B83D', Icon: CheckSquare },
+  { label: 'Pending', key: 'pending', color: '#FF4B4B', Icon: HelpCircle },
+  { label: 'Inprogrss', key: 'inprogress', color: '#FFBF21', Icon: CalendarDays },
 ];
+
+const getStatusKey = status => {
+  const value = String(status || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '');
+
+  if (value === 'complete' || value === 'completed') {
+    return 'complete';
+  }
+
+  if (
+    value === 'inprogrss' ||
+    value === 'inprogress' ||
+    value === 'progress'
+  ) {
+    return 'inprogress';
+  }
+
+  if (
+    value === 'pending' ||
+    value === 'panding' ||
+    value === 'pendding' ||
+    value === 'open' ||
+    value === 'todo' ||
+    value === 'notstarted' ||
+    value === '0'
+  ) {
+    return 'pending';
+  }
+
+  return value || 'pending';
+};
 
 function FormInput({
   label,
@@ -354,7 +426,7 @@ function MultiSelectModal({
   );
 }
 
-function CalendarModal({ visible, value, onSelect, onClose }) {
+function CalendarModal({ visible, value, onSelect, onClose, disablePast = true }) {
   const selectedDate = parseDate(value);
   const today = startOfDay(new Date());
   const [calendarMonth, setCalendarMonth] = useState(
@@ -408,7 +480,7 @@ function CalendarModal({ visible, value, onSelect, onClose }) {
 
           <View style={styles.daysGrid}>
             {days.map((day, index) => {
-              const isPast = day ? startOfDay(day) < today : false;
+              const isPast = disablePast && day ? startOfDay(day) < today : false;
               const selected =
                 day &&
                 selectedDate &&
@@ -1033,9 +1105,9 @@ function InfoPair({ label, value, Icon }) {
 
 function TaskCard({ task, showForward, navigation }) {
   const status = String(task.status || '').trim();
-  const normalizedStatus = status.toLowerCase();
-  const isPending = normalizedStatus === 'pending';
-  const isComplete = normalizedStatus === 'complete';
+  const statusKey = getStatusKey(status);
+  const isPending = statusKey === 'pending';
+  const isComplete = statusKey === 'complete';
   return (
     <View style={styles.taskCard}>
       <View style={styles.taskHeader}>
@@ -1126,31 +1198,28 @@ function TaskListScreen({
   loadAssignedToMe,
   loadAssignedByMe,
 }) {
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedTaskDate, setSelectedTaskDate] = useState(formatDate(new Date()));
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [apiTasks, setApiTasks] = useState([]);
   const shouldLoadTasks = loadAssignedToMe || loadAssignedByMe;
   const [loadingTasks, setLoadingTasks] = useState(shouldLoadTasks);
   const [taskError, setTaskError] = useState('');
   const taskSource = shouldLoadTasks ? apiTasks : tasks.slice(0, 2);
   const visibleTasks = taskSource.filter(task => {
-    const taskStatus = String(task.status || '')
-      .trim()
-      .toLowerCase();
+    const taskStatus = getStatusKey(task.status);
+    const taskDate = getDateKey(task.dateFrom);
+    const selectedDate = getDateKey(selectedTaskDate);
 
-    if (activeFilter === 'All') {
+    if (selectedDate && taskDate !== selectedDate) {
+      return false;
+    }
+
+    if (activeFilter === 'all') {
       return true;
     }
 
-    if (activeFilter === 'Inprogrss') {
-      return (
-        taskStatus === 'inprogrss' ||
-        taskStatus === 'inprogress' ||
-        taskStatus === 'in progress' ||
-        taskStatus === 'progress'
-      );
-    }
-
-    return taskStatus === activeFilter.toLowerCase();
+    return taskStatus === activeFilter;
   });
 
   useEffect(() => {
@@ -1183,11 +1252,15 @@ function TaskListScreen({
               EmpCode: empcode,
               SessionId: SessionId || '',
               BranchId: BranchId || '',
+              date: formatApiDate(selectedTaskDate),
+              fromdate: formatApiDate(selectedTaskDate),
             }
           : {
               empcode,
               BranchId: BranchId || '',
               SessionId: SessionId || '',
+              date: formatApiDate(selectedTaskDate),
+              fromdate: formatApiDate(selectedTaskDate),
             };
 
         const data = await postForm(endpoint, payload);
@@ -1209,7 +1282,7 @@ function TaskListScreen({
     };
 
     loadTasks();
-  }, [loadAssignedByMe, shouldLoadTasks]);
+  }, [loadAssignedByMe, selectedTaskDate, shouldLoadTasks]);
 
   return (
     <View style={styles.wrapper}>
@@ -1223,6 +1296,15 @@ function TaskListScreen({
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
+          <View style={styles.taskDateFilter}>
+            <DateField
+              label="Select Date"
+              value={selectedTaskDate}
+              placeholder="Select Date"
+              onPress={() => setDatePickerVisible(true)}
+            />
+          </View>
+
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -1232,8 +1314,8 @@ function TaskListScreen({
               <FilterButton
                 key={item.label}
                 item={item}
-                active={activeFilter === item.label}
-                onPress={() => setActiveFilter(item.label)}
+                active={activeFilter === item.key}
+                onPress={() => setActiveFilter(item.key)}
               />
             ))}
           </ScrollView>
@@ -1258,6 +1340,14 @@ function TaskListScreen({
             <Text style={styles.emptyText}>No tasks found</Text>
           )}
         </ScrollView>
+
+        <CalendarModal
+          visible={datePickerVisible}
+          value={selectedTaskDate}
+          onSelect={setSelectedTaskDate}
+          onClose={() => setDatePickerVisible(false)}
+          disablePast={false}
+        />
       </SafeAreaView>
     </View>
   );
@@ -2056,6 +2146,10 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 24,
     paddingBottom: 26,
+  },
+  taskDateFilter: {
+    paddingHorizontal: 18,
+    marginBottom: 16,
   },
   filterRow: {
     paddingHorizontal: 18,

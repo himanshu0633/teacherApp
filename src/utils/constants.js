@@ -65,6 +65,8 @@ export const API_ENDPOINTS = {
   SEND_BY_ME_CIRCULAR_LIST: 'send-by-me-circularlist.php',
   VIEW_CIRCULAR_STAFF: 'ViewCircularStaff.php',
   CIRCULAR_READ_STATUS: 'info-read-status.php',
+  HOSTEL_PARENTING_REMARKS: 'hostelparentingremarks.php',
+  SHOW_HOSTEL_PARENTING: 'showhostelparenting.php',
 };
 /* =========================
    APP COLORS

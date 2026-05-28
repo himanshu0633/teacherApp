@@ -52,6 +52,8 @@ import ExtraDayRequestScreen from '../screens/employeeRequests/ExtraDayRequestSc
 import EComplaintRecordScreen from '../screens/eComplaint/EComplaintRecordScreen';
 import PendingComplaintListScreen from '../screens/eComplaint/PendingComplaintListScreen';
 import ResolvedComplaintListScreen from '../screens/eComplaint/ResolvedComplaintListScreen';
+import HostelParentingScreen from '../screens/hostelParenting/HostelParentingScreen';
+import HostelParentingListScreen from '../screens/hostelParenting/HostelParentingListScreen';
 import {
   AssignTaskScreen,
   ForwardTaskScreen,
@@ -277,6 +279,14 @@ export default function AppNavigator() {
           <Stack.Screen
             name="TaskCommentsScreen"
             component={TaskCommentsScreen}
+          />
+          <Stack.Screen
+            name="HostelParentingScreen"
+            component={HostelParentingScreen}
+          />
+          <Stack.Screen
+            name="HostelParentingListScreen"
+            component={HostelParentingListScreen}
           />
         </>
       ) : (
