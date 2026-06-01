@@ -32,6 +32,7 @@ import {
   UserCheck,
   MessageCircleWarning,
   MessageSquareText,
+  UploadCloud,
 } from 'lucide-react-native';
 import SidebarMenu from '../components/SidebarMenu';
 import { useAuth } from '../context/AuthContext';
@@ -81,6 +82,13 @@ const GRID_ITEMS = [
     visibility: 'common',
   },
   {
+    id: 18,
+    title: 'Academic\nCalendar',
+    icon: CalendarDays,
+    screen: 'AcademicCalendarScreen',
+    visibility: 'common',
+  },
+  {
     id: 7,
     title: 'Class Gallery',
     icon: Images,
@@ -116,11 +124,32 @@ const GRID_ITEMS = [
     visibility: 'staff',
   },
   {
+    id: 19,
+    title: 'School Matter\nCalendar',
+    icon: CalendarDays,
+    screen: 'SchoolMatterCalendarScreen',
+    visibility: 'staff',
+  },
+  {
+    id: 20,
+    title: 'Medical\nEntry',
+    icon: FileText,
+    screen: 'MedicalEntryScreen',
+    visibility: 'staff',
+  },
+  {
+    id: 21,
+    title: 'Upload\nDocument',
+    icon: UploadCloud,
+    screen: 'UploadDocumentScreen',
+    visibility: 'staff',
+  },
+  {
     id: 10,
-    title: 'Employee DAL Record',
+    title: 'Daily Activity\nLog',
     icon: FileText,
     screen: 'EmployeeDalRecordScreen',
-    visibility: 'principal',
+    visibility: 'staff',
   },
   {
     id: 11,
@@ -141,14 +170,14 @@ const GRID_ITEMS = [
     title: 'Employee Requests',
     icon: UserCheck,
     screen: 'EmployeeRequestsScreen',
-    visibility: 'principal',
+    visibility: 'staff',
   },
   {
     id: 14,
     title: 'E-Complaint Record',
     icon: MessageCircleWarning,
     screen: 'EComplaintRecordScreen',
-    visibility: 'principal',
+    visibility: 'common',
   },
   {
     id: 15,

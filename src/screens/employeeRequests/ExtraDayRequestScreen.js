@@ -1,36 +1,106 @@
-import React from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {CircleCheck, CircleX, Clock, UserRound} from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Clock, Eye, UserRound} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {postForm} from '../../services/teacherApi';
+import {API_ENDPOINTS} from '../../utils/constants';
 
+const PURPLE = '#5A33C5';
 const TEXT = '#202124';
 const GREEN = '#25B938';
 const RED = '#FF4148';
 
-const extraDayRequests = [
-  {
-    id: '1',
-    date: '31-07-2023',
-    requestBy: 'Vipan Sharma',
-    reason:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ad eos igitur converte te, quaeso. Quam si explicavisset, non tam haesitaret.',
-  },
-  {
-    id: '2',
-    date: '02-08-2023',
-    requestBy: 'Sangeeta Devi',
-    reason:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ad eos igitur converte te, quaeso. Quam si explicavisset, non tam haesitaret.',
-  },
-];
+const todayText = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+const rows = data => {
+  const nextRows =
+    data?.response?.Rest ||
+    data?.response?.rest ||
+    data?.response ||
+    data?.Rest ||
+    data?.rest ||
+    [];
+
+  return Array.isArray(nextRows) ? nextRows : [];
+};
+
+const stripHtml = value =>
+  String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\\\//g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const firstValue = (source, keys, fallback = '-') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return stripHtml(value);
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeDate = value => {
+  const text = stripHtml(value);
+  const usDate = text.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+
+  if (usDate) {
+    return `${usDate[2]}-${usDate[1]}-${usDate[3]}`;
+  }
+
+  return text || '-';
+};
+
+const normalizeExtraDay = item => ({
+  id: firstValue(item, ['id', 'Id', 'ID'], ''),
+  date: normalizeDate(firstValue(item, ['date', 'Date'])),
+  reason: firstValue(item, ['reason', 'Reason']),
+  requestBy: firstValue(item, ['EmpName', 'empName', 'name', 'RequestBy']),
+  status: firstValue(item, ['status', 'Status'], 'Pending'),
+});
+
+const isSuccess = data => {
+  const status = String(data?.status || '').toLowerCase();
+  return data?.status === true || status === 'true' || status === 'success';
+};
+
+const getTeacherContext = async () => {
+  const [saved, empCode, branchId, sessionId, session] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('EmpCode'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+  };
+};
 
 function DetailCell({Icon, label, value}) {
   return (
@@ -44,59 +114,28 @@ function DetailCell({Icon, label, value}) {
   );
 }
 
-function ActionButton({type, onPress}) {
-  const isApprove = type === 'approve';
-  const Icon = isApprove ? CircleCheck : CircleX;
-
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[styles.actionButton, isApprove ? styles.approve : styles.cancel]}
-      onPress={onPress}>
-      <View style={styles.actionIconWrap}>
-        <Icon
-          size={17}
-          color={isApprove ? GREEN : RED}
-          strokeWidth={2.4}
-        />
-      </View>
-      <Text style={styles.actionText}>{isApprove ? 'Approve' : 'Cancel'}</Text>
-    </TouchableOpacity>
-  );
-}
-
 function ExtraDayCard({request}) {
-  const handleAction = action => {
-    Alert.alert('Extra Day Request', `${action} ${request.requestBy}'s request`);
-  };
+  const isApproved = String(request.status).toLowerCase() === 'approved';
+  const statusStyle = isApproved ? styles.approvedPill : styles.cancelPill;
 
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
         <Text style={styles.cardTitle}>Request Detail</Text>
+        <View style={[styles.statusPill, statusStyle]}>
+          <Text style={styles.statusText}>{request.status}</Text>
+        </View>
       </View>
 
       <View style={styles.cardBody}>
         <View style={styles.detailRow}>
           <DetailCell Icon={Clock} label="Request Date" value={request.date} />
-          <DetailCell
-            Icon={UserRound}
-            label="Request By"
-            value={request.requestBy}
-          />
+          <DetailCell Icon={UserRound} label="Request By" value={request.requestBy} />
         </View>
 
         <View style={styles.reasonBox}>
           <Text style={styles.reasonTitle}>Reason</Text>
           <Text style={styles.reasonText}>{request.reason}</Text>
-        </View>
-
-        <View style={styles.actionRow}>
-          <ActionButton
-            type="approve"
-            onPress={() => handleAction('Approved')}
-          />
-          <ActionButton type="cancel" onPress={() => handleAction('Cancelled')} />
         </View>
       </View>
     </View>
@@ -104,6 +143,84 @@ function ExtraDayCard({request}) {
 }
 
 export default function ExtraDayRequestScreen({navigation}) {
+  const [date, setDate] = useState(todayText);
+  const [reason, setReason] = useState('');
+  const [requests, setRequests] = useState([]);
+  const [showList, setShowList] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const listPayload = useCallback(
+    async nextReason => {
+      const context = await getTeacherContext();
+
+      return {
+        date: date.trim(),
+        reason: nextReason ?? reason.trim(),
+        BranchId: context.BranchId,
+        SessionId: context.SessionId,
+        EmpCode: context.EmpCode,
+      };
+    },
+    [date, reason],
+  );
+
+  const loadRequests = useCallback(async nextReason => {
+    setLoading(true);
+    try {
+      const payload = await listPayload(nextReason);
+      const data = await postForm(API_ENDPOINTS.EXTRA_DAY_ENTRY_LIST, payload);
+      console.log('EXTRA DAY ENTRY LIST PAYLOAD =>', payload);
+      console.log('EXTRA DAY ENTRY LIST RESPONSE =>', data);
+      setRequests(rows(data).map(normalizeExtraDay));
+    } catch (error) {
+      console.log('EXTRA DAY ENTRY LIST ERROR =>', error);
+      Alert.alert('Error', 'Extra day request list could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  }, [listPayload]);
+
+  const openRequestList = () => {
+    setShowList(true);
+    loadRequests();
+  };
+
+  const handleSubmit = async () => {
+    if (!date.trim() || !reason.trim()) {
+      Alert.alert('Required', 'Please enter date and reason.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = await listPayload(reason.trim());
+      const data = await postForm(API_ENDPOINTS.EXTRA_DAY, payload);
+      console.log('EXTRA DAY REQUEST PAYLOAD =>', payload);
+      console.log('EXTRA DAY REQUEST RESPONSE =>', data);
+
+      if (isSuccess(data)) {
+        Alert.alert('Success', data?.msg || data?.message || 'Extra day request submitted.');
+        setShowList(true);
+        await loadRequests(reason.trim());
+        setReason('');
+        return;
+      }
+
+      Alert.alert('Error', data?.msg || data?.message || 'Extra day request could not be submitted.');
+    } catch (error) {
+      console.log('EXTRA DAY REQUEST ERROR =>', error);
+      Alert.alert('Error', 'Extra day request could not be submitted.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const contentStyle = useMemo(
+    () => [styles.content, showList ? styles.listContent : styles.formContent],
+    [showList],
+  );
+
   return (
     <View style={styles.wrapper}>
       <CommonHeader
@@ -113,12 +230,79 @@ export default function ExtraDayRequestScreen({navigation}) {
       />
 
       <SafeAreaView style={styles.page}>
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}>
-          {extraDayRequests.map(request => (
-            <ExtraDayCard key={request.id} request={request} />
-          ))}
+        <ScrollView contentContainerStyle={contentStyle} showsVerticalScrollIndicator={false}>
+          {showList ? (
+            <>
+              {loading ? (
+                <View style={styles.centerBox}>
+                  <ActivityIndicator color={PURPLE} />
+                  <Text style={styles.loadingText}>Loading requests...</Text>
+                </View>
+              ) : requests.length ? (
+                requests.map(request => (
+                  <ExtraDayCard key={request.id || `${request.date}-${request.requestBy}`} request={request} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No extra day request found.</Text>
+              )}
+
+              <TouchableOpacity
+                activeOpacity={0.84}
+                style={styles.outlineButton}
+                onPress={() => setShowList(false)}>
+                <Text style={styles.outlineButtonText}>New Request</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <View style={styles.inputBox}>
+                <Text style={styles.inputLabel}>
+                  Date <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={date}
+                  onChangeText={setDate}
+                  placeholder="DD-MM-YYYY"
+                  placeholderTextColor="#777"
+                  style={styles.dateInput}
+                />
+              </View>
+
+              <View style={styles.reasonInputBox}>
+                <Text style={styles.inputLabel}>
+                  Reason <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={reason}
+                  onChangeText={setReason}
+                  placeholderTextColor="#777"
+                  multiline
+                  textAlignVertical="top"
+                  style={styles.reasonInput}
+                />
+              </View>
+
+              <TouchableOpacity
+                activeOpacity={0.84}
+                disabled={submitting}
+                style={[styles.submitButton, submitting && styles.disabledButton]}
+                onPress={handleSubmit}>
+                {submitting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.submitText}>Submit</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.84}
+                style={styles.viewButton}
+                onPress={openRequestList}>
+                <Eye size={19} color="#0098EE" strokeWidth={2.3} />
+                <Text style={styles.viewButtonText}>View Request List</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -136,8 +320,89 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 19,
-    paddingTop: 28,
     paddingBottom: 36,
+  },
+  formContent: {
+    paddingTop: 26,
+  },
+  listContent: {
+    paddingTop: 28,
+  },
+  inputBox: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#F4F4F4',
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    marginHorizontal: 9,
+    marginBottom: 18,
+  },
+  inputLabel: {
+    color: TEXT,
+    fontSize: 12,
+    marginBottom: 1,
+  },
+  required: {
+    color: RED,
+  },
+  dateInput: {
+    height: 22,
+    padding: 0,
+    color: TEXT,
+    fontSize: 14,
+  },
+  reasonInputBox: {
+    minHeight: 100,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 15,
+    paddingTop: 15,
+    marginHorizontal: 9,
+    marginBottom: 32,
+  },
+  reasonInput: {
+    minHeight: 70,
+    padding: 0,
+    color: TEXT,
+    fontSize: 14,
+  },
+  submitButton: {
+    height: 45,
+    borderRadius: 7,
+    backgroundColor: PURPLE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 9,
+    marginBottom: 20,
+  },
+  submitText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  viewButton: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#0098EE',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 9,
+  },
+  viewButtonText: {
+    color: '#0098EE',
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 8,
+  },
+  disabledButton: {
+    opacity: 0.65,
   },
   card: {
     borderWidth: 1,
@@ -152,7 +417,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F1F2',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E4EA',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 15,
   },
   cardTitle: {
@@ -160,10 +427,29 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+  statusPill: {
+    minWidth: 72,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  cancelPill: {
+    backgroundColor: RED,
+  },
+  approvedPill: {
+    backgroundColor: GREEN,
+  },
+  statusText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
   cardBody: {
     paddingHorizontal: 15,
     paddingTop: 18,
-    paddingBottom: 10,
+    paddingBottom: 14,
   },
   detailRow: {
     flexDirection: 'row',
@@ -197,7 +483,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 12,
     paddingBottom: 13,
-    marginBottom: 16,
   },
   reasonTitle: {
     color: TEXT,
@@ -210,37 +495,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
-  actionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  actionButton: {
-    height: 31,
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 5,
-    paddingRight: 14,
-  },
-  approve: {
-    backgroundColor: GREEN,
-  },
-  cancel: {
-    backgroundColor: RED,
-  },
-  actionIconWrap: {
-    width: 23,
-    height: 23,
-    borderRadius: 11.5,
-    backgroundColor: '#FFFFFF',
+  centerBox: {
+    minHeight: 180,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 7,
   },
-  actionText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+  loadingText: {
+    color: '#777',
+    fontSize: 13,
+    marginTop: 10,
+  },
+  emptyText: {
+    color: '#777',
+    fontSize: 14,
+    marginTop: 50,
+    marginBottom: 22,
+    textAlign: 'center',
+  },
+  outlineButton: {
+    height: 42,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: PURPLE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  outlineButtonText: {
+    color: PURPLE,
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

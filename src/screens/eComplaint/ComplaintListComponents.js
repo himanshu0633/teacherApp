@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Clock, Send, UserRound} from 'lucide-react-native';
 
 const TEXT = '#202124';
@@ -18,7 +18,7 @@ function DetailCell({Icon, label, value}) {
   );
 }
 
-export function ComplaintCard({record, status}) {
+export function ComplaintCard({record, status, personLabel, actionLabel, onAction}) {
   const isResolved = status === 'Resolved';
 
   return (
@@ -34,8 +34,14 @@ export function ComplaintCard({record, status}) {
         <View style={styles.detailsGrid}>
           <DetailCell Icon={Clock} label="Complain Date" value={record.date} />
           <DetailCell Icon={Send} label="Location" value={record.location} />
-          <DetailCell Icon={UserRound} label="Complaint By" value={record.complaintBy} />
-          <DetailCell Icon={UserRound} label="Complaint To" value={record.complaintTo} />
+          {personLabel ? (
+            <DetailCell Icon={UserRound} label={personLabel} value={record.complaintTo} />
+          ) : (
+            <>
+              <DetailCell Icon={UserRound} label="Complaint By" value={record.complaintBy} />
+              <DetailCell Icon={UserRound} label="Complaint To" value={record.complaintTo} />
+            </>
+          )}
         </View>
 
         <View style={styles.complaintBox}>
@@ -49,6 +55,15 @@ export function ComplaintCard({record, status}) {
             <Text style={styles.boxText}>{record.resolvedDescription}</Text>
           </View>
         )}
+
+        {actionLabel && onAction ? (
+          <TouchableOpacity
+            activeOpacity={0.84}
+            style={styles.actionButton}
+            onPress={onAction}>
+            <Text style={styles.actionButtonText}>{actionLabel}</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
     </View>
   );
@@ -158,5 +173,18 @@ const styles = StyleSheet.create({
     color: '#666A70',
     fontSize: 12,
     lineHeight: 18,
+  },
+  actionButton: {
+    height: 42,
+    borderRadius: 7,
+    backgroundColor: '#5A33C5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 14,
+  },
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

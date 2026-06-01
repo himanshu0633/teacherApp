@@ -50,10 +50,22 @@ import EmployeeLeaveRequestScreen from '../screens/employeeLeave/EmployeeLeaveRe
 import EmployeeRequestsScreen from '../screens/employeeRequests/EmployeeRequestsScreen';
 import ExtraDayRequestScreen from '../screens/employeeRequests/ExtraDayRequestScreen';
 import EComplaintRecordScreen from '../screens/eComplaint/EComplaintRecordScreen';
+import EComplaintForMeScreen from '../screens/eComplaint/EComplaintForMeScreen';
+import EComplaintSubmitScreen from '../screens/eComplaint/EComplaintSubmitScreen';
 import PendingComplaintListScreen from '../screens/eComplaint/PendingComplaintListScreen';
 import ResolvedComplaintListScreen from '../screens/eComplaint/ResolvedComplaintListScreen';
+import UploadDocumentScreen from '../screens/uploadDocument/UploadDocumentScreen';
 import HostelParentingScreen from '../screens/hostelParenting/HostelParentingScreen';
 import HostelParentingListScreen from '../screens/hostelParenting/HostelParentingListScreen';
+import AcademicCalendarScreen from '../screens/academicCalendar/AcademicCalendarScreen';
+import {
+  SchoolMatterCalendarScreen,
+  SchoolMatterTaskDetailScreen,
+} from '../screens/schoolMatterCalendar/SchoolMatterCalendarScreens';
+import {
+  MedicalEntryListScreen,
+  MedicalEntryScreen,
+} from '../screens/medicalEntry/MedicalEntryScreens';
 import {
   AssignTaskScreen,
   ForwardTaskScreen,
@@ -252,12 +264,24 @@ export default function AppNavigator() {
             component={EComplaintRecordScreen}
           />
           <Stack.Screen
+            name="EComplaintSubmitScreen"
+            component={EComplaintSubmitScreen}
+          />
+          <Stack.Screen
+            name="EComplaintForMeScreen"
+            component={EComplaintForMeScreen}
+          />
+          <Stack.Screen
             name="PendingComplaintListScreen"
             component={PendingComplaintListScreen}
           />
           <Stack.Screen
             name="ResolvedComplaintListScreen"
             component={ResolvedComplaintListScreen}
+          />
+          <Stack.Screen
+            name="UploadDocumentScreen"
+            component={UploadDocumentScreen}
           />
           <Stack.Screen
             name="TaskManagementScreen"
@@ -287,6 +311,23 @@ export default function AppNavigator() {
           <Stack.Screen
             name="HostelParentingListScreen"
             component={HostelParentingListScreen}
+          />
+          <Stack.Screen
+            name="AcademicCalendarScreen"
+            component={AcademicCalendarScreen}
+          />
+          <Stack.Screen
+            name="SchoolMatterCalendarScreen"
+            component={SchoolMatterCalendarScreen}
+          />
+          <Stack.Screen
+            name="SchoolMatterTaskDetailScreen"
+            component={SchoolMatterTaskDetailScreen}
+          />
+          <Stack.Screen name="MedicalEntryScreen" component={MedicalEntryScreen} />
+          <Stack.Screen
+            name="MedicalEntryListScreen"
+            component={MedicalEntryListScreen}
           />
         </>
       ) : (

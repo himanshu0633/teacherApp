@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Clock, FileCheck, TriangleAlert} from 'lucide-react-native';
+import {Clock, FileCheck, FilePlus2, Inbox, TriangleAlert} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
 
 const BLUE = '#0798EA';
@@ -43,6 +43,18 @@ export default function EComplaintRecordScreen({navigation}) {
           <Text style={styles.heading}>Choose Complaint Type</Text>
 
           <View style={styles.typeRow}>
+            <TypeCard
+              type="New Complaint"
+              Icon={FilePlus2}
+              iconColor="#111111"
+              onPress={() => navigation.navigate('EComplaintSubmitScreen')}
+            />
+            <TypeCard
+              type="For Me"
+              Icon={Inbox}
+              iconColor="#111111"
+              onPress={() => navigation.navigate('EComplaintForMeScreen')}
+            />
             <TypeCard
               type="Resolved"
               Icon={FileCheck}
@@ -85,6 +97,7 @@ const styles = StyleSheet.create({
   },
   typeRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
   typeCard: {
@@ -94,6 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F1F1F2',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 18,
   },
   iconWrap: {
     width: 62,

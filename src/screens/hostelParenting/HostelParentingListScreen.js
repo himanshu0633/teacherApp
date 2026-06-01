@@ -6,9 +6,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Pencil} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
 import {API_ENDPOINTS} from '../../utils/constants';
 import {postForm} from '../../services/teacherApi';
@@ -37,6 +39,7 @@ const rows = data => {
   const nextRows =
     data?.response?.rest ||
     data?.response?.Rest ||
+    data?.response?.res ||
     data?.response ||
     data?.rest ||
     data?.Rest ||
@@ -45,22 +48,35 @@ const rows = data => {
   return Array.isArray(nextRows) ? nextRows : [];
 };
 
-const normalizeRemark = item => ({
-  empName: item?.EmpName || '-',
-  description: item?.Description || item?.description || '-',
-  studentName: item?.StudentName || '-',
-  enrollNo: item?.EnrollNo || '-',
-  className: item?.ClassName || '-',
-  sectionName: item?.SectionName || '-',
-  rollNo: item?.RollNo || item?.rollNo || '-',
-  date: item?.date || item?.Date || '-',
+const firstValue = (source, keys, fallback = '-') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return String(value);
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeAllocation = item => ({
+  id: firstValue(item, ['Id', 'ID', 'AllocationId', 'allocationid'], ''),
+  studentName: firstValue(item, ['StudentName', 'Name', 'stname']),
+  className: firstValue(item, ['Class', 'ClassName', 'classname']),
+  enrollNo: firstValue(item, ['EnrollNo', 'AdmissionNo', 'AdmNo', 'adminno']),
+  date: firstValue(item, ['AllocationDate', 'DateOfAllocation', 'date', 'Date']),
+  hostel: firstValue(item, ['HostelName', 'Hostel', 'hostel']),
+  room: firstValue(item, ['RoomNo', 'Room', 'RoomName', 'room']),
+  floor: firstValue(item, ['FloorName', 'Floor', 'floor']),
+  status: firstValue(item, ['Status', 'status'], 'Active'),
 });
 
 export default function HostelParentingListScreen({navigation}) {
-  const [remarks, setRemarks] = useState([]);
+  const [allocations, setAllocations] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const loadRemarks = useCallback(async () => {
+  const loadAllocations = useCallback(async () => {
     setLoading(true);
     try {
       const context = await getTeacherContext();
@@ -70,33 +86,33 @@ export default function HostelParentingListScreen({navigation}) {
         BranchId: context.BranchId,
       };
 
-      console.log('HOSTEL PARENTING LIST PAYLOAD =>', payload);
-      const data = await postForm(API_ENDPOINTS.SHOW_HOSTEL_PARENTING, payload);
-      console.log('HOSTEL PARENTING LIST RESPONSE =>', data);
+      console.log('HOSTEL ROOM ALLOCATION LIST PAYLOAD =>', payload);
+      const data = await postForm(API_ENDPOINTS.SHOW_HOSTEL_ROOM_ALLOCATION, payload);
+      console.log('HOSTEL ROOM ALLOCATION LIST RESPONSE =>', data);
 
-      if (String(data?.status || '').toLowerCase() === 'success') {
-        setRemarks(rows(data).map(normalizeRemark));
+      if (data?.status === true || String(data?.status || '').toLowerCase() === 'true') {
+        setAllocations(rows(data).map(normalizeAllocation));
         return;
       }
 
-      setRemarks([]);
+      setAllocations([]);
     } catch (error) {
-      console.log('HOSTEL PARENTING LIST ERROR =>', error);
-      Alert.alert('Error', 'Hostel parenting list could not be loaded.');
+      console.log('HOSTEL ROOM ALLOCATION LIST ERROR =>', error);
+      Alert.alert('Error', 'Hostel room allocation list could not be loaded.');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', loadRemarks);
+    const unsubscribe = navigation.addListener('focus', loadAllocations);
     return unsubscribe;
-  }, [loadRemarks, navigation]);
+  }, [loadAllocations, navigation]);
 
   return (
     <View style={styles.wrapper}>
       <CommonHeader
-        title="Hostel Parenting"
+        title="Hostel Room Allocation"
         onBack={() => navigation.goBack()}
         safeAreaTop
       />
@@ -108,12 +124,16 @@ export default function HostelParentingListScreen({navigation}) {
               <ActivityIndicator color={PURPLE} />
               <Text style={styles.loadingText}>Loading records...</Text>
             </View>
-          ) : remarks.length ? (
-            remarks.map((item, index) => (
-              <RemarkCard key={`${item.enrollNo}-${item.date}-${index}`} item={item} />
+          ) : allocations.length ? (
+            allocations.map((item, index) => (
+              <AllocationCard
+                key={`${item.id || item.enrollNo}-${index}`}
+                item={item}
+                onEdit={() => navigation.navigate('HostelParentingScreen', {allocation: item})}
+              />
             ))
           ) : (
-            <Text style={styles.emptyText}>No hostel parenting data found.</Text>
+            <Text style={styles.emptyText}>No hostel room allocation data found.</Text>
           )}
         </ScrollView>
       </SafeAreaView>
@@ -121,24 +141,33 @@ export default function HostelParentingListScreen({navigation}) {
   );
 }
 
-function RemarkCard({item}) {
+function AllocationCard({item, onEdit}) {
+  const active = String(item.status || '').toLowerCase() !== 'inactive';
+  const titleBits = [item.studentName, item.className !== '-' ? item.className : '']
+    .filter(Boolean)
+    .join(' ');
+
   return (
     <View style={styles.card}>
       <View style={styles.cardHead}>
-        <Text style={styles.studentName}>{item.studentName}</Text>
-        <Text style={styles.dateText}>Date: {item.date}</Text>
+        <Text style={styles.studentName}>{titleBits || '-'}</Text>
+        <TouchableOpacity activeOpacity={0.75} onPress={onEdit} style={styles.editButton}>
+          <Pencil size={19} color="#0098EE" strokeWidth={2.4} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.details}>
         <Info label="Admission No" value={item.enrollNo} />
-        <Info label="Class" value={item.className} />
-        <Info label="Section" value={item.sectionName} />
-        <Info label="Roll No." value={item.rollNo} />
-      </View>
-
-      <View style={styles.descriptionBox}>
-        <Text style={styles.descriptionTitle}>Description</Text>
-        <Text style={styles.descriptionText}>{item.description}</Text>
+        <Info label="Date of Allocation" value={item.date} />
+        <Info label="Hostel" value={item.hostel} />
+        <Info label="Room No." value={item.room} />
+        <Info label="Floor" value={item.floor} />
+        <View style={styles.infoRow}>
+          <Text style={styles.infoLabel}>Status</Text>
+          <View style={[styles.statusPill, active ? styles.activePill : styles.inactivePill]}>
+            <Text style={styles.statusText}>{active ? 'Active' : 'Inactive'}</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -165,33 +194,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#C8E4F4',
     backgroundColor: '#EFFAFF',
-    paddingBottom: 20,
     marginBottom: 18,
     overflow: 'hidden',
   },
   cardHead: {
     minHeight: 46,
-    alignItems: 'center',
-    justifyContent: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#C8E4F4',
     paddingHorizontal: 14,
     paddingVertical: 7,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  studentName: {fontSize: 14, color: TEXT, fontWeight: '800', textAlign: 'center'},
-  dateText: {fontSize: 12, color: '#0098EE', fontWeight: '700', marginTop: 2},
-  details: {paddingHorizontal: 16, paddingTop: 15, paddingBottom: 10},
-  infoRow: {flexDirection: 'row', marginBottom: 12},
-  infoLabel: {width: '50%', color: TEXT, fontSize: 13, fontWeight: '800'},
-  infoValue: {flex: 1, color: '#777', fontSize: 13},
-  descriptionBox: {
-    minHeight: 70,
-    borderRadius: 7,
-    backgroundColor: '#DDF2FF',
-    marginHorizontal: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  studentName: {flex: 1, fontSize: 14, color: TEXT, fontWeight: '800'},
+  editButton: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  descriptionTitle: {fontSize: 12, color: TEXT, fontWeight: '800', marginBottom: 7},
-  descriptionText: {fontSize: 12, color: TEXT, lineHeight: 18},
+  details: {paddingHorizontal: 16, paddingTop: 17, paddingBottom: 16},
+  infoRow: {flexDirection: 'row', alignItems: 'center', marginBottom: 12},
+  infoLabel: {width: '50%', color: TEXT, fontSize: 14, fontWeight: '800'},
+  infoValue: {flex: 1, color: '#777', fontSize: 14},
+  statusPill: {
+    minWidth: 72,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+  },
+  activePill: {backgroundColor: '#26B72C'},
+  inactivePill: {backgroundColor: '#FF4B4B'},
+  statusText: {color: '#fff', fontSize: 10, fontWeight: '700'},
 });

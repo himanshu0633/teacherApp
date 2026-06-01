@@ -1,6 +1,8 @@
-import React, {useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
+  Linking,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -9,32 +11,102 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Link2, Search} from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {errorCodes, isErrorWithCode, pick, types} from '@react-native-documents/picker';
+import {Eye, Link2, Plus, Search} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {postForm} from '../../services/teacherApi';
+import {API_ENDPOINTS} from '../../utils/constants';
 
+const PURPLE = '#5A33C5';
 const BLUE = '#0B96E8';
 const TEXT = '#202124';
+const RED = '#FF0000';
 
-const dalRecords = [
-  {
-    id: '1',
-    name: 'Vipan Sharma',
-    empCode: '307',
-    date: '12-07-2023',
-    description: 'Performed CBO duty. Resolved the problem of HN-10th Class',
-  },
-  {
-    id: '2',
-    name: 'Vipan Sharma',
-    empCode: '307',
-    date: '12-07-2023',
-    description: 'Performed CBO duty. Resolved the problem of HN-10th Class',
-  },
-];
+const todayText = () => {
+  const date = new Date();
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+const rows = data => {
+  const nextRows =
+    data?.response?.Rest ||
+    data?.response?.rest ||
+    data?.response ||
+    data?.Rest ||
+    data?.rest ||
+    [];
+
+  return Array.isArray(nextRows) ? nextRows : [];
+};
+
+const stripHtml = value =>
+  String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\\\//g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const firstValue = (source, keys, fallback = '-') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return stripHtml(value);
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeActivity = item => ({
+  id: firstValue(item, ['id', 'Id', 'ID'], ''),
+  name: firstValue(item, ['EmpName', 'empName', 'name']),
+  empCode: firstValue(item, ['EmpCode', 'empCode']),
+  date: firstValue(item, ['date', 'Date']),
+  description: firstValue(item, ['description', 'Description']),
+  attachment: firstValue(item, ['ExtraFile', 'extraFile', 'file', 'File'], ''),
+});
+
+const isSuccess = data => {
+  const status = String(data?.status || '').toLowerCase();
+  return data?.status === true || status === 'true' || status === 'success';
+};
+
+const getTeacherContext = async () => {
+  const [saved, empCode, branchId, sessionId, session] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('EmpCode'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    EmpCode: parsed?.EmpCode || parsed?.empcode || parsed?.Empcode || empCode || '',
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+  };
+};
 
 function RecordCard({record}) {
-  const handleAttachment = () => {
-    Alert.alert('Attachment', 'No attachment available for this record.');
+  const handleAttachment = async () => {
+    if (!record.attachment || record.attachment === '-') {
+      Alert.alert('No File', 'Attachment is not available.');
+      return;
+    }
+
+    try {
+      await Linking.openURL(record.attachment);
+    } catch (error) {
+      console.log('DAL ATTACHMENT OPEN ERROR =>', error);
+      Alert.alert('Error', 'Attachment could not be opened.');
+    }
   };
 
   return (
@@ -62,65 +134,228 @@ function RecordCard({record}) {
         <Text style={styles.descriptionText}>{record.description}</Text>
       </View>
 
-      <TouchableOpacity
-        activeOpacity={0.75}
-        style={styles.attachmentRow}
-        onPress={handleAttachment}>
-        <View style={styles.attachmentIcon}>
-          <Link2 size={20} color="#222" strokeWidth={2.1} />
-        </View>
-        <Text style={styles.attachmentText}>View Attachment</Text>
-      </TouchableOpacity>
+      {record.attachment && record.attachment !== '-' ? (
+        <TouchableOpacity
+          activeOpacity={0.75}
+          style={styles.attachmentRow}
+          onPress={handleAttachment}>
+          <View style={styles.attachmentIcon}>
+            <Link2 size={20} color="#222" strokeWidth={2.1} />
+          </View>
+          <Text style={styles.attachmentText}>View Attachment</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
 
 export default function EmployeeDalRecordScreen({navigation}) {
-  const [searchText, setSearchText] = useState('');
-  const normalizedSearch = searchText.trim().toLowerCase();
-  const filteredRecords = dalRecords.filter(record => {
-    if (!normalizedSearch) {
-      return true;
+  const [date, setDate] = useState(todayText);
+  const [description, setDescription] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [records, setRecords] = useState([]);
+  const [showList, setShowList] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const loadRecords = useCallback(async () => {
+    setLoading(true);
+    try {
+      const context = await getTeacherContext();
+      const payload = {
+        SessionId: context.SessionId,
+        BranchId: context.BranchId,
+        EmpCode: context.EmpCode,
+      };
+      const data = await postForm(API_ENDPOINTS.DAILY_ACTIVITY_LOG, payload);
+      console.log('DAILY ACTIVITY LOG PAYLOAD =>', payload);
+      console.log('DAILY ACTIVITY LOG RESPONSE =>', data);
+      setRecords(rows(data).map(normalizeActivity));
+    } catch (error) {
+      console.log('DAILY ACTIVITY LOG ERROR =>', error);
+      Alert.alert('Error', 'Daily activity log could not be loaded.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const pickFile = async () => {
+    try {
+      const [file] = await pick({
+        type: [types.images, types.pdf, types.doc, types.docx],
+        allowMultiSelection: false,
+      });
+
+      if (!file?.uri) {
+        return;
+      }
+
+      setSelectedFile({
+        uri: file.uri,
+        name: file.name || 'daily-activity-file',
+        type: file.type || 'application/octet-stream',
+      });
+    } catch (error) {
+      if (isErrorWithCode(error) && error.code === errorCodes.OPERATION_CANCELED) {
+        return;
+      }
+
+      console.log('DAILY ACTIVITY FILE PICK ERROR =>', error);
+      Alert.alert('Error', 'File selection failed.');
+    }
+  };
+
+  const openActivityLog = () => {
+    setShowList(true);
+    loadRecords();
+  };
+
+  const handleSubmit = async () => {
+    if (!description.trim()) {
+      Alert.alert('Required', 'Please enter description.');
+      return;
     }
 
-    return (
-      record.name.toLowerCase().includes(normalizedSearch) ||
-      record.empCode.toLowerCase().includes(normalizedSearch)
-    );
-  });
+    setSubmitting(true);
+    try {
+      const context = await getTeacherContext();
+      const payload = {
+        description: description.trim(),
+        EmpCode: context.EmpCode,
+        BranchId: context.BranchId,
+        SessionId: context.SessionId,
+        ...(selectedFile ? {file: selectedFile} : {}),
+      };
+      const data = await postForm(API_ENDPOINTS.DAILY_ACTIVITY, payload);
+      console.log('DAILY ACTIVITY PAYLOAD =>', payload);
+      console.log('DAILY ACTIVITY RESPONSE =>', data);
+
+      if (isSuccess(data)) {
+        Alert.alert('Success', data?.msg || data?.message || 'Daily activity submitted.');
+        setDescription('');
+        setSelectedFile(null);
+        setShowList(true);
+        await loadRecords();
+        return;
+      }
+
+      Alert.alert('Error', data?.msg || data?.message || 'Daily activity could not be submitted.');
+    } catch (error) {
+      console.log('DAILY ACTIVITY ERROR =>', error);
+      Alert.alert('Error', 'Daily activity could not be submitted.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const contentStyle = useMemo(
+    () => [styles.content, showList ? styles.listContent : styles.formContent],
+    [showList],
+  );
 
   return (
     <View style={styles.wrapper}>
       <CommonHeader
-        title="Employee DAL Record"
+        title={showList ? 'My DAL Record' : 'Daily Activity Log'}
         onBack={() => navigation.goBack()}
         safeAreaTop
       />
 
       <SafeAreaView style={styles.page}>
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={contentStyle}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
-          <Text style={styles.heading}>List of Records</Text>
+          {showList ? (
+            <>
+              <View style={styles.searchRow}>
+                <View style={styles.filterBox}>
+                  <Text style={styles.filterText}>Year <Text style={styles.required}>*</Text></Text>
+                </View>
+                <View style={styles.filterBox}>
+                  <Text style={styles.filterText}>Month <Text style={styles.required}>*</Text></Text>
+                </View>
+                <TouchableOpacity activeOpacity={0.84} style={styles.searchButton} onPress={loadRecords}>
+                  <Search size={25} color="#fff" strokeWidth={2.2} />
+                </TouchableOpacity>
+              </View>
 
-          <View style={styles.searchBox}>
-            <Search size={23} color="#676A70" strokeWidth={1.9} />
-            <TextInput
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholder="Enter Name or ID"
-              placeholderTextColor="#686A70"
-              style={styles.searchInput}
-            />
-          </View>
+              {loading ? (
+                <View style={styles.centerBox}>
+                  <ActivityIndicator color={PURPLE} />
+                  <Text style={styles.loadingText}>Loading records...</Text>
+                </View>
+              ) : records.length ? (
+                records.map(record => (
+                  <RecordCard key={record.id || `${record.date}-${record.description}`} record={record} />
+                ))
+              ) : (
+                <Text style={styles.emptyText}>No records found</Text>
+              )}
 
-          {filteredRecords.map(record => (
-            <RecordCard key={record.id} record={record} />
-          ))}
+              <TouchableOpacity
+                activeOpacity={0.84}
+                style={styles.outlineButton}
+                onPress={() => setShowList(false)}>
+                <Text style={styles.outlineButtonText}>New Log</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <View style={styles.inputBox}>
+                <Text style={styles.inputLabel}>
+                  Date<Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={date}
+                  onChangeText={setDate}
+                  placeholder="DD-MM-YYYY"
+                  placeholderTextColor="#777"
+                  style={styles.dateInput}
+                />
+              </View>
 
-          {filteredRecords.length === 0 && (
-            <Text style={styles.emptyText}>No records found</Text>
+              <View style={styles.descriptionInputBox}>
+                <Text style={styles.inputLabel}>
+                  Description <Text style={styles.required}>*</Text>
+                </Text>
+                <TextInput
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder="write here..."
+                  placeholderTextColor="#777"
+                  multiline
+                  textAlignVertical="top"
+                  style={styles.descriptionInput}
+                />
+              </View>
+
+              <TouchableOpacity activeOpacity={0.84} style={styles.uploadBox} onPress={pickFile}>
+                <Text style={styles.uploadText} numberOfLines={1}>
+                  {selectedFile?.name || 'Upload doc/image'}
+                </Text>
+                <View style={styles.plusBox}>
+                  <Plus size={35} color={RED} strokeWidth={2.5} />
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.84}
+                disabled={submitting}
+                style={[styles.submitButton, submitting && styles.disabledButton]}
+                onPress={handleSubmit}>
+                {submitting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.submitText}>Submit Log</Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity activeOpacity={0.84} style={styles.viewButton} onPress={openActivityLog}>
+                <Eye size={19} color="#0098EE" strokeWidth={2.3} />
+                <Text style={styles.viewButtonText}>View Activity Log</Text>
+              </TouchableOpacity>
+            </>
           )}
         </ScrollView>
       </SafeAreaView>
@@ -139,41 +374,156 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 18,
     paddingBottom: 36,
   },
-  heading: {
-    color: TEXT,
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 13,
+  formContent: {
+    paddingTop: 35,
   },
-  searchBox: {
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: '#F1F1F2',
+  listContent: {
+    paddingTop: 19,
+  },
+  inputBox: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 15,
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    marginBottom: 14,
+  },
+  inputLabel: {
+    color: '#6D7179',
+    fontSize: 11,
+  },
+  required: {
+    color: RED,
+  },
+  dateInput: {
+    height: 22,
+    padding: 0,
+    color: TEXT,
+    fontSize: 14,
+  },
+  descriptionInputBox: {
+    minHeight: 95,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    marginHorizontal: 8,
+    marginBottom: 17,
+  },
+  descriptionInput: {
+    minHeight: 66,
+    padding: 0,
+    color: TEXT,
+    fontSize: 14,
+  },
+  uploadBox: {
+    height: 78,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 23,
+    justifyContent: 'space-between',
+    paddingLeft: 15,
+    paddingRight: 24,
+    marginHorizontal: 8,
+    marginBottom: 46,
   },
-  searchInput: {
+  uploadText: {
     flex: 1,
     color: TEXT,
     fontSize: 14,
-    marginLeft: 12,
-    paddingVertical: 0,
+    marginRight: 14,
+  },
+  plusBox: {
+    width: 62,
+    height: 58,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: RED,
+    borderRadius: 7,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  submitButton: {
+    height: 45,
+    borderRadius: 7,
+    backgroundColor: PURPLE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    marginBottom: 16,
+  },
+  submitText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  viewButton: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#0098EE',
+    borderRadius: 7,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 8,
+  },
+  viewButtonText: {
+    color: '#0098EE',
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: 8,
+  },
+  disabledButton: {
+    opacity: 0.65,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 17,
+  },
+  filterBox: {
+    flex: 1,
+    height: 45,
+    borderWidth: 1,
+    borderColor: '#D8D8D8',
+    borderRadius: 7,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    marginRight: 12,
+  },
+  filterText: {
+    color: TEXT,
+    fontSize: 14,
+  },
+  searchButton: {
+    width: 58,
+    height: 45,
+    borderRadius: 8,
+    backgroundColor: '#EF27A8',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   card: {
     borderWidth: 1,
     borderColor: '#E0E4EA',
     borderRadius: 7,
     backgroundColor: '#FFFFFF',
-    marginBottom: 18,
+    marginBottom: 15,
     overflow: 'hidden',
   },
   cardTop: {
-    minHeight: 41,
+    minHeight: 34,
     backgroundColor: '#F1F1F2',
     borderBottomWidth: 1,
     borderBottomColor: '#E0E4EA',
@@ -196,7 +546,7 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     paddingHorizontal: 15,
-    paddingTop: 9,
+    paddingTop: 13,
     paddingBottom: 18,
   },
   infoCol: {
@@ -222,6 +572,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingTop: 11,
     paddingBottom: 12,
+    marginBottom: 15,
   },
   descriptionTitle: {
     color: TEXT,
@@ -238,8 +589,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: 18,
-    paddingBottom: 18,
+    paddingBottom: 16,
   },
   attachmentIcon: {
     width: 30,
@@ -255,10 +605,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
   },
+  centerBox: {
+    minHeight: 180,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#777',
+    fontSize: 13,
+    marginTop: 10,
+  },
   emptyText: {
     color: '#6D7179',
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 24,
+    marginBottom: 20,
+  },
+  outlineButton: {
+    height: 42,
+    borderRadius: 7,
+    borderWidth: 1,
+    borderColor: PURPLE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  outlineButtonText: {
+    color: PURPLE,
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

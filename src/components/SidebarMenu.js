@@ -22,8 +22,12 @@ import {
   Megaphone,
   ShieldAlert,
   MessageSquareMore,
+  MessageCircleWarning,
   LogOut,
   ChevronRight,
+  CalendarDays,
+  UserCheck,
+  UploadCloud,
 } from 'lucide-react-native';
 
 const MENU_ITEMS = [
@@ -65,6 +69,12 @@ const MENU_ITEMS = [
     visibility: 'common',
   },
   {
+    label: 'Academic Calendar',
+    icon: CalendarDays,
+    screen: 'AcademicCalendarScreen',
+    visibility: 'common',
+  },
+  {
     label: 'Employee Circular',
     icon: Megaphone,
     screen: 'EmployeeCircularScreen',
@@ -83,6 +93,12 @@ const MENU_ITEMS = [
     visibility: 'common',
   },
   {
+    label: 'E-Complaint Record',
+    icon: MessageCircleWarning,
+    screen: 'EComplaintRecordScreen',
+    visibility: 'common',
+  },
+  {
     label: 'Task Management',
     icon: ClipboardList,
     screen: 'TaskManagementScreen',
@@ -92,6 +108,36 @@ const MENU_ITEMS = [
     label: 'Hostel Parenting',
     icon: NotebookPen,
     screen: 'HostelParentingScreen',
+    visibility: 'staff',
+  },
+  {
+    label: 'School Matter Calendar',
+    icon: CalendarDays,
+    screen: 'SchoolMatterCalendarScreen',
+    visibility: 'staff',
+  },
+  {
+    label: 'Medical Entry',
+    icon: NotebookPen,
+    screen: 'MedicalEntryScreen',
+    visibility: 'staff',
+  },
+  {
+    label: 'Upload Document',
+    icon: UploadCloud,
+    screen: 'UploadDocumentScreen',
+    visibility: 'staff',
+  },
+  {
+    label: 'Daily Activity Log',
+    icon: ClipboardList,
+    screen: 'EmployeeDalRecordScreen',
+    visibility: 'staff',
+  },
+  {
+    label: 'Employee Requests',
+    icon: UserCheck,
+    screen: 'EmployeeRequestsScreen',
     visibility: 'staff',
   },
   {
