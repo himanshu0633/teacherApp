@@ -28,6 +28,7 @@ import {
   CalendarDays,
   UserCheck,
   UploadCloud,
+  X,
 } from 'lucide-react-native';
 
 const MENU_ITEMS = [
@@ -41,20 +42,20 @@ const MENU_ITEMS = [
     label: 'Create Link',
     icon: Link2,
     screen: 'CreateLinkScreen',
-    visibility: 'common',
+    visibility: 'staff',
   },
   {
     label: 'Gallery',
     icon: Images,
     screen: 'GalleryScreen',
-    visibility: 'common',
+    visibility: 'staff',
   },
 
   {
     label: 'E-PTM SPR',
     icon: Images,
     screen: 'EPTMSPRScreen',
-    visibility: 'common',
+    visibility: 'staff',
   },
   {
     label: 'Student Portfolio',
@@ -66,7 +67,7 @@ const MENU_ITEMS = [
     label: 'School Diary',
     icon: NotebookPen,
     screen: 'SchoolDiaryScreen',
-    visibility: 'common',
+    visibility: 'staff',
   },
   {
     label: 'Academic Calendar',
@@ -102,43 +103,43 @@ const MENU_ITEMS = [
     label: 'Task Management',
     icon: ClipboardList,
     screen: 'TaskManagementScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'Hostel Parenting',
     icon: NotebookPen,
     screen: 'HostelParentingScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'School Matter Calendar',
     icon: CalendarDays,
     screen: 'SchoolMatterCalendarScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'Medical Entry',
     icon: NotebookPen,
     screen: 'MedicalEntryScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'Upload Document',
     icon: UploadCloud,
     screen: 'UploadDocumentScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'Daily Activity Log',
     icon: ClipboardList,
     screen: 'EmployeeDalRecordScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'Employee Requests',
     icon: UserCheck,
     screen: 'EmployeeRequestsScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     label: 'My Feedback List',
@@ -204,12 +205,23 @@ export default function SidebarMenu({
           ]}
         >
           <LinearGradient
-            colors={['#0A8BE8', '#0A8BE8', '#2C8A3D']}
+            colors={['#0A8BE8', '#38D640']}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.header}
           >
             <View style={styles.headerTopSpace} />
+
+            <View style={styles.headerBar}>
+              <Text style={styles.headerTitle}>Menu</Text>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                style={styles.closeButton}
+                onPress={onClose}
+              >
+                <X size={22} color="#fff" strokeWidth={2.4} />
+              </TouchableOpacity>
+            </View>
 
             <View style={styles.profileWrap}>
               {showNetworkImage ? (
@@ -231,8 +243,8 @@ export default function SidebarMenu({
               <Text style={styles.nameText}>
                 {teacherData?.name || 'VIPAN SHARMA'}
               </Text>
-              <Text style={styles.sessionText}>
-                Session: {teacherData?.sessionName || '2023-24'}
+              <Text style={styles.designationText}>
+                {teacherData?.designation || 'Teacher'}
               </Text>
             </View>
           </LinearGradient>
@@ -242,9 +254,15 @@ export default function SidebarMenu({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.menuList}
           >
+            <View style={styles.sessionPill}>
+              <CalendarDays size={15} color="#168FD8" strokeWidth={2.2} />
+              <Text style={styles.sessionText}>
+                Session {teacherData?.sessionName || '2023-24'}
+              </Text>
+            </View>
+
             {visibleMenuItems.map((item, index) => {
               const Icon = item.icon;
-              const isBlue = item.label === 'Marks Entry';
 
               return (
                 <TouchableOpacity
@@ -254,23 +272,13 @@ export default function SidebarMenu({
                   onPress={() => handleItemPress(item)}
                 >
                   <View style={styles.menuLeft}>
-                    <Icon
-                      size={20}
-                      color={isBlue ? '#1E90FF' : '#222'}
-                      strokeWidth={1.9}
-                    />
-                    <Text
-                      style={[styles.menuLabel, isBlue && styles.menuLabelBlue]}
-                    >
-                      {item.label}
-                    </Text>
+                    <View style={styles.iconCircle}>
+                      <Icon size={21} color="#168FD8" strokeWidth={1.9} />
+                    </View>
+                    <Text style={styles.menuLabel}>{item.label}</Text>
                   </View>
 
-                  <ChevronRight
-                    size={18}
-                    color={isBlue ? '#1E90FF' : '#222'}
-                    strokeWidth={2}
-                  />
+                  <ChevronRight size={18} color="#383838" strokeWidth={2} />
                 </TouchableOpacity>
               );
             })}
@@ -281,7 +289,9 @@ export default function SidebarMenu({
               onPress={onLogout}
             >
               <View style={styles.menuLeft}>
-                <LogOut size={20} color="#FF1F1F" strokeWidth={2} />
+                <View style={[styles.iconCircle, styles.logoutIconCircle]}>
+                  <LogOut size={21} color="#E83939" strokeWidth={2} />
+                </View>
                 <Text style={styles.logoutText}>Logout</Text>
               </View>
 
@@ -309,82 +319,132 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: '#F3F3F3',
-    borderTopRightRadius: 34,
-    borderBottomRightRadius: 34,
+    backgroundColor: '#FFFFFF',
+    borderTopRightRadius: 28,
+    borderBottomRightRadius: 28,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 5, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 14,
   },
 
   header: {
     width: '100%',
-    minHeight: 138,
-    // paddingHorizontal: 16,
+    paddingBottom: 20,
   },
 
   headerTopSpace: {
     height: Platform.OS === 'ios' ? 48 : StatusBar.currentHeight || 24,
   },
 
+  headerBar: {
+    height: 42,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  headerTitle: {
+    color: '#fff',
+    fontSize: 19,
+    fontWeight: '700',
+  },
+
+  closeButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   profileWrap: {
     alignItems: 'center',
-    marginTop: 2,
-    paddingBottom: 18,
+    marginTop: 4,
+    paddingHorizontal: 16,
   },
 
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: '#E6EEF5',
-    marginBottom: 10,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#fff',
+    borderWidth: 3,
+    borderColor: '#fff',
+    marginBottom: 8,
   },
 
   avatarFallback: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: '#E6EEF5',
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginBottom: 10,
+    borderWidth: 3,
+    borderColor: '#fff',
+    marginBottom: 8,
   },
 
   avatarImage: {
-    width: 82,
-    height: 82,
+    width: 70,
+    height: 70,
   },
 
   nameText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 17,
     fontWeight: '700',
     textAlign: 'center',
     width: '100%',
   },
 
+  designationText: {
+    color: 'rgba(255,255,255,0.9)',
+    fontSize: 12.5,
+    marginTop: 3,
+    fontWeight: '500',
+  },
+
+  sessionPill: {
+    alignSelf: 'center',
+    minHeight: 32,
+    paddingHorizontal: 13,
+    borderRadius: 16,
+    backgroundColor: '#EAF7FE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+
   sessionText: {
-    color: '#fff',
-    fontSize: 14,
-    marginTop: 2,
-    fontWeight: '400',
+    color: '#168FD8',
+    fontSize: 12.5,
+    marginLeft: 7,
+    fontWeight: '600',
   },
 
   menuList: {
-    paddingTop: 6,
-    paddingBottom: 24,
-    backgroundColor: '#F3F3F3',
+    paddingTop: 14,
+    paddingHorizontal: 14,
+    paddingBottom: 28,
+    backgroundColor: '#FFFFFF',
   },
 
   menuItem: {
-    minHeight: 46,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#D7D7D7',
+    minHeight: 54,
+    paddingHorizontal: 12,
+    borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F3F3F3',
+    backgroundColor: '#F2F2F2',
+    marginBottom: 9,
   },
 
   menuLeft: {
@@ -394,26 +454,37 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
 
-  menuLabel: {
-    fontSize: 15.5,
-    color: '#222',
-    marginLeft: 14,
-    fontWeight: '400',
+  iconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
-  menuLabelBlue: {
-    color: '#1E90FF',
+  menuLabel: {
+    flex: 1,
+    fontSize: 14,
+    color: '#252525',
+    marginLeft: 12,
     fontWeight: '500',
   },
 
   logoutItem: {
-    marginTop: 2,
+    marginTop: 5,
+    backgroundColor: '#FFF1F1',
+  },
+
+  logoutIconCircle: {
+    backgroundColor: '#FFFFFF',
   },
 
   logoutText: {
-    fontSize: 15.5,
-    color: '#FF1F1F',
-    marginLeft: 14,
-    fontWeight: '500',
+    flex: 1,
+    fontSize: 14,
+    color: '#E83939',
+    marginLeft: 12,
+    fontWeight: '600',
   },
 });

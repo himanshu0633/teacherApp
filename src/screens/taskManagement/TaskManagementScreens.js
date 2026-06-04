@@ -141,6 +141,29 @@ const getDateKey = value => {
   return normalized;
 };
 
+const normalizeTaskApiDate = value => {
+  const raw = String(value || '').trim();
+
+  if (!raw || raw === 'NA') {
+    return 'NA';
+  }
+
+  const normalized = raw.replace(/\//g, '-');
+  const parts = normalized.split('-').map(Number);
+
+  if (parts.length !== 3 || parts.some(part => !part)) {
+    return raw;
+  }
+
+  const [first, second, third] = parts;
+  const date =
+    first > 31
+      ? new Date(first, second - 1, third)
+      : new Date(third, first - 1, second);
+
+  return Number.isNaN(date.getTime()) ? raw : formatDate(date);
+};
+
 const buildCalendarDays = monthDate => {
   const year = monthDate.getFullYear();
   const month = monthDate.getMonth();
@@ -189,7 +212,7 @@ const normalizeTeacher = item => {
   };
 };
 
-const normalizeTask = item => {
+const normalizeTask = (item, index) => {
   const status =
     item?.taskstatus ||
     item?.TaskStatus ||
@@ -197,16 +220,35 @@ const normalizeTask = item => {
     item?.status ||
     item?.Status ||
     'Pending';
+  const dateFrom =
+    item?.datefrom ||
+    item?.fromdate ||
+    item?.assign_date ||
+    item?.assigneddate ||
+    item?.assigned_date ||
+    item?.date ||
+    item?.Date ||
+    'NA';
+  const deadline =
+    item?.deadline ||
+    item?.duedate ||
+    item?.due_date ||
+    item?.todate ||
+    item?.to_date ||
+    'NA';
+
+  const id = String(item?.id || `task-${index}`);
 
   return {
-    id: String(item?.id || Math.random()),
+    id,
+    renderKey: `${id}-${index}`,
     title: item?.taskname || 'Name of the Task',
     status,
     assignedTo: item?.assignto || 'NA',
     assignedBy: item?.assignedby || 'NA',
     priority: item?.priority || 'Low',
-    dateFrom: item?.datefrom || 'NA',
-    deadline: item?.deadline || 'NA',
+    dateFrom: normalizeTaskApiDate(dateFrom),
+    deadline: normalizeTaskApiDate(deadline),
     description: item?.des || '',
     attachment: item?.attachment || 'No',
     image: item?.image || '',
@@ -1211,7 +1253,12 @@ function TaskListScreen({
     const taskDate = getDateKey(task.dateFrom);
     const selectedDate = getDateKey(selectedTaskDate);
 
-    if (selectedDate && taskDate !== selectedDate) {
+    if (
+      !shouldLoadTasks &&
+      selectedDate &&
+      taskDate &&
+      taskDate !== selectedDate
+    ) {
       return false;
     }
 
@@ -1328,9 +1375,9 @@ function TaskListScreen({
           ) : taskError ? (
             <Text style={styles.emptyText}>{taskError}</Text>
           ) : visibleTasks.length ? (
-            visibleTasks.map(task => (
+            visibleTasks.map((task, index) => (
               <TaskCard
-                key={task.id}
+                key={task.renderKey || `${task.id}-${index}`}
                 task={task}
                 showForward={showForward}
                 navigation={navigation}

@@ -114,7 +114,7 @@ const GRID_ITEMS = [
     title: 'Task\nManagement',
     icon: ClipboardList,
     screen: 'TaskManagementScreen',
-    visibility: 'staff',
+    visibility: 'common',
   },
   {
     id: 17,
