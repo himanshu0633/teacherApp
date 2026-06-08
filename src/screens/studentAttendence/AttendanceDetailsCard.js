@@ -635,7 +635,7 @@ export default function AttendanceDetailsCard({
         visible={classModalVisible}
         items={classes}
         loading={loadingClasses}
-        emptyText="Class list empty hai."
+        emptyText="No classes found."
         onClose={() => setClassModalVisible(false)}
         onSelect={selectClass}
       />
@@ -645,7 +645,7 @@ export default function AttendanceDetailsCard({
         visible={sectionModalVisible}
         items={sections}
         loading={loadingSections}
-        emptyText="Section list empty hai."
+        emptyText="No sections found."
         onClose={() => setSectionModalVisible(false)}
         onSelect={selectSection}
       />

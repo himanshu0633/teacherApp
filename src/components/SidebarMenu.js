@@ -133,13 +133,25 @@ const MENU_ITEMS = [
     label: 'Daily Activity Log',
     icon: ClipboardList,
     screen: 'EmployeeDalRecordScreen',
-    visibility: 'common',
+    visibility: 'staff',
+  },
+  {
+    label: 'Employee DLA Report',
+    icon: ClipboardList,
+    screen: 'EmployeeDlaReportScreen',
+    visibility: 'principal',
+  },
+  {
+    label: 'Employee Requests',
+    icon: UserCheck,
+    screen: 'RequestsScreen',
+    visibility: 'staff',
   },
   {
     label: 'Employee Requests',
     icon: UserCheck,
     screen: 'EmployeeRequestsScreen',
-    visibility: 'common',
+    visibility: 'principal',
   },
   {
     label: 'My Feedback List',

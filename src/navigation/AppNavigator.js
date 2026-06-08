@@ -44,10 +44,12 @@ import DisciplineScreen from '../screens/discipline/DisciplineScreen';
 import DisciplineFeedbackScreen from '../screens/discipline/DisciplineFeedbackScreen';
 import MyFeedbackListScreen from '../screens/discipline/MyFeedbackListScreen';
 import EmployeeDalRecordScreen from '../screens/employeeDal/EmployeeDalRecordScreen';
+import EmployeeDlaReportScreen from '../screens/employeeDal/EmployeeDlaReportScreen';
 import EPtmRecordScreen from '../screens/ePtm/EPtmRecordScreen';
 import EPTMSRPScreen from '../screens/ePtm/EPTMSRPScreen';
 import EmployeeLeaveRequestScreen from '../screens/employeeLeave/EmployeeLeaveRequestScreen';
 import EmployeeRequestsScreen from '../screens/employeeRequests/EmployeeRequestsScreen';
+import RequestsScreen from '../screens/employeeRequests/RequestsScreen';
 import ExtraDayRequestScreen from '../screens/employeeRequests/ExtraDayRequestScreen';
 import EComplaintRecordScreen from '../screens/eComplaint/EComplaintRecordScreen';
 import EComplaintForMeScreen from '../screens/eComplaint/EComplaintForMeScreen';
@@ -58,6 +60,7 @@ import UploadDocumentScreen from '../screens/uploadDocument/UploadDocumentScreen
 import HostelParentingScreen from '../screens/hostelParenting/HostelParentingScreen';
 import HostelParentingListScreen from '../screens/hostelParenting/HostelParentingListScreen';
 import AcademicCalendarScreen from '../screens/academicCalendar/AcademicCalendarScreen';
+import SuggestionByParentsStudentsScreen from '../screens/suggestion/SuggestionByParentsStudentsScreen';
 import {
   SchoolMatterCalendarScreen,
   SchoolMatterTaskDetailScreen,
@@ -244,12 +247,20 @@ export default function AppNavigator() {
             name="EmployeeDalRecordScreen"
             component={EmployeeDalRecordScreen}
           />
+          <Stack.Screen
+            name="EmployeeDlaReportScreen"
+            component={EmployeeDlaReportScreen}
+          />
           <Stack.Screen name="EPtmRecordScreen" component={EPtmRecordScreen} />
           <Stack.Screen name="EPTMSPRScreen" component={EPTMSRPScreen} />
           <Stack.Screen name="EPTMSRPScreen" component={EPTMSRPScreen} />
           <Stack.Screen
             name="EmployeeLeaveRequestScreen"
             component={EmployeeLeaveRequestScreen}
+          />
+          <Stack.Screen
+            name="RequestsScreen"
+            component={RequestsScreen}
           />
           <Stack.Screen
             name="EmployeeRequestsScreen"
@@ -315,6 +326,10 @@ export default function AppNavigator() {
           <Stack.Screen
             name="AcademicCalendarScreen"
             component={AcademicCalendarScreen}
+          />
+          <Stack.Screen
+            name="SuggestionByParentsStudentsScreen"
+            component={SuggestionByParentsStudentsScreen}
           />
           <Stack.Screen
             name="SchoolMatterCalendarScreen"

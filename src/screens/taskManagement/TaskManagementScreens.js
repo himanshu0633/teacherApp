@@ -16,7 +16,6 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LinearGradient from 'react-native-linear-gradient';
 import {
   AlertTriangle,
   CalendarDays,
@@ -271,16 +270,19 @@ const menuItems = [
   {
     title: 'Assign Task',
     icon: ClipboardCheck,
+    iconColor: '#168FD8',
     screen: 'AssignTaskScreen',
   },
   {
     title: 'Task Assigned to Me',
     icon: CalendarDays,
+    iconColor: '#20A35B',
     screen: 'TaskAssignedToMeScreen',
   },
   {
     title: 'Tasks Assigned by Me',
     icon: ClipboardList,
+    iconColor: '#E68B2C',
     screen: 'TaskAssignedByMeScreen',
   },
 ];
@@ -862,7 +864,7 @@ function TaskFormScreen({ navigation, title, assigneeLabel }) {
                   updateField('attachment', 'document_selected.jpg')
                 }
               >
-                <Plus size={44} color="#FF0000" strokeWidth={2.6} />
+                <Plus size={34} color={BLUE} strokeWidth={2.5} />
               </TouchableOpacity>
             </View>
 
@@ -1081,7 +1083,7 @@ function ForwardTaskFormScreen({ navigation, route }) {
               style={styles.uploadButton}
               onPress={() => updateField('attachment', 'document_selected.jpg')}
             >
-              <Plus size={44} color="#FF0000" strokeWidth={2.6} />
+              <Plus size={34} color={BLUE} strokeWidth={2.5} />
             </TouchableOpacity>
           </View>
 
@@ -1456,27 +1458,12 @@ export function TaskManagementScreen({ navigation }) {
 
   return (
     <View style={styles.wrapper}>
-      <StatusBar backgroundColor="#1597D1" barStyle="light-content" />
-      <LinearGradient
-        colors={['#0A8BE8', '#3BDB3D']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.managementHeader}
-      >
-        <SafeAreaView>
-          <View style={styles.managementTop}>
-            <TouchableOpacity
-              activeOpacity={0.75}
-              onPress={() => navigation.goBack()}
-              style={styles.backHit}
-            >
-              <Text style={styles.headerBack}>←</Text>
-            </TouchableOpacity>
-            <Text style={styles.managementTitle}>Task Management</Text>
-          </View>
-        </SafeAreaView>
-        <View pointerEvents="none" style={styles.headerCurve} />
-      </LinearGradient>
+      <StatusBar backgroundColor={PURPLE} barStyle="light-content" />
+      <CommonHeader
+        title="Task Management"
+        onBack={() => navigation.goBack()}
+        safeAreaTop
+      />
 
       <View style={styles.managementPage}>
         <View style={styles.profileBlock}>
@@ -1513,10 +1500,14 @@ export function TaskManagementScreen({ navigation }) {
                 onPress={() => navigation.navigate(item.screen)}
               >
                 <View style={styles.menuIconCircle}>
-                  <Icon size={30} color="#222" strokeWidth={1.8} />
+                  <Icon
+                    size={27}
+                    color={item.iconColor}
+                    strokeWidth={1.9}
+                  />
                 </View>
                 <Text style={styles.taskMenuText}>{item.title}</Text>
-                <ChevronRight size={23} color="#222" strokeWidth={2.1} />
+                <ChevronRight size={20} color="#222" strokeWidth={2.1} />
               </TouchableOpacity>
             );
           })}
@@ -1769,51 +1760,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  managementHeader: {
-    height: 210,
-    overflow: 'hidden',
-  },
-  managementTop: {
-    height: 94,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  backHit: {
-    width: 32,
-    height: 44,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  headerBack: {
-    color: '#fff',
-    fontSize: 30,
-    fontWeight: '400',
-  },
-  managementTitle: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '700',
-    marginLeft: 8,
-  },
-  headerCurve: {
-    position: 'absolute',
-    left: -46,
-    right: -46,
-    bottom: -78,
-    height: 126,
-    borderTopLeftRadius: 220,
-    borderTopRightRadius: 220,
-    backgroundColor: '#fff',
-  },
   managementPage: {
     flex: 1,
     backgroundColor: '#fff',
-    marginTop: -88,
     paddingHorizontal: 27,
   },
   profileBlock: {
     alignItems: 'center',
+    marginTop: 28,
   },
   profileAvatar: {
     width: 90,
@@ -1836,29 +1790,29 @@ const styles = StyleSheet.create({
     height: 84,
   },
   profileName: {
-    marginTop: 16,
+    marginTop: 14,
     color: TEXT,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
     textAlign: 'center',
-    lineHeight: 21,
+    lineHeight: 20,
   },
   profileDesignation: {
-    marginTop: 4,
-    color: '#555',
-    fontSize: 13,
+    marginTop: 2,
+    color: '#666',
+    fontSize: 12,
   },
   menuCardList: {
-    marginTop: 38,
-    gap: 12,
+    marginTop: 39,
+    gap: 11,
   },
   taskMenuItem: {
-    minHeight: 59,
-    borderRadius: 7,
-    backgroundColor: '#F1F1F1',
+    minHeight: 60,
+    borderRadius: 8,
+    backgroundColor: '#F2F2F2',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 21,
+    paddingHorizontal: 16,
   },
   menuIconCircle: {
     width: 44,
@@ -1872,7 +1826,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 18,
     color: TEXT,
-    fontSize: 15,
+    fontSize: 14,
   },
   formContent: {
     paddingHorizontal: 28,
@@ -2108,7 +2062,9 @@ const styles = StyleSheet.create({
     height: 76,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#D7D7D7',
+    borderStyle: 'dashed',
+    borderColor: '#9DDAF7',
+    backgroundColor: '#F3FBFF',
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
@@ -2116,22 +2072,22 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   uploadText: {
-    color: TEXT,
+    color: '#5E7484',
     fontSize: 15,
     flex: 1,
     paddingRight: 12,
   },
   fileText: {
-    color: BLUE,
-    fontWeight: '600',
+    color: '#127CB5',
+    fontWeight: '700',
   },
   uploadButton: {
-    width: 60,
-    height: 60,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#FF0000',
-    borderRadius: 7,
+    borderColor: '#BFE9FB',
     alignItems: 'center',
     justifyContent: 'center',
   },

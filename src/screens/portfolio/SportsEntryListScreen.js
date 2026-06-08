@@ -108,7 +108,7 @@ export function EntryListScreen({navigation, title, awardLabel, activityLabel}) 
   }, [loadEntries, navigation]);
 
   const deleteEntry = entry => {
-    Alert.alert('Delete Entry', 'Kya aap ye sports entry delete karna chahte hain?', [
+    Alert.alert('Delete Entry', 'Are you sure you want to delete this sports entry?', [
       {text: 'Cancel', style: 'cancel'},
       {
         text: 'Delete',
@@ -172,7 +172,7 @@ export function EntryListScreen({navigation, title, awardLabel, activityLabel}) 
             ))
           ) : (
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>Sports entry list empty hai.</Text>
+              <Text style={styles.emptyText}>No sports entries found.</Text>
             </View>
           )}
         </ScrollView>

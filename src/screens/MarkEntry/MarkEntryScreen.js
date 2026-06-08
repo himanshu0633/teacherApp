@@ -849,7 +849,7 @@ function PickerModal({visible, title, items, loading, onClose, onSelect}) {
               ))}
             </ScrollView>
           ) : (
-            <Text style={styles.emptyPickerText}>{title} list empty hai.</Text>
+            <Text style={styles.emptyPickerText}>No {String(title || 'records').toLowerCase()} found.</Text>
           )}
         </View>
       </View>

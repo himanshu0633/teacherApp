@@ -756,7 +756,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
         visible={classModalVisible}
         items={classes}
         loading={loadingClasses}
-        emptyText="Class list empty hai."
+        emptyText="No classes found."
         onClose={() => setClassModalVisible(false)}
         onSelect={selectClass}
       />
@@ -766,7 +766,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
         visible={sectionModalVisible}
         items={sections}
         loading={loadingSections}
-        emptyText="Section list empty hai."
+        emptyText="No sections found."
         onClose={() => setSectionModalVisible(false)}
         onSelect={selectSection}
       />
@@ -776,7 +776,7 @@ export default function HomeworkAssignmentScreen({ navigation }) {
         visible={subjectModalVisible}
         items={subjects}
         loading={loadingSubjects}
-        emptyText="Subject list empty hai."
+        emptyText="No subjects found."
         onClose={() => setSubjectModalVisible(false)}
         onSelect={item => {
           setSelectedSubject(item);

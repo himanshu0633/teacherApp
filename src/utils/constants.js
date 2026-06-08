@@ -30,6 +30,7 @@ export const API_ENDPOINTS = {
   STUDENT_LIST: 'studentlist.php',
   SAVE_PTM: 'insertptm1.php',
   SHOW_PTM: 'showptm.php',
+  SHOW_PTM_ALL: 'showptmall.php',
   SEND_PARAMETER: 'sendparameter.php',
   SHOW_PARAMETER: 'showparameter.php',
   UPDATEDISCIPLINE: 'updatediscipline.php',
@@ -62,8 +63,13 @@ export const API_ENDPOINTS = {
   RESOLVED_E_COMPLAINT: 'resolved-ecomplaint.php',
   EXTRA_DAY: 'extra-day.php',
   EXTRA_DAY_ENTRY_LIST: 'extra-day-entry-list.php',
+  EMP_EXTRA_DAY_ENTRY_LIST: 'emp-extra-day-entry-list.php',
+  APPROVED_EXTRA_DAY_STATUS: 'approved-extra-day-status.php',
+  EMPLOYEE_LEAVE_REQUEST: 'employe-leave-request.php',
+  APPROVED_REJECT_LEAVE: 'approved-reject-leave.php',
   DAILY_ACTIVITY: 'DailyActivity.php',
   DAILY_ACTIVITY_LOG: 'DailyActivityLog.php',
+  DAILY_ACTIVITY_LOG_EMPLOYEES: 'DailyActivityLogEmployes.php',
   UPLOAD_DOCUMENT: 'upload-document.php',
   UPLOAD_BY_ME: 'upload-by-me.php',
   ASSIGN_TASK: 'assigntask.php',
@@ -88,19 +94,16 @@ export const API_ENDPOINTS = {
   SCHOOL_TASK_UPDATE: 'school_task_update.php',
   MEDICAL_ENTRIES: 'medicalentries.php',
   MEDICAL_LEAVES: 'medicalleaves.php',
+  GET_FEEDBACK: 'getFeedback.php',
 };
-/* =========================
-   APP COLORS
-========================= */
-
 export const COLORS = {
-  text: '#6C6C6C', // Body Text
-  darkText: '#242424', // Heading/Dark Text
-  success: '#3FD43C', // Green
-  danger: '#E83939', // Red
-  primary: '#4F25C6', // Header Background/Main Brand
-  highlight: '#0098EE', // Highlight Blue
-  gradientBlue: '#0481C7', // Custom blue for gradients
+  text: '#6C6C6C', 
+  darkText: '#242424', 
+  success: '#3FD43C', 
+  danger: '#E83939', 
+  primary: '#4F25C6', 
+  highlight: '#0098EE', 
+  gradientBlue: '#0481C7',
   white: '#FFFFFF',
   black: '#000000',
   border: '#E5E5E5',

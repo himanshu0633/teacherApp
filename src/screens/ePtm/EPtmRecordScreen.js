@@ -9,7 +9,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Search} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
 import {postForm} from '../../services/teacherApi';
@@ -20,8 +19,8 @@ const BLUE = '#0798EA';
 
 const normalizeRecord = (item, index) => ({
   id: String(item?.id || item?.RollNo || item?.EnrollNo || index),
-  calledBy: item?.CalledBy || item?.calledBy || '-',
-  empCode: item?.EmpCode || item?.empCode || '-',
+  calledBy: item?.CalledBy || item?.calledBy || '',
+  empCode: item?.EmpCode || item?.empCode || '',
   date: item?.date || item?.Date || '-',
   student: item?.StudentName || item?.student || '-',
   admissionNo: item?.EnrollNo || item?.AdmissionNo || '-',
@@ -51,19 +50,6 @@ const getRows = data => {
   );
 };
 
-const getEmpCode = async () => {
-  const raw = await AsyncStorage.getItem('teacherData');
-  let parsed = {};
-
-  try {
-    parsed = raw ? JSON.parse(raw) : {};
-  } catch (error) {
-    parsed = {};
-  }
-
-  return parsed?.EmpCode || (await AsyncStorage.getItem('EmpCode')) || '';
-};
-
 function DetailRow({label, value}) {
   return (
     <View style={styles.detailRow}>
@@ -74,12 +60,15 @@ function DetailRow({label, value}) {
 }
 
 function PtmRecordCard({record}) {
+  const headerTitle =
+    record.calledBy || record.empCode
+      ? `Called By: ${record.calledBy || '-'} (${record.empCode || '-'})`
+      : `${record.student} (${record.className})`;
+
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.calledText}>
-          Called By: {record.calledBy} ({record.empCode})
-        </Text>
+        <Text style={styles.calledText}>{headerTitle}</Text>
         <Text style={styles.dateText}>Date: {record.date}</Text>
       </View>
 
@@ -119,14 +108,8 @@ export default function EPtmRecordScreen({navigation, route}) {
     const loadRecords = async () => {
       setLoading(true);
       try {
-        const EmpCode = await getEmpCode();
-
-        if (!EmpCode) {
-          Alert.alert('Error', 'EmpCode not found.');
-          return;
-        }
-
-        const data = await postForm(API_ENDPOINTS.SHOW_PTM, {EmpCode});
+        const data = await postForm(API_ENDPOINTS.SHOW_PTM_ALL, {});
+        console.log('E-PTM ALL RECORD RESPONSE =>', data);
         setRecords(getRows(data));
       } catch (error) {
         console.log('E-PTM RECORD SCREEN ERROR =>', error);
@@ -149,7 +132,9 @@ export default function EPtmRecordScreen({navigation, route}) {
       record.rollNo.toLowerCase().includes(normalizedSearch) ||
       record.className.toLowerCase().includes(normalizedSearch) ||
       record.calledBy.toLowerCase().includes(normalizedSearch) ||
-      record.empCode.toLowerCase().includes(normalizedSearch)
+      record.empCode.toLowerCase().includes(normalizedSearch) ||
+      record.talkWith.toLowerCase().includes(normalizedSearch) ||
+      record.mobileNo.toLowerCase().includes(normalizedSearch)
     );
   });
 

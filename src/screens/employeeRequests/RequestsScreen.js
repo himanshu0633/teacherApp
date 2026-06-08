@@ -38,7 +38,7 @@ function RequestRow({item, onPress}) {
   );
 }
 
-export default function EmployeeRequestsScreen({navigation}) {
+export default function RequestsScreen({navigation}) {
   const [branchName, setBranchName] = useState('HIM ACADEMY PUBLIC SCHOOL, HIRANAGAR');
 
   const loadBranchName = useCallback(async () => {
@@ -48,7 +48,7 @@ export default function EmployeeRequestsScreen({navigation}) {
         setBranchName(storedBranch.toUpperCase());
       }
     } catch (error) {
-      console.log('EMPLOYEE REQUEST BRANCH LOAD ERROR =>', error);
+      console.log('REQUEST BRANCH LOAD ERROR =>', error);
     }
   }, []);
 
@@ -58,7 +58,7 @@ export default function EmployeeRequestsScreen({navigation}) {
 
   const handleRequestPress = item => {
     if (item.id === 'extra-day') {
-      navigation.navigate('ExtraDayRequestScreen', {mode: 'approval'});
+      navigation.navigate('ExtraDayRequestScreen');
       return;
     }
 

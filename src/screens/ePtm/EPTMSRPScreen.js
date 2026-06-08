@@ -405,17 +405,8 @@ export default function EPTMSPRScreen({navigation}) {
   const handleRecordPress = async () => {
     setLoadingRecords(true);
     try {
-      const context = await getTeacherContext();
-
-      if (!context.EmpCode) {
-        Alert.alert('Error', 'EmpCode not found.');
-        return;
-      }
-
-      const payload = {EmpCode: context.EmpCode};
-      console.log('E-PTM RECORD PAYLOAD =>', payload);
-      const data = await postForm(API_ENDPOINTS.SHOW_PTM, payload);
-      console.log('E-PTM RECORD RESPONSE =>', data);
+      const data = await postForm(API_ENDPOINTS.SHOW_PTM_ALL, {});
+      console.log('E-PTM ALL RECORD RESPONSE =>', data);
       navigation.navigate('EPtmRecordScreen', {records: getRows(data)});
     } catch (error) {
       console.log('E-PTM RECORD ERROR =>', error);

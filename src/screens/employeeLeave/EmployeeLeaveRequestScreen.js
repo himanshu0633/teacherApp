@@ -1,6 +1,8 @@
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
+  ActivityIndicator,
   Alert,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -8,34 +10,77 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CalendarDays, CircleCheck, CircleX} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
+import {postForm} from '../../services/teacherApi';
+import {API_ENDPOINTS} from '../../utils/constants';
 
 const BLUE = '#0798EA';
 const TEXT = '#202124';
 
-const leaveRequests = [
-  {
-    id: '1',
-    employeeName: 'Deepa Sharma',
-    empCode: '1196',
-    dateFrom: '20-06-2023',
-    dateTo: '21-06-2023',
-    reason: 'I am not well. So can not attend the school',
-    days: '1',
-    status: 'Pending',
-  },
-  {
-    id: '2',
-    employeeName: 'Deepa Sharma',
-    empCode: '1196',
-    dateFrom: '20-06-2023',
-    dateTo: '21-06-2023',
-    reason: 'I am not well. So can not attend the school',
-    days: '1',
-    status: 'Pending',
-  },
-];
+const stripHtml = value =>
+  String(value || '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\\\//g, '/')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const firstValue = (source, keys, fallback = '-') => {
+  for (const key of keys) {
+    const value = source?.[key];
+
+    if (value !== null && value !== undefined && value !== '') {
+      return stripHtml(value);
+    }
+  }
+
+  return fallback;
+};
+
+const getRows = data => {
+  const rows =
+    data?.response?.rest ||
+    data?.response?.Rest ||
+    data?.response ||
+    data?.rest ||
+    data?.Rest ||
+    [];
+
+  return Array.isArray(rows) ? rows : [];
+};
+
+const isSuccess = data => {
+  const status = String(data?.status || '').toLowerCase();
+  return data?.status === true || status === 'true' || status === 'success';
+};
+
+const getTeacherContext = async () => {
+  const [saved, branchId, sessionId, session] = await Promise.all([
+    AsyncStorage.getItem('teacherData'),
+    AsyncStorage.getItem('BranchId'),
+    AsyncStorage.getItem('SessionId'),
+    AsyncStorage.getItem('Session'),
+  ]);
+  const parsed = saved ? JSON.parse(saved) : {};
+
+  return {
+    BranchId: parsed?.BranchId || branchId || '',
+    SessionId: parsed?.SessionId || parsed?.Session || sessionId || session || '',
+  };
+};
+
+const normalizeLeaveRequest = item => ({
+  id: firstValue(item, ['LeaveId', 'leaveId', 'id', 'Id'], ''),
+  employeeName: firstValue(item, ['EmpName', 'empName', 'employeeName']),
+  empCode: firstValue(item, ['EmpCode', 'empCode']),
+  dateFrom: firstValue(item, ['DateFrom', 'dateFrom']),
+  dateTo: firstValue(item, ['DateTo', 'dateTo']),
+  reason: firstValue(item, ['Reason', 'reason']),
+  days: firstValue(item, ['Days', 'days'], '0'),
+  leaveType: firstValue(item, ['LeaveType', 'leaveType'], ''),
+  status: firstValue(item, ['Status', 'status'], 'Pending'),
+});
 
 function RequestInfo({label, value}) {
   return (
@@ -46,14 +91,19 @@ function RequestInfo({label, value}) {
   );
 }
 
-function ActionButton({type, onPress}) {
+function ActionButton({type, onPress, disabled}) {
   const isApprove = type === 'approve';
   const Icon = isApprove ? CircleCheck : CircleX;
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      style={[styles.actionButton, isApprove ? styles.approve : styles.reject]}
+      disabled={disabled}
+      style={[
+        styles.actionButton,
+        isApprove ? styles.approve : styles.reject,
+        disabled && styles.disabledButton,
+      ]}
       onPress={onPress}>
       <View style={styles.actionIconWrap}>
         <Icon
@@ -62,15 +112,13 @@ function ActionButton({type, onPress}) {
           strokeWidth={2.3}
         />
       </View>
-      <Text style={styles.actionText}>{isApprove ? 'Approve' : 'Reject'}</Text>
+      <Text style={styles.actionText}>{isApprove ? 'Approve' : 'Cancel'}</Text>
     </TouchableOpacity>
   );
 }
 
-function LeaveRequestCard({request}) {
-  const handleAction = action => {
-    Alert.alert('Leave Request', `${action} ${request.employeeName}'s request`);
-  };
+function LeaveRequestCard({request, onAction, updating}) {
+  const isPending = String(request.status).toLowerCase() === 'pending';
 
   return (
     <View style={styles.card}>
@@ -95,6 +143,9 @@ function LeaveRequestCard({request}) {
         <View style={styles.reasonBox}>
           <Text style={styles.reasonTitle}>Reason for Leave:</Text>
           <Text style={styles.reasonText}>{request.reason}</Text>
+          {request.leaveType ? (
+            <Text style={styles.leaveTypeText}>Leave Type: {request.leaveType}</Text>
+          ) : null}
         </View>
 
         <View style={styles.footerRow}>
@@ -105,16 +156,20 @@ function LeaveRequestCard({request}) {
             <Text style={styles.daysText}>Days</Text>
           </View>
 
-          <View style={styles.actions}>
-            <ActionButton
-              type="approve"
-              onPress={() => handleAction('Approved')}
-            />
-            <ActionButton
-              type="reject"
-              onPress={() => handleAction('Rejected')}
-            />
-          </View>
+          {isPending ? (
+            <View style={styles.actions}>
+              <ActionButton
+                type="approve"
+                disabled={updating}
+                onPress={() => onAction(request, 'Approved')}
+              />
+              <ActionButton
+                type="reject"
+                disabled={updating}
+                onPress={() => onAction(request, 'Cancelled')}
+              />
+            </View>
+          ) : null}
         </View>
       </View>
     </View>
@@ -122,6 +177,97 @@ function LeaveRequestCard({request}) {
 }
 
 export default function EmployeeLeaveRequestScreen({navigation}) {
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [updatingId, setUpdatingId] = useState('');
+
+  const loadLeaveRequests = useCallback(async (showLoader = true) => {
+    if (showLoader) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
+
+    try {
+      const context = await getTeacherContext();
+
+      if (!context.BranchId || !context.SessionId) {
+        Alert.alert('Error', 'Branch or session details not found.');
+        return;
+      }
+
+      const payload = {
+        branchid: context.BranchId,
+        SessionId: context.SessionId,
+      };
+      const data = await postForm(API_ENDPOINTS.EMPLOYEE_LEAVE_REQUEST, payload);
+      console.log('EMPLOYEE LEAVE REQUEST PAYLOAD =>', payload);
+      console.log('EMPLOYEE LEAVE REQUEST RESPONSE =>', data);
+      setLeaveRequests(getRows(data).map(normalizeLeaveRequest));
+    } catch (error) {
+      console.log('EMPLOYEE LEAVE REQUEST ERROR =>', error);
+      Alert.alert('Error', 'Employee leave requests could not be loaded.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLeaveRequests();
+  }, [loadLeaveRequests]);
+
+  const updateLeaveStatus = useCallback(
+    async (request, status) => {
+      Alert.alert(
+        'Leave Request',
+        `${status === 'Approved' ? 'Approve' : 'Cancel'} ${
+          request.employeeName
+        }'s leave request?`,
+        [
+          {text: 'No', style: 'cancel'},
+          {
+            text: 'Yes',
+            onPress: async () => {
+              setUpdatingId(request.id);
+
+              try {
+                const payload = {
+                  levelid: request.id,
+                  status,
+                };
+                const data = await postForm(
+                  API_ENDPOINTS.APPROVED_REJECT_LEAVE,
+                  payload,
+                );
+                console.log('APPROVED REJECT LEAVE PAYLOAD =>', payload);
+                console.log('APPROVED REJECT LEAVE RESPONSE =>', data);
+
+                if (isSuccess(data)) {
+                  Alert.alert('Success', data?.message || 'Leave request updated.');
+                  await loadLeaveRequests(false);
+                  return;
+                }
+
+                Alert.alert(
+                  'Error',
+                  data?.message || 'Leave request could not be updated.',
+                );
+              } catch (error) {
+                console.log('APPROVED REJECT LEAVE ERROR =>', error);
+                Alert.alert('Error', 'Leave request could not be updated.');
+              } finally {
+                setUpdatingId('');
+              }
+            },
+          },
+        ],
+      );
+    },
+    [loadLeaveRequests],
+  );
+
   return (
     <View style={styles.wrapper}>
       <CommonHeader
@@ -133,18 +279,42 @@ export default function EmployeeLeaveRequestScreen({navigation}) {
       <SafeAreaView style={styles.page}>
         <ScrollView
           contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              tintColor={BLUE}
+              colors={[BLUE]}
+              onRefresh={() => loadLeaveRequests(false)}
+            />
+          }>
           <View style={styles.summaryCard}>
             <View style={styles.summaryLeft}>
               <CalendarDays size={20} color={BLUE} strokeWidth={2.1} />
               <Text style={styles.summaryLabel}>Total Leave Request</Text>
             </View>
-            <Text style={styles.summaryCount}>02</Text>
+            <Text style={styles.summaryCount}>
+              {String(leaveRequests.length).padStart(2, '0')}
+            </Text>
           </View>
 
-          {leaveRequests.map(request => (
-            <LeaveRequestCard key={request.id} request={request} />
-          ))}
+          {loading ? (
+            <View style={styles.centerBox}>
+              <ActivityIndicator color={BLUE} />
+              <Text style={styles.loadingText}>Loading leave requests...</Text>
+            </View>
+          ) : leaveRequests.length ? (
+            leaveRequests.map(request => (
+              <LeaveRequestCard
+                key={request.id || `${request.empCode}-${request.dateFrom}`}
+                request={request}
+                updating={updatingId === request.id}
+                onAction={updateLeaveStatus}
+              />
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No leave request found.</Text>
+          )}
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -271,6 +441,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
+  leaveTypeText: {
+    color: '#6D7179',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 8,
+  },
   footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -321,6 +497,9 @@ const styles = StyleSheet.create({
   reject: {
     backgroundColor: '#FF4148',
   },
+  disabledButton: {
+    opacity: 0.58,
+  },
   actionIconWrap: {
     width: 21,
     height: 21,
@@ -334,5 +513,22 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
+  },
+  centerBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 34,
+  },
+  loadingText: {
+    color: '#6D7179',
+    fontSize: 13,
+    marginTop: 10,
+  },
+  emptyText: {
+    color: '#6D7179',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingVertical: 30,
   },
 });

@@ -316,7 +316,7 @@ export default function AssignmentHistoryScreen({ navigation, route }) {
               />
             ))
           ) : (
-            <Text style={styles.emptyText}>Homework history empty hai.</Text>
+            <Text style={styles.emptyText}>No homework history found.</Text>
           )}
         </ScrollView>
       </SafeAreaView>

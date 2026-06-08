@@ -152,6 +152,13 @@ const GRID_ITEMS = [
     visibility: 'staff',
   },
   {
+    id: 22,
+    title: 'Employee DLA\nReport',
+    icon: FileText,
+    screen: 'EmployeeDlaReportScreen',
+    visibility: 'principal',
+  },
+  {
     id: 11,
     title: 'E-PTM Record',
     icon: ClipboardList,
@@ -169,8 +176,15 @@ const GRID_ITEMS = [
     id: 13,
     title: 'Employee Requests',
     icon: UserCheck,
-    screen: 'EmployeeRequestsScreen',
+    screen: 'RequestsScreen',
     visibility: 'staff',
+  },
+  {
+    id: 23,
+    title: 'Employee Requests',
+    icon: UserCheck,
+    screen: 'EmployeeRequestsScreen',
+    visibility: 'principal',
   },
   {
     id: 14,
@@ -183,8 +197,7 @@ const GRID_ITEMS = [
     id: 15,
     title: 'Suggestion by Parents / Students',
     icon: MessageSquareText,
-    alertTitle: 'Suggestion by Parents / Students',
-    alertMessage: 'This feature is coming soon.',
+    screen: 'SuggestionByParentsStudentsScreen',
     visibility: 'principal',
   },
 ];

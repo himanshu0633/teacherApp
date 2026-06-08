@@ -2,6 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -11,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Clock, Eye, UserRound} from 'lucide-react-native';
+import {CircleCheck, CircleX, Clock, Eye, UserRound} from 'lucide-react-native';
 import CommonHeader from '../../components/CommonHeader';
 import {postForm} from '../../services/teacherApi';
 import {API_ENDPOINTS} from '../../utils/constants';
@@ -74,6 +75,11 @@ const normalizeDate = value => {
 
 const normalizeExtraDay = item => ({
   id: firstValue(item, ['id', 'Id', 'ID'], ''),
+  empCode: firstValue(
+    item,
+    ['EmpCode', 'empCode', 'Empcode', 'empcode', 'EmployeeCode', 'employeeCode'],
+    '',
+  ),
   date: normalizeDate(firstValue(item, ['date', 'Date'])),
   reason: firstValue(item, ['reason', 'Reason']),
   requestBy: firstValue(item, ['EmpName', 'empName', 'name', 'RequestBy']),
@@ -114,9 +120,34 @@ function DetailCell({Icon, label, value}) {
   );
 }
 
-function ExtraDayCard({request}) {
+function ActionButton({type, onPress, disabled}) {
+  const isApprove = type === 'approve';
+  const Icon = isApprove ? CircleCheck : CircleX;
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.82}
+      disabled={disabled}
+      style={[
+        styles.actionButton,
+        isApprove ? styles.approveButton : styles.cancelButton,
+        disabled && styles.disabledButton,
+      ]}
+      onPress={onPress}>
+      <Icon size={15} color="#FFFFFF" strokeWidth={2.4} />
+      <Text style={styles.actionText}>{isApprove ? 'Approve' : 'Cancel'}</Text>
+    </TouchableOpacity>
+  );
+}
+
+function ExtraDayCard({request, onAction, updating, canUpdate}) {
   const isApproved = String(request.status).toLowerCase() === 'approved';
-  const statusStyle = isApproved ? styles.approvedPill : styles.cancelPill;
+  const isPending = String(request.status).toLowerCase() === 'pending';
+  const statusStyle = isApproved
+    ? styles.approvedPill
+    : isPending
+      ? styles.pendingPill
+      : styles.cancelPill;
 
   return (
     <View style={styles.card}>
@@ -137,18 +168,36 @@ function ExtraDayCard({request}) {
           <Text style={styles.reasonTitle}>Reason</Text>
           <Text style={styles.reasonText}>{request.reason}</Text>
         </View>
+
+        {canUpdate && isPending ? (
+          <View style={styles.actions}>
+            <ActionButton
+              type="approve"
+              disabled={updating}
+              onPress={() => onAction(request, 'Approved')}
+            />
+            <ActionButton
+              type="cancel"
+              disabled={updating}
+              onPress={() => onAction(request, 'Cancel')}
+            />
+          </View>
+        ) : null}
       </View>
     </View>
   );
 }
 
-export default function ExtraDayRequestScreen({navigation}) {
+export default function ExtraDayRequestScreen({navigation, route}) {
+  const isApprovalMode = route?.params?.mode === 'approval';
   const [date, setDate] = useState(todayText);
   const [reason, setReason] = useState('');
   const [requests, setRequests] = useState([]);
-  const [showList, setShowList] = useState(false);
+  const [showList, setShowList] = useState(isApprovalMode);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [updatingId, setUpdatingId] = useState('');
 
   const listPayload = useCallback(
     async nextReason => {
@@ -165,11 +214,20 @@ export default function ExtraDayRequestScreen({navigation}) {
     [date, reason],
   );
 
-  const loadRequests = useCallback(async nextReason => {
-    setLoading(true);
+  const loadRequests = useCallback(async (nextReason, showLoader = true) => {
+    if (showLoader) {
+      setLoading(true);
+    } else {
+      setRefreshing(true);
+    }
+
     try {
       const payload = await listPayload(nextReason);
-      const data = await postForm(API_ENDPOINTS.EXTRA_DAY_ENTRY_LIST, payload);
+      const endpoint = isApprovalMode
+        ? API_ENDPOINTS.EMP_EXTRA_DAY_ENTRY_LIST
+        : API_ENDPOINTS.EXTRA_DAY_ENTRY_LIST;
+      const data = await postForm(endpoint, payload);
+      console.log('EXTRA DAY ENTRY LIST ENDPOINT =>', endpoint);
       console.log('EXTRA DAY ENTRY LIST PAYLOAD =>', payload);
       console.log('EXTRA DAY ENTRY LIST RESPONSE =>', data);
       setRequests(rows(data).map(normalizeExtraDay));
@@ -178,13 +236,71 @@ export default function ExtraDayRequestScreen({navigation}) {
       Alert.alert('Error', 'Extra day request list could not be loaded.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
-  }, [listPayload]);
+  }, [isApprovalMode, listPayload]);
 
   const openRequestList = () => {
     setShowList(true);
     loadRequests();
   };
+
+  React.useEffect(() => {
+    if (isApprovalMode) {
+      loadRequests();
+    }
+  }, [isApprovalMode, loadRequests]);
+
+  const updateExtraDayStatus = useCallback(
+    async (request, status) => {
+      Alert.alert(
+        'Extra Day Request',
+        `${status === 'Approved' ? 'Approve' : 'Cancel'} ${
+          request.requestBy
+        }'s extra day request?`,
+        [
+          {text: 'No', style: 'cancel'},
+          {
+            text: 'Yes',
+            onPress: async () => {
+              setUpdatingId(request.id);
+
+              try {
+                const payload = {
+                  EmpCode: request.empCode,
+                  id: request.id,
+                  status,
+                };
+                const data = await postForm(
+                  API_ENDPOINTS.APPROVED_EXTRA_DAY_STATUS,
+                  payload,
+                );
+                console.log('APPROVED EXTRA DAY STATUS PAYLOAD =>', payload);
+                console.log('APPROVED EXTRA DAY STATUS RESPONSE =>', data);
+
+                if (isSuccess(data)) {
+                  Alert.alert('Success', data?.msg || data?.message || 'Extra day request updated.');
+                  await loadRequests(undefined, false);
+                  return;
+                }
+
+                Alert.alert(
+                  'Error',
+                  data?.msg || data?.message || 'Extra day request could not be updated.',
+                );
+              } catch (error) {
+                console.log('APPROVED EXTRA DAY STATUS ERROR =>', error);
+                Alert.alert('Error', 'Extra day request could not be updated.');
+              } finally {
+                setUpdatingId('');
+              }
+            },
+          },
+        ],
+      );
+    },
+    [loadRequests],
+  );
 
   const handleSubmit = async () => {
     if (!date.trim() || !reason.trim()) {
@@ -230,7 +346,19 @@ export default function ExtraDayRequestScreen({navigation}) {
       />
 
       <SafeAreaView style={styles.page}>
-        <ScrollView contentContainerStyle={contentStyle} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={contentStyle}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            showList ? (
+              <RefreshControl
+                refreshing={refreshing}
+                tintColor={PURPLE}
+                colors={[PURPLE]}
+                onRefresh={() => loadRequests(undefined, false)}
+              />
+            ) : undefined
+          }>
           {showList ? (
             <>
               {loading ? (
@@ -240,18 +368,26 @@ export default function ExtraDayRequestScreen({navigation}) {
                 </View>
               ) : requests.length ? (
                 requests.map(request => (
-                  <ExtraDayCard key={request.id || `${request.date}-${request.requestBy}`} request={request} />
+                  <ExtraDayCard
+                    key={request.id || `${request.date}-${request.requestBy}`}
+                    request={request}
+                    canUpdate={isApprovalMode}
+                    updating={updatingId === request.id}
+                    onAction={updateExtraDayStatus}
+                  />
                 ))
               ) : (
                 <Text style={styles.emptyText}>No extra day request found.</Text>
               )}
 
-              <TouchableOpacity
-                activeOpacity={0.84}
-                style={styles.outlineButton}
-                onPress={() => setShowList(false)}>
-                <Text style={styles.outlineButtonText}>New Request</Text>
-              </TouchableOpacity>
+              {!isApprovalMode ? (
+                <TouchableOpacity
+                  activeOpacity={0.84}
+                  style={styles.outlineButton}
+                  onPress={() => setShowList(false)}>
+                  <Text style={styles.outlineButtonText}>New Request</Text>
+                </TouchableOpacity>
+              ) : null}
             </>
           ) : (
             <>
@@ -441,6 +577,9 @@ const styles = StyleSheet.create({
   approvedPill: {
     backgroundColor: GREEN,
   },
+  pendingPill: {
+    backgroundColor: '#F5A623',
+  },
   statusText: {
     color: '#FFFFFF',
     fontSize: 10,
@@ -494,6 +633,32 @@ const styles = StyleSheet.create({
     color: '#666A70',
     fontSize: 12,
     lineHeight: 18,
+  },
+  actions: {
+    flexDirection: 'row',
+    marginTop: 14,
+  },
+  actionButton: {
+    flex: 1,
+    height: 38,
+    borderRadius: 7,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  approveButton: {
+    backgroundColor: GREEN,
+    marginRight: 8,
+  },
+  cancelButton: {
+    backgroundColor: RED,
+    marginLeft: 8,
+  },
+  actionText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 6,
   },
   centerBox: {
     minHeight: 180,

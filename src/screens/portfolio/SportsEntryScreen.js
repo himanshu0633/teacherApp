@@ -596,7 +596,7 @@ function PickerModal({visible, title, items, loading, onClose, onSelect}) {
               ))}
             </ScrollView>
           ) : (
-            <Text style={styles.emptyModalText}>List empty hai.</Text>
+            <Text style={styles.emptyModalText}>No records found.</Text>
           )}
         </View>
       </TouchableOpacity>
