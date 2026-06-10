@@ -130,6 +130,12 @@ const MENU_ITEMS = [
     visibility: 'common',
   },
   {
+    label: 'No Due List',
+    icon: ClipboardList,
+    screen: 'NoDueStudentListScreen',
+    visibility: 'common',
+  },
+  {
     label: 'Daily Activity Log',
     icon: ClipboardList,
     screen: 'EmployeeDalRecordScreen',

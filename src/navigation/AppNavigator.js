@@ -57,6 +57,7 @@ import EComplaintSubmitScreen from '../screens/eComplaint/EComplaintSubmitScreen
 import PendingComplaintListScreen from '../screens/eComplaint/PendingComplaintListScreen';
 import ResolvedComplaintListScreen from '../screens/eComplaint/ResolvedComplaintListScreen';
 import UploadDocumentScreen from '../screens/uploadDocument/UploadDocumentScreen';
+import NoDueStudentListScreen from '../screens/noDue/NoDueStudentListScreen';
 import HostelParentingScreen from '../screens/hostelParenting/HostelParentingScreen';
 import HostelParentingListScreen from '../screens/hostelParenting/HostelParentingListScreen';
 import AcademicCalendarScreen from '../screens/academicCalendar/AcademicCalendarScreen';
@@ -293,6 +294,10 @@ export default function AppNavigator() {
           <Stack.Screen
             name="UploadDocumentScreen"
             component={UploadDocumentScreen}
+          />
+          <Stack.Screen
+            name="NoDueStudentListScreen"
+            component={NoDueStudentListScreen}
           />
           <Stack.Screen
             name="TaskManagementScreen"

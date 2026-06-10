@@ -145,6 +145,13 @@ const GRID_ITEMS = [
     visibility: 'staff',
   },
   {
+    id: 24,
+    title: 'No Due\nList',
+    icon: ClipboardList,
+    screen: 'NoDueStudentListScreen',
+    visibility: 'common',
+  },
+  {
     id: 10,
     title: 'Daily Activity\nLog',
     icon: FileText,

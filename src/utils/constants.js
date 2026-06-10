@@ -95,6 +95,8 @@ export const API_ENDPOINTS = {
   MEDICAL_ENTRIES: 'medicalentries.php',
   MEDICAL_LEAVES: 'medicalleaves.php',
   GET_FEEDBACK: 'getFeedback.php',
+  NO_DUE_STUDENT_LIST: 'NoDueStudentList.php',
+  APPROVE_NO_DUE: 'ApproveNoDue.php',
 };
 export const COLORS = {
   text: '#6C6C6C', 
